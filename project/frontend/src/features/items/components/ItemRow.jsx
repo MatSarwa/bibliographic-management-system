@@ -1,0 +1,263 @@
+import { Table, Text, Badge, ActionIcon, Group, Checkbox, Tooltip } from '@mantine/core';
+import { IconStar, IconEdit, IconTrash } from '@tabler/icons-react';
+
+export default function ItemRow({ 
+  item, 
+  onSelect, 
+  onEdit, 
+  onDelete, 
+  onToggleFavorite, 
+  isSelected, 
+  onToggleSelect,
+  showYear = true,
+  showType = true,
+  showTags = true
+}) {
+  const itemId = item.id;
+  
+  const displayAuthors = (() => {
+
+    if (Array.isArray(item.authors) && item.authors.length > 0) {
+      return item.authors.join(', ');
+    }
+    
+    if (item.metadata?.authors && Array.isArray(item.metadata.authors) && item.metadata.authors.length > 0) {
+      return item.metadata.authors.join(', ');
+    }
+    
+    if (item.author) {
+      return item.author;
+    }
+
+    return 'Nieznany autor';
+  })();
+
+  return (
+    <Table.Tr
+      style={{
+        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+        borderBottom: '1px solid #e5e7eb',
+        cursor: 'pointer'
+      }}
+      onClick={() => onSelect(item)}
+    >
+      <Table.Td 
+        onClick={(e) => e.stopPropagation()} 
+        style={{ 
+          width: '45px', 
+          padding: '12px 8px',
+          textAlign: 'center',
+          verticalAlign: 'middle'
+        }}
+      >
+        <Checkbox
+          checked={isSelected}
+          onChange={(e) => {
+            e.stopPropagation();
+            onToggleSelect(itemId);
+          }}
+          onClick={(e) => e.stopPropagation()}
+          size="xs"
+          color="blue"
+          radius="sm"
+          styles={{ 
+            input: { 
+              cursor: 'pointer',
+              borderColor: '#9ca3af',
+              borderWidth: '1.5px',
+              '&:checked': {
+                backgroundColor: '#3b82f6',
+                borderColor: '#3b82f6'
+              }
+            } 
+          }}
+        />
+      </Table.Td>
+      
+      <Table.Td style={{ verticalAlign: 'middle' }}>
+        <Tooltip 
+          label={item.title} 
+          multiline 
+          width={300}
+          position="top-start"
+          withArrow
+          openDelay={500}
+          styles={{
+            tooltip: {
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              color: '#111827',
+              fontSize: '13px'
+            }
+          }}
+        >
+          <Text 
+            size="sm" 
+            fw={500} 
+            lineClamp={1} 
+            c="#111827"
+            style={{ 
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {item.title}
+          </Text>
+        </Tooltip>
+      </Table.Td>
+      
+      <Table.Td style={{ verticalAlign: 'middle' }}>
+        <Tooltip 
+          label={displayAuthors} 
+          multiline 
+          width={250}
+          position="top-start"
+          withArrow
+          openDelay={500}
+          styles={{
+            tooltip: {
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              color: '#6b7280',
+              fontSize: '13px'
+            }
+          }}
+        >
+          <Text 
+            size="sm" 
+            c="#6b7280"
+            lineClamp={1} 
+            style={{ 
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {displayAuthors}
+          </Text>
+        </Tooltip>
+      </Table.Td>
+      
+      {showYear && (
+        <Table.Td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+          <Text size="sm" c="#6b7280">{item.year || '—'}</Text>
+        </Table.Td>
+      )}
+      
+      {showType && (
+        <Table.Td style={{ verticalAlign: 'middle' }}>
+          <Tooltip label={item.itemType || 'article'} withArrow openDelay={500}>
+            <Badge 
+              variant="light" 
+              size="sm" 
+              color="violet" 
+              style={{ 
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {item.itemType || 'article'}
+            </Badge>
+          </Tooltip>
+        </Table.Td>
+      )}
+      
+      {showTags && (
+        <Table.Td style={{ verticalAlign: 'middle' }}>
+          {item.tags && item.tags.length > 0 ? (
+            <Tooltip 
+              label={item.tags.join(', ')} 
+              multiline 
+              width={250}
+              position="top-start"
+              withArrow
+              openDelay={500}
+              styles={{
+                tooltip: {
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  color: '#111827',
+                  fontSize: '12px'
+                }
+              }}
+            >
+              <Group gap={4} wrap="nowrap">
+                {item.tags.slice(0, 2).map((tag, idx) => (
+                  <Badge 
+                    key={idx} 
+                    variant="dot" 
+                    size="xs" 
+                    color="cyan"
+                    style={{ 
+                      maxWidth: '60px', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+                {item.tags.length > 2 && (
+                  <Text size="xs" c="#6b7280" fw={500}>+{item.tags.length - 2}</Text>
+                )}
+              </Group>
+            </Tooltip>
+          ) : (
+            <Text size="xs" c="#9ca3af">—</Text>
+          )}
+        </Table.Td>
+      )}
+      
+      <Table.Td onClick={(e) => e.stopPropagation()} style={{ padding: '8px', verticalAlign: 'middle' }}>
+        <Group gap={4} justify="center" wrap="nowrap">
+          <Tooltip label={item.favorite ? "Usuń z ulubionych" : "Dodaj do ulubionych"} withArrow openDelay={300}>
+            <ActionIcon
+              variant="subtle"
+              color={item.favorite ? 'yellow' : 'gray'}
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(item.id);
+              }}
+            >
+              <IconStar size={15} fill={item.favorite ? 'currentColor' : 'none'} />
+            </ActionIcon>
+          </Tooltip>
+          
+          <Tooltip label="Edytuj" withArrow openDelay={300}>
+            <ActionIcon
+              variant="subtle"
+              color="violet"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(item);
+              }}
+            >
+              <IconEdit size={15} />
+            </ActionIcon>
+          </Tooltip>
+          
+          <Tooltip label="Przenieś do kosza" withArrow openDelay={300}>
+            <ActionIcon
+              color="red"
+              variant="subtle"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm('Przenieść do kosza?')) {
+                  onDelete(itemId);
+                }
+              }}
+            >
+              <IconTrash size={15} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      </Table.Td>
+    </Table.Tr>
+  );
+}

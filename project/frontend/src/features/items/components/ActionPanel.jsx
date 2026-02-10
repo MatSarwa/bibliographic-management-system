@@ -1,0 +1,616 @@
+import { useState } from 'react';
+import { 
+  Box, 
+  Group, 
+  Button, 
+  Text, 
+  ActionIcon, 
+  Modal,
+  Stack,
+  Divider,
+  Loader,
+  ScrollArea,
+  UnstyledButton
+} from '@mantine/core';
+import { 
+  IconX, 
+  IconFileExport, 
+  IconDownload, 
+  IconFolderShare,
+  IconFolder,
+  IconBriefcase,
+  IconChevronRight,
+  IconChevronDown
+} from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import api from '../../../shared/utils/api';
+import { useCollectionsStore } from '../../collections/store/collectionsStore';
+import { useWorkspaceStore } from '../../workspaces/store/workspaceStore';
+
+export default function ActionPanel({ 
+  selectedItemIds, 
+  onClose, 
+  onRefresh, 
+  currentWorkspaceId = null,
+  currentCollectionId = null
+}) {
+  const [moveModalOpened, setMoveModalOpened] = useState(false);
+  const [exportModalOpened, setExportModalOpened] = useState(false);
+  const [moveLoading, setMoveLoading] = useState(false);
+  const [workspaceCollections, setWorkspaceCollections] = useState({});
+  const [expandedWorkspaces, setExpandedWorkspaces] = useState({});
+  const [loadingWorkspace, setLoadingWorkspace] = useState(null);
+
+  const { collections } = useCollectionsStore();
+  const { workspaces } = useWorkspaceStore();
+
+  const handleExportSelected = async (format) => {
+    try {
+      const response = await api.post(`/export/items?format=${format}`, 
+        { itemIds: selectedItemIds },
+        { responseType: 'blob' }
+      );
+
+      const blob = new Blob([response.data]);
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `bibliography_${Date.now()}.${format === 'bibtex' ? 'bib' : 'ris'}`;
+      link.click();
+      window.URL.revokeObjectURL(link.href);
+
+      notifications.show({
+        title: 'Sukces!',
+        message: `Wyeksportowano ${selectedItemIds.length} pozycji`,
+        color: 'green'
+      });
+      
+      setExportModalOpened(false);
+    } catch (err) {
+      notifications.show({
+        title: 'Błąd eksportu',
+        message: err.message,
+        color: 'red'
+      });
+    }
+  };
+
+  const handleMoveToCollection = async (collectionId, collectionName) => {
+    setMoveLoading(true);
+    
+    try {
+      const promises = selectedItemIds.map(itemId =>
+        api.put(`/items/${itemId}`, { collectionId: collectionId || null })
+      );
+      
+      await Promise.all(promises);
+
+      notifications.show({
+        title: 'Sukces!',
+        message: `Przeniesiono ${selectedItemIds.length} pozycji do "${collectionName || 'Wszystkie'}"`,
+        color: 'green'
+      });
+
+      setMoveModalOpened(false);
+      onRefresh?.();
+      onClose();
+    } catch (err) {
+      notifications.show({
+        title: 'Błąd',
+        message: 'Nie udało się przenieść pozycji',
+        color: 'red'
+      });
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
+  const fetchWorkspaceCollections = async (workspaceId) => {
+    if (workspaceCollections[workspaceId]) return;
+
+    setLoadingWorkspace(workspaceId);
+    try {
+      const response = await api.get(`/workspaces/${workspaceId}/collections`);
+      const data = response?.data?.data || response?.data || [];
+      setWorkspaceCollections(prev => ({
+        ...prev,
+        [workspaceId]: data
+      }));
+    } catch (err) {
+      console.error('Error fetching workspace collections:', err);
+    } finally {
+      setLoadingWorkspace(null);
+    }
+  };
+
+  const toggleWorkspace = (workspaceId) => {
+    if (!expandedWorkspaces[workspaceId]) {
+      fetchWorkspaceCollections(workspaceId);
+    }
+    setExpandedWorkspaces(prev => ({
+      ...prev,
+      [workspaceId]: !prev[workspaceId]
+    }));
+  };
+
+  const handleCopyToWorkspace = async (workspaceId, collectionId, collectionName, workspaceName) => {
+    setMoveLoading(true);
+    
+    try {
+      const itemsData = await Promise.all(
+        selectedItemIds.map(async (itemId) => {
+          const response = await api.get(`/items/${itemId}`);
+          return response.data.data || response.data;
+        })
+      );
+
+      const promises = itemsData.map(item => 
+        api.post(`/workspaces/${workspaceId}/collections/${collectionId}/items`, {
+          title: item.title,
+          itemType: item.itemType,
+          year: item.year,
+          metadata: item.metadata,
+          doi: item.doi,
+          isbn: item.isbn,
+          abstract: item.abstract,
+          notes: item.notes ? `[Skopiowane]\n\n${item.notes}` : '[Skopiowane]'
+        })
+      );
+      
+      await Promise.all(promises);
+
+      notifications.show({
+        title: 'Sukces!',
+        message: `Skopiowano ${selectedItemIds.length} pozycji do "${workspaceName} / ${collectionName}"`,
+        color: 'green'
+      });
+
+      setMoveModalOpened(false);
+      onClose();
+    } catch (err) {
+      notifications.show({
+        title: 'Błąd',
+        message: err.response?.data?.message || 'Nie udało się skopiować',
+        color: 'red'
+      });
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
+  const handleCopyToPersonal = async (collectionId, collectionName) => {
+    setMoveLoading(true);
+    
+    try {
+      const itemsData = await Promise.all(
+        selectedItemIds.map(async (itemId) => {
+          const response = await api.get(`/items/${itemId}`);
+          return response.data.data || response.data;
+        })
+      );
+
+      const promises = itemsData.map(item => 
+        api.post('/items', {
+          title: item.title,
+          itemType: item.itemType,
+          year: item.year,
+          metadata: item.metadata,
+          doi: item.doi,
+          isbn: item.isbn,
+          abstract: item.abstract,
+          notes: item.notes ? `[Skopiowane z workspace]\n\n${item.notes}` : '[Skopiowane z workspace]',
+          collectionId: collectionId || null
+        })
+      );
+      
+      await Promise.all(promises);
+
+      notifications.show({
+        title: 'Sukces!',
+        message: `Skopiowano ${selectedItemIds.length} pozycji do "${collectionName || 'Wszystkie'}"`,
+        color: 'green'
+      });
+
+      setMoveModalOpened(false);
+      onClose();
+    } catch (err) {
+      notifications.show({
+        title: 'Błąd',
+        message: 'Nie udało się skopiować',
+        color: 'red'
+      });
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
+  const handleMoveWithinWorkspace = async (targetCollectionId, collectionName) => {
+    setMoveLoading(true);
+    
+    try {
+      const promises = selectedItemIds.map(itemId =>
+        api.put(`/items/${itemId}`, { collectionId: targetCollectionId })
+      );
+      
+      await Promise.all(promises);
+
+      notifications.show({
+        title: 'Sukces!',
+        message: `Przeniesiono ${selectedItemIds.length} pozycji do "${collectionName}"`,
+        color: 'green'
+      });
+
+      setMoveModalOpened(false);
+      onRefresh?.();
+      onClose();
+    } catch (err) {
+      notifications.show({
+        title: 'Błąd',
+        message: 'Nie udało się przenieść',
+        color: 'red'
+      });
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
+  const buildCollectionTree = (flatList) => {
+    const map = {};
+    const roots = [];
+
+    flatList.forEach(item => {
+      map[item.id] = { ...item, children: [] };
+    });
+
+    flatList.forEach(item => {
+      if (item.parentId && map[item.parentId]) {
+        map[item.parentId].children.push(map[item.id]);
+      } else if (!item.workspaceId) {
+        roots.push(map[item.id]);
+      }
+    });
+
+    return roots;
+  };
+
+  const personalCollections = collections.filter(c => !c.workspaceId);
+  const collectionTree = buildCollectionTree(personalCollections);
+  const isInWorkspace = !!currentWorkspaceId;
+
+  const handleOpenMoveModal = () => {
+    setMoveModalOpened(true);
+    if (isInWorkspace && !workspaceCollections[currentWorkspaceId]) {
+      fetchWorkspaceCollections(currentWorkspaceId);
+    }
+  };
+
+  const CollectionItem = ({ collection, level = 0, onClick, disabled }) => (
+    <>
+      <UnstyledButton
+        onClick={() => !disabled && onClick(collection)}
+        disabled={disabled}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '10px 12px',
+          paddingLeft: `${12 + level * 20}px`,
+          borderRadius: 6,
+          width: '100%',
+          backgroundColor: disabled ? '#f3f4f6' : 'transparent',
+          opacity: disabled ? 0.5 : 1,
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          transition: 'background-color 0.15s',
+          '&:hover': {
+            backgroundColor: disabled ? '#f3f4f6' : '#f9fafb'
+          }
+        }}
+      >
+        <IconFolder size={16} color={disabled ? '#9ca3af' : '#6b7280'} />
+        <Text size="sm" c={disabled ? '#9ca3af' : '#374151'}>
+          {collection.name}
+        </Text>
+        {disabled && (
+          <Text size="xs" c="#9ca3af" ml="auto">(obecna)</Text>
+        )}
+      </UnstyledButton>
+      {collection.children?.map(child => (
+        <CollectionItem 
+          key={child.id} 
+          collection={child} 
+          level={level + 1} 
+          onClick={onClick}
+          disabled={child.id === currentCollectionId}
+        />
+      ))}
+    </>
+  );
+
+  return (
+    <>
+      <Box
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#ffffff',
+          borderTop: '2px solid #6366f1',
+          boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
+          padding: '12px 24px',
+          zIndex: 100
+        }}
+      >
+        <Group justify="space-between" wrap="nowrap">
+          <Group gap="md">
+
+            <Box
+              style={{
+                backgroundColor: '#eff6ff',
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: '1px solid #dbeafe'
+              }}
+            >
+              <Text size="sm" fw={600} c="#1e40af">
+                {selectedItemIds.length} {selectedItemIds.length === 1 ? 'pozycja' : 'pozycji'}
+              </Text>
+            </Box>
+
+            <Button
+              variant="light"
+              color="violet"
+              leftSection={moveLoading ? <Loader size={14} /> : <IconFolderShare size={16} />}
+              size="sm"
+              onClick={handleOpenMoveModal}
+              disabled={moveLoading}
+            >
+              Przenieś / Kopiuj
+            </Button>
+
+            <Button
+              variant="light"
+              color="blue"
+              leftSection={<IconFileExport size={16} />}
+              size="sm"
+              onClick={() => setExportModalOpened(true)}
+            >
+              Eksportuj
+            </Button>
+
+            <Button variant="subtle" size="sm" onClick={onClose} c="#6b7280">
+              Odznacz
+            </Button>
+          </Group>
+
+          <ActionIcon variant="subtle" color="gray" size="lg" onClick={onClose}>
+            <IconX size={18} />
+          </ActionIcon>
+        </Group>
+      </Box>
+
+      <Modal
+        opened={moveModalOpened}
+        onClose={() => setMoveModalOpened(false)}
+        title={
+          <Group gap="xs">
+            <IconFolderShare size={20} color="#6366f1" />
+            <Text fw={600}>Przenieś / Kopiuj {selectedItemIds.length} pozycji</Text>
+          </Group>
+        }
+        size="md"
+        centered
+      >
+        <ScrollArea.Autosize mah={400}>
+          <Stack gap={4}>
+            
+            {isInWorkspace && (
+              <>
+                <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                  Przenieś do innej kolekcji w workspace
+                </Text>
+                
+                {workspaceCollections[currentWorkspaceId]?.filter(c => c.id !== currentCollectionId).length > 0 ? (
+                  workspaceCollections[currentWorkspaceId]
+                    .filter(c => c.id !== currentCollectionId)
+                    .map(col => (
+                      <UnstyledButton
+                        key={col.id}
+                        onClick={() => handleMoveWithinWorkspace(col.id, col.name)}
+                        disabled={moveLoading}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '10px 12px',
+                          borderRadius: 6,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <IconFolder size={16} color="#6b7280" />
+                        <Text size="sm">{col.name}</Text>
+                      </UnstyledButton>
+                    ))
+                ) : (
+                  <Text size="sm" c="dimmed" py="xs" pl="sm">
+                    {loadingWorkspace === currentWorkspaceId ? 'Ładowanie...' : 'Brak innych kolekcji'}
+                  </Text>
+                )}
+
+                <Divider my="sm" />
+
+                <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                  Kopiuj do prywatnej biblioteki
+                </Text>
+
+                <UnstyledButton
+                  onClick={() => handleCopyToPersonal(null, 'Wszystkie')}
+                  disabled={moveLoading}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 12px',
+                    borderRadius: 6,
+                    backgroundColor: '#f0fdf4',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <IconFolder size={16} color="#16a34a" />
+                  <Text size="sm" c="#16a34a" fw={500}>Wszystkie (bez kolekcji)</Text>
+                </UnstyledButton>
+
+                {collectionTree.map(col => (
+                  <CollectionItem 
+                    key={col.id} 
+                    collection={col} 
+                    onClick={(c) => handleCopyToPersonal(c.id, c.name)}
+                  />
+                ))}
+              </>
+            )}
+
+            {!isInWorkspace && (
+              <>
+                <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                  Przenieś do kolekcji
+                </Text>
+
+                <UnstyledButton
+                  onClick={() => handleMoveToCollection(null, 'Wszystkie')}
+                  disabled={moveLoading || !currentCollectionId}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 12px',
+                    borderRadius: 6,
+                    backgroundColor: !currentCollectionId ? '#f3f4f6' : '#f0fdf4',
+                    opacity: !currentCollectionId ? 0.5 : 1,
+                    cursor: !currentCollectionId ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <IconFolder size={16} color="#16a34a" />
+                  <Text size="sm" c="#16a34a" fw={500}> Wszystkie (bez kolekcji)</Text>
+                  {!currentCollectionId && <Text size="xs" c="#9ca3af" ml="auto">(obecna)</Text>}
+                </UnstyledButton>
+
+                {collectionTree.map(col => (
+                  <CollectionItem 
+                    key={col.id} 
+                    collection={col} 
+                    onClick={(c) => handleMoveToCollection(c.id, c.name)}
+                    disabled={col.id === currentCollectionId}
+                  />
+                ))}
+
+                {workspaces.length > 0 && (
+                  <>
+                    <Divider my="sm" />
+                    <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                      Kopiuj do workspace
+                    </Text>
+
+                    {workspaces.map(ws => (
+                      <Box key={ws.id}>
+                        <UnstyledButton
+                          onClick={() => toggleWorkspace(ws.id)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '10px 12px',
+                            borderRadius: 6,
+                            width: '100%',
+                            backgroundColor: expandedWorkspaces[ws.id] ? '#f5f3ff' : 'transparent',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {expandedWorkspaces[ws.id] ? (
+                            <IconChevronDown size={14} color="#6366f1" />
+                          ) : (
+                            <IconChevronRight size={14} color="#6b7280" />
+                          )}
+                          <IconBriefcase size={16} color="#6366f1" />
+                          <Text size="sm" fw={500}>{ws.name}</Text>
+                          {loadingWorkspace === ws.id && <Loader size={12} ml="auto" />}
+                        </UnstyledButton>
+
+                        {expandedWorkspaces[ws.id] && (
+                          <Box>
+                            {workspaceCollections[ws.id]?.length > 0 ? (
+                              workspaceCollections[ws.id].map(col => (
+                                <UnstyledButton
+                                  key={col.id}
+                                  onClick={() => handleCopyToWorkspace(ws.id, col.id, col.name, ws.name)}
+                                  disabled={moveLoading}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    padding: '8px 12px',
+                                    paddingLeft: 40,
+                                    borderRadius: 6,
+                                    width: '100%',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <IconFolder size={14} color="#9ca3af" />
+                                  <Text size="sm" c="#6b7280">{col.name}</Text>
+                                </UnstyledButton>
+                              ))
+                            ) : (
+                              <Text size="xs" c="dimmed" pl={40} py="xs">
+                                Brak kolekcji
+                              </Text>
+                            )}
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
+                  </>
+                )}
+              </>
+            )}
+          </Stack>
+        </ScrollArea.Autosize>
+      </Modal>
+
+      <Modal
+        opened={exportModalOpened}
+        onClose={() => setExportModalOpened(false)}
+        title={
+          <Group gap="xs">
+            <IconFileExport size={20} color="#3b82f6" />
+            <Text fw={600}>Eksportuj {selectedItemIds.length} pozycji</Text>
+          </Group>
+        }
+        size="sm"
+        centered
+      >
+        <Stack gap="sm">
+          <Button
+            variant="light"
+            color="blue"
+            leftSection={<IconDownload size={16} />}
+            onClick={() => handleExportSelected('bibtex')}
+            fullWidth
+            size="md"
+          >
+            BibTeX (.bib)
+          </Button>
+          
+          <Button
+            variant="light"
+            color="blue"
+            leftSection={<IconDownload size={16} />}
+            onClick={() => handleExportSelected('ris')}
+            fullWidth
+            size="md"
+          >
+            RIS (.ris)
+          </Button>
+        </Stack>
+      </Modal>
+    </>
+  );
+}
