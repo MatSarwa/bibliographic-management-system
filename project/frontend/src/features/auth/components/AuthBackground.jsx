@@ -1,8 +1,10 @@
 import { Box } from '@mantine/core';
+import ColorSchemeToggle from '../../../shared/components/ColorSchemeToggle';
 
 export default function AuthBackground({ children }) {
   return (
     <Box
+      py="xl"
       style={{
         minHeight: '100vh',
         display: 'flex',
@@ -15,13 +17,15 @@ export default function AuthBackground({ children }) {
       <Box
         style={{
           position: 'absolute',
-          width: '100%',
-          height: '100%',
+          inset: 0,
           backgroundImage: `radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
                            radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%)`,
           pointerEvents: 'none',
         }}
       />
+      <Box style={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}>
+        <ColorSchemeToggle />
+      </Box>
       {children}
     </Box>
   );

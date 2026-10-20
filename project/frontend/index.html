@@ -5,14 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bibliographic Management System</title>
-    <!-- Sets the color scheme before React loads, so dark mode does not flash white. -->
+    <!-- Applies the saved color scheme before React loads, so dark mode does not flash white.
+         Light is the default; dark only after the user switches to it. -->
     <script>
       try {
         var stored = localStorage.getItem('mantine-color-scheme-value');
-        var scheme = stored === 'light' || stored === 'dark'
-          ? stored
-          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
+        document.documentElement.setAttribute('data-mantine-color-scheme', stored === 'dark' ? 'dark' : 'light');
       } catch (e) {}
     </script>
   </head>

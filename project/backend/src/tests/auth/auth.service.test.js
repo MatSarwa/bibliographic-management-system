@@ -157,6 +157,16 @@ describe('AuthService - Pełne Testy Jednostkowe', () => {
   });
 
   describe('changePassword', () => {
+    it('should refuse to change the password of the public demo account', async () => {
+      const demoUser = { email: 'demo@example.com', password: 'hashed', update: jest.fn() };
+      User.findByPk.mockResolvedValueOnce(demoUser);
+
+      const errorPromise = AuthService.changePassword(1, { currentPassword: 'Demo1234!', newPassword: 'hijacked' });
+      await expect(errorPromise).rejects.toThrow('Nie można zmienić hasła konta demo');
+      await expect(errorPromise).rejects.toMatchObject({ statusCode: 403 });
+      expect(demoUser.update).not.toHaveBeenCalled();
+    });
+
     it('should throw error if user not found', async () => {
       User.findByPk.mockResolvedValueOnce(null);
 

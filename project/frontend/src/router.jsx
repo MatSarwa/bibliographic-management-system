@@ -1,4 +1,5 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
+import LandingPage from './features/landing/pages/LandingPage';
 import LoginPage from './features/auth/pages/LoginPage';
 import VerifyEmailPage from './features/auth/pages/VerifyEmailPage';
 import ResetPasswordPage from './features/auth/pages/ResetPasswordPage';
@@ -35,7 +36,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/',
-        element: <Navigate to="/dashboard" replace />,
+        element: <LandingPage />,
       },
       {
         path: '/dashboard',
