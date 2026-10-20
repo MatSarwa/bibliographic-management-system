@@ -251,7 +251,8 @@ export default function ItemsTable({
                     <ActionIcon
                       size="sm"
                       variant="subtle"
-                      color="red"
+                      // gray, so it does not blend with the red favorite heart next to it
+                      color="gray"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDelete(item.id);

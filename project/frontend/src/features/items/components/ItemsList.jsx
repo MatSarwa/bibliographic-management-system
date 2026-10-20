@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Box, Center, Loader } from '@mantine/core';
+import { Box, Button, Center, Loader, Stack, Text } from '@mantine/core';
+import { IconFolderOpen, IconPlus } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import api from '../../../shared/utils/api';
 import ItemsToolbar from './ItemsToolbar';
@@ -58,13 +59,14 @@ export default function ItemsList({
         response = await api.get('/items');
       }
 
-      const data = response?.data?.data || response?.data || [];
-      setItems(data);
+      const data = response?.data?.data;
+      setItems(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching items:', err);
+      // Show the server's reason (e.g. no access, collection deleted) instead of a generic message.
       notifications.show({
-        title: 'Błąd',
-        message: 'Nie udało się pobrać pozycji',
+        title: 'Nie udało się pobrać pozycji',
+        message: err.response?.data?.message || 'Sprawdź połączenie i spróbuj ponownie.',
         color: 'red',
       });
       setItems([]);
@@ -268,6 +270,28 @@ export default function ItemsList({
         columnState={columnState}
       />
 
+      {items.length === 0 ? (
+        // An empty view is a normal state, not an error – say why it is empty and what to do.
+        <Stack align="center" gap="xs" py={60} ta="center">
+          <IconFolderOpen size={48} stroke={1.3} style={{ color: 'var(--mantine-color-placeholder)' }} />
+          <Text fw={600}>
+            {viewType === 'favorites' ? 'Brak ulubionych pozycji' : viewType === 'all' ? 'Nie masz jeszcze żadnych pozycji' : 'Ta kolekcja jest pusta'}
+          </Text>
+          <Text size="sm" c="dimmed" maw={420}>
+            {viewType === 'favorites'
+              ? 'Kliknij serduszko przy pozycji, żeby dodać ją do ulubionych.'
+              : viewType === 'all'
+                ? 'Dodaj pierwszą publikację – wystarczy DOI, ISBN albo identyfikator arXiv.'
+                : 'Wszystkie Twoje pozycje znajdziesz w zakładce „Wszystkie”. Możesz je tu przenieść albo dodać nową.'}
+          </Text>
+          {viewType !== 'favorites' && (
+            <Button mt="xs" variant="light" color="violet" leftSection={<IconPlus size={16} />}
+              onClick={() => { setEditItem(null); setModalOpened(true); }}>
+              Dodaj publikację
+            </Button>
+          )}
+        </Stack>
+      ) : (
       <ItemsTable
         filteredItems={sortedItems}
         selectedItemIds={selectedItemIds}
@@ -284,6 +308,7 @@ export default function ItemsList({
         onRefresh={refreshItems}
         isWorkspace={!!workspaceId}
       />
+      )}
 
       <ItemModal
         opened={modalOpened}

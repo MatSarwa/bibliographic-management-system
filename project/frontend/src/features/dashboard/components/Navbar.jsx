@@ -34,19 +34,20 @@ export default function Navbar({ onOpenAddModal, isMobile = false, menuOpened = 
           <Burger opened={menuOpened} onClick={onToggleMenu} size="sm" aria-label="Menu" />
         )}
 
+        {/* The main action of the app, so it is a filled button rather than a light one. */}
         {isMobile ? (
-          <ActionIcon variant="light" color="violet" size="lg" onClick={onOpenAddModal} aria-label="Dodaj pozycję">
+          <ActionIcon variant="filled" color="violet" size="lg" onClick={onOpenAddModal} aria-label="Dodaj publikację">
             <IconPlus size={20} />
           </ActionIcon>
         ) : (
           <Button
             leftSection={<IconPlus size={18} />}
-            variant="light"
+            variant="filled"
             color="violet"
             size="sm"
             onClick={onOpenAddModal}
           >
-            Dodaj
+            Dodaj publikację
           </Button>
         )}
       </Group>

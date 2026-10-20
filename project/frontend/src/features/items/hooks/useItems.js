@@ -62,8 +62,8 @@ export function useItems(collectionId, viewType) {
     } catch (err) {
       console.error('Error fetching items:', err);
       notifications.show({
-        title: 'Błąd',
-        message: 'Nie udało się pobrać pozycji',
+        title: 'Nie udało się pobrać pozycji',
+        message: err.response?.data?.message || 'Sprawdź połączenie i spróbuj ponownie.',
         color: 'red',
       });
       setItems([]);

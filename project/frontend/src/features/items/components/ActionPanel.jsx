@@ -63,7 +63,7 @@ export default function ActionPanel({
 
       notifications.show({
         title: 'Sukces!',
-        message: `Wyeksportowano ${selectedItemIds.length} pozycji`,
+        message: `Wyeksportowano zaznaczone pozycje (${selectedItemIds.length})`,
         color: 'green'
       });
       
@@ -89,7 +89,7 @@ export default function ActionPanel({
 
       notifications.show({
         title: 'Sukces!',
-        message: `Przeniesiono ${selectedItemIds.length} pozycji do "${collectionName || 'Wszystkie'}"`,
+        message: `Przeniesiono do "${collectionName || 'Wszystkie'}" (liczba pozycji: ${selectedItemIds.length})`,
         color: 'green'
       });
 
@@ -163,11 +163,12 @@ export default function ActionPanel({
 
       notifications.show({
         title: 'Sukces!',
-        message: `Skopiowano ${selectedItemIds.length} pozycji do "${workspaceName} / ${collectionName}"`,
+        message: `Skopiowano do "${workspaceName} / ${collectionName}" (liczba pozycji: ${selectedItemIds.length})`,
         color: 'green'
       });
 
       setMoveModalOpened(false);
+      onRefresh?.();
       onClose();
     } catch (err) {
       notifications.show({
@@ -200,7 +201,10 @@ export default function ActionPanel({
           doi: item.doi,
           isbn: item.isbn,
           abstract: item.abstract,
-          notes: item.notes ? `[Skopiowane z workspace]\n\n${item.notes}` : '[Skopiowane z workspace]',
+          // Mark the origin only for copies taken out of a team workspace.
+          notes: isInWorkspace
+            ? (item.notes ? `[Skopiowane z workspace]\n\n${item.notes}` : '[Skopiowane z workspace]')
+            : item.notes,
           collectionId: collectionId || null
         })
       );
@@ -209,11 +213,12 @@ export default function ActionPanel({
 
       notifications.show({
         title: 'Sukces!',
-        message: `Skopiowano ${selectedItemIds.length} pozycji do "${collectionName || 'Wszystkie'}"`,
+        message: `Skopiowano do "${collectionName || 'Wszystkie'}" (liczba pozycji: ${selectedItemIds.length})`,
         color: 'green'
       });
 
       setMoveModalOpened(false);
+      onRefresh?.();
       onClose();
     } catch (err) {
       notifications.show({
@@ -238,7 +243,7 @@ export default function ActionPanel({
 
       notifications.show({
         title: 'Sukces!',
-        message: `Przeniesiono ${selectedItemIds.length} pozycji do "${collectionName}"`,
+        message: `Przeniesiono do "${collectionName}" (liczba pozycji: ${selectedItemIds.length})`,
         color: 'green'
       });
 
@@ -282,8 +287,8 @@ export default function ActionPanel({
   const handleDeleteSelected = async () => {
     const count = selectedItemIds.length;
     const confirmed = await confirmAction({
-      title: count === 1 ? 'Przenieść pozycję do kosza?' : `Przenieść ${count} pozycji do kosza?`,
-      message: 'Możesz je później przywrócić z kosza.',
+      title: count === 1 ? 'Przenieść pozycję do kosza?' : 'Przenieść zaznaczone pozycje do kosza?',
+      message: `Wybrane pozycje: ${count}. Możesz je później przywrócić z kosza.`,
       confirmLabel: 'Przenieś do kosza',
     });
     if (!confirmed) return;
@@ -296,7 +301,7 @@ export default function ActionPanel({
 
     notifications.show(failed
       ? { title: 'Częściowo usunięto', message: `Nie udało się usunąć ${failed} z ${count} pozycji`, color: 'orange' }
-      : { title: 'Przeniesiono do kosza', message: `${count} ${count === 1 ? 'pozycja' : 'pozycji'}`, color: 'green' });
+      : { title: 'Przeniesiono do kosza', message: `Liczba pozycji: ${count}`, color: 'green' });
 
     onRefresh?.();
     onClose();
@@ -309,7 +314,7 @@ export default function ActionPanel({
       await Promise.all(selectedItemIds.map((itemId) => api.put(`/items/${itemId}`, { collectionId })));
       notifications.show({
         title: 'Sukces!',
-        message: `Przeniesiono ${selectedItemIds.length} pozycji do "${workspaceName} / ${collectionName}"`,
+        message: `Przeniesiono do "${workspaceName} / ${collectionName}" (liczba pozycji: ${selectedItemIds.length})`,
         color: 'green',
       });
       setMoveModalOpened(false);
@@ -333,8 +338,31 @@ export default function ActionPanel({
     }
   };
 
-  const CollectionItem = ({ collection, level = 0, onClick, disabled }) => (
+  const CollectionItem = ({ collection, level = 0, onClick, onMove, onCopy, disabled }) => (
     <>
+      {onMove ? (
+        // Personal collections: move or copy (copy keeps the item where it is and adds a duplicate).
+        <Group
+          gap={8}
+          wrap="nowrap"
+          style={{ padding: '6px 12px', paddingLeft: `${12 + level * 20}px`, borderRadius: 6 }}
+        >
+          <IconFolder size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
+          <Text size="sm" style={{ flex: 1, minWidth: 0 }} truncate>{collection.name}</Text>
+          {disabled ? (
+            <Text size="xs" c="var(--mantine-color-placeholder)">(obecna)</Text>
+          ) : (
+            <>
+              <Button size="compact-xs" variant="light" color="violet" disabled={moveLoading} onClick={() => onMove(collection)}>
+                Przenieś
+              </Button>
+              <Button size="compact-xs" variant="default" disabled={moveLoading} onClick={() => onCopy(collection)}>
+                Kopiuj
+              </Button>
+            </>
+          )}
+        </Group>
+      ) : (
       <UnstyledButton
         onClick={() => !disabled && onClick(collection)}
         disabled={disabled}
@@ -361,12 +389,15 @@ export default function ActionPanel({
           <Text size="xs" c="var(--mantine-color-placeholder)" ml="auto">(obecna)</Text>
         )}
       </UnstyledButton>
+      )}
       {collection.children?.map(child => (
-        <CollectionItem 
-          key={child.id} 
-          collection={child} 
-          level={level + 1} 
+        <CollectionItem
+          key={child.id}
+          collection={child}
+          level={level + 1}
           onClick={onClick}
+          onMove={onMove}
+          onCopy={onCopy}
           disabled={child.id === currentCollectionId}
         />
       ))}
@@ -400,7 +431,7 @@ export default function ActionPanel({
               }}
             >
               <Text size="sm" fw={600} c="var(--mantine-color-blue-light-color)">
-                {selectedItemIds.length} {selectedItemIds.length === 1 ? 'pozycja' : 'pozycji'}
+                Wybrane pozycje: {selectedItemIds.length}
               </Text>
             </Box>
 
@@ -453,7 +484,7 @@ export default function ActionPanel({
         title={
           <Group gap="xs">
             <IconFolderShare size={20} style={{ color: 'var(--mantine-primary-color-filled)' }} />
-            <Text fw={600}>Przenieś / Kopiuj {selectedItemIds.length} pozycji</Text>
+            <Text fw={600}>Przenieś / Kopiuj (wybrane pozycje: {selectedItemIds.length})</Text>
           </Group>
         }
         size="md"
@@ -531,7 +562,7 @@ export default function ActionPanel({
             {!isInWorkspace && (
               <>
                 <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
-                  Przenieś do kolekcji
+                  Przenieś lub kopiuj do kolekcji
                 </Text>
 
                 <UnstyledButton
@@ -557,7 +588,8 @@ export default function ActionPanel({
                   <CollectionItem 
                     key={col.id} 
                     collection={col} 
-                    onClick={(c) => handleMoveToCollection(c.id, c.name)}
+                    onMove={(c) => handleMoveToCollection(c.id, c.name)}
+                    onCopy={(c) => handleCopyToPersonal(c.id, c.name)}
                     disabled={col.id === currentCollectionId}
                   />
                 ))}
@@ -648,7 +680,7 @@ export default function ActionPanel({
         title={
           <Group gap="xs">
             <IconFileExport size={20} style={{ color: 'var(--mantine-color-blue-6)' }} />
-            <Text fw={600}>Eksportuj {selectedItemIds.length} pozycji</Text>
+            <Text fw={600}>Eksportuj (wybrane pozycje: {selectedItemIds.length})</Text>
           </Group>
         }
         size="sm"
