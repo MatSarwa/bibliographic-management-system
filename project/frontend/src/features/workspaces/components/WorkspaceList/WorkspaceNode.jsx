@@ -12,7 +12,6 @@ import workspaceService from '../../services/workspaceService';
 import CollectionItem from './CollectionItem';
 import { useRefreshVersion } from '../../../../shared/store/refreshStore';
 import { downloadCollectionExport } from '../../../../shared/utils/download';
-import classes from '../../../../shared/styles/interactive.module.css';
 import { confirmAction } from '../../../../shared/utils/confirm';
 
 export default function WorkspaceNode({
@@ -160,6 +159,18 @@ export default function WorkspaceNode({
               <Menu.Item leftSection={<IconPlus size={14} />} onClick={(e) => { e.stopPropagation(); onOpenCollectionModal(workspace); setMenuOpened(false); }} fz="12px">
                 Dodaj kolekcję
               </Menu.Item>
+              {/* Shared trash: items any member deleted, so admins/editors can bring them back. */}
+              <Menu.Item
+                leftSection={<IconTrash size={14} />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectCollection({ id: `trash-${workspace.id}`, name: 'Kosz', isTrash: true }, workspace);
+                  setMenuOpened(false);
+                }}
+                fz="12px"
+              >
+                Kosz
+              </Menu.Item>
               <Menu.Item leftSection={<IconSettings size={14} />} onClick={(e) => { e.stopPropagation(); onOpenSettings(workspace); setMenuOpened(false); }} fz="12px">
                 Ustawienia
               </Menu.Item>
@@ -177,25 +188,6 @@ export default function WorkspaceNode({
           ) : (
             <Stack gap={1}>{renderCollectionTree(collectionTree, level + 1)}</Stack>
           )}
-
-          {/* Shared trash: items any member deleted, so admins/editors can bring them back. */}
-          <UnstyledButton
-            onClick={() => onSelectCollection({ id: `trash-${workspace.id}`, name: 'Kosz', isTrash: true }, workspace)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              width: '100%',
-              padding: '4px 8px',
-              paddingLeft: `${8 + (level + 1) * 12}px`,
-              borderRadius: 4,
-              marginTop: 2,
-            }}
-            className={classes.collectionOption}
-          >
-            <IconTrash size={13} style={{ color: 'var(--mantine-color-placeholder)' }} />
-            <Text size="12px" c="dimmed">Kosz</Text>
-          </UnstyledButton>
         </Box>
       </Collapse>
     </Box>
