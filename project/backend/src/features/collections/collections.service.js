@@ -1,5 +1,6 @@
 const { Collection, User, CollectionMember, Item, WorkspaceMember } = require('../../models');
 const { Op } = require('sequelize');
+const AppError = require('../../shared/utils/app-error');
 
 class CollectionsService {
 
@@ -8,14 +9,14 @@ class CollectionsService {
   const { name, parentId, settings } = data;
 
   if (!name) {
-    throw new Error('Nazwa kolekcji jest wymagana');
+    throw new AppError('Nazwa kolekcji jest wymagana', 400);
   }
 
   if (parentId) {
     const hasAccess = await this.hasCollectionAccess(userId, parentId);
     
     if (!hasAccess) {
-      throw new Error('Kolekcja nadrzędna nie znaleziona');
+      throw new AppError('Kolekcja nadrzędna nie znaleziona', 404);
     }
 
     const isShared = await CollectionMember.count({
@@ -23,7 +24,7 @@ class CollectionsService {
     });
 
     if (isShared > 0) {
-      throw new Error('Nie można tworzyć subfolderów w shared kolekcji');
+      throw new AppError('Nie można tworzyć subfolderów w shared kolekcji', 400);
     }
   }
 
@@ -37,7 +38,7 @@ class CollectionsService {
   });
 
   if (existingCollection) {
-    throw new Error('Masz już kolekcję o tej nazwie w tym miejscu');
+    throw new AppError('Masz już kolekcję o tej nazwie w tym miejscu', 409);
   }
 
   const collection = await Collection.create({
@@ -128,13 +129,13 @@ class CollectionsService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
     const hasAccess = await this.hasCollectionAccess(userId, collectionId);
     
     if (!hasAccess) {
-      throw new Error('Brak dostępu do tej kolekcji');
+      throw new AppError('Brak dostępu do tej kolekcji', 403);
     }
 
     return collection;
@@ -146,13 +147,13 @@ async updateCollection(userId, collectionId, data) {
   });
 
   if (!collection) {
-    throw new Error('Kolekcja nie znaleziona');
+    throw new AppError('Kolekcja nie znaleziona', 404);
   }
 
   const hasAccess = await this.hasCollectionAccess(userId, collectionId);
   
   if (!hasAccess) {
-    throw new Error('Brak dostępu do tej kolekcji');
+    throw new AppError('Brak dostępu do tej kolekcji', 403);
   }
 
   const { name, parentId, settings, isPublic } = data;
@@ -169,7 +170,7 @@ async updateCollection(userId, collectionId, data) {
     });
 
     if (existingCollection) {
-      throw new Error('Kolekcja o tej nazwie już istnieje');
+      throw new AppError('Kolekcja o tej nazwie już istnieje', 409);
     }
   }
 
@@ -179,17 +180,17 @@ async updateCollection(userId, collectionId, data) {
       const parentCollection = await Collection.findByPk(parentId);
       
       if (!parentCollection) {
-        throw new Error('Kolekcja nadrzędna nie znaleziona');
+        throw new AppError('Kolekcja nadrzędna nie znaleziona', 404);
       }
 
       const hasParentAccess = await this.hasCollectionAccess(userId, parentId);
       
       if (!hasParentAccess) {
-        throw new Error('Brak dostępu do kolekcji nadrzędnej');
+        throw new AppError('Brak dostępu do kolekcji nadrzędnej', 403);
       }
 
       if (parentId === collectionId) {
-        throw new Error('Kolekcja nie może być swoim rodzicem');
+        throw new AppError('Kolekcja nie może być swoim rodzicem', 400);
       }
 
       const parentIsShared = await CollectionMember.count({
@@ -197,7 +198,7 @@ async updateCollection(userId, collectionId, data) {
       });
 
       if (parentIsShared > 0) {
-        throw new Error('Nie można tworzyć subfolderów w shared kolekcji');
+        throw new AppError('Nie można tworzyć subfolderów w shared kolekcji', 400);
       }
 
       const isShared = await CollectionMember.count({
@@ -205,7 +206,7 @@ async updateCollection(userId, collectionId, data) {
       });
 
       if (isShared > 0) {
-        throw new Error('Nie można zagnieżdżać shared kolekcji');
+        throw new AppError('Nie można zagnieżdżać shared kolekcji', 400);
       }
     }
   }
@@ -277,26 +278,16 @@ async updateCollection(userId, collectionId, data) {
   async hasCollectionAccess(userId, collectionId) {
     const collection = await Collection.findByPk(collectionId);
     
-    console.log('hasCollectionAccess:', {
-      userId,
-      collectionId,
-      collection: collection ? {
-        ownerId: collection.ownerId,
-        workspaceId: collection.workspaceId
-      } : null
-    });
     
     if (!collection) {
       return false;
     }
 
     if (collection.ownerId === userId) {
-      console.log('User jest ownerem');
       return true;
     }
 
     if (collection.workspaceId) {
-      console.log('Sprawdzam workspace membership...');
       
       const member = await WorkspaceMember.findOne({
         where: {
@@ -305,13 +296,8 @@ async updateCollection(userId, collectionId, data) {
         }
       });
 
-      console.log('Workspace member:', member ? {
-        role: member.role,
-        workspaceId: member.workspaceId
-      } : null);
 
       if (member) {
-        console.log('User jest członkiem workspace!');
         return true;
       }
     }
@@ -323,7 +309,6 @@ async updateCollection(userId, collectionId, data) {
       }
     });
 
-    console.log('Collection member:', memberRecord ? 'YES' : 'NO');
 
     return !!memberRecord;
   }
@@ -335,11 +320,11 @@ async updateCollection(userId, collectionId, data) {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
     if (!collection.deletedAt) {
-      throw new Error('Kolekcja nie jest usunięta');
+      throw new AppError('Kolekcja nie jest usunięta', 400);
     }
 
     if (collection.workspaceId) {
@@ -352,11 +337,11 @@ async updateCollection(userId, collectionId, data) {
       });
 
       if (!member) {
-        throw new Error('Tylko admin może przywracać kolekcje');
+        throw new AppError('Tylko admin może przywracać kolekcje', 403);
       }
     } else {
       if (collection.ownerId !== userId) {
-        throw new Error('Brak uprawnień');
+        throw new AppError('Brak uprawnień', 403);
       }
     }
 
@@ -369,13 +354,13 @@ async updateCollection(userId, collectionId, data) {
     const collection = await Collection.findByPk(collectionId);
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
     const hasAccess = await this.hasCollectionAccess(userId, collectionId);
     
     if (!hasAccess) {
-      throw new Error('Brak dostępu do tej kolekcji');
+      throw new AppError('Brak dostępu do tej kolekcji', 403);
     }
 
     const { Label } = require('../../models');

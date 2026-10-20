@@ -76,8 +76,8 @@ export default function PersonalCollectionsList({
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    e.currentTarget.style.backgroundColor = '#f0f9ff';
-    e.currentTarget.style.border = '2px dashed #3b82f6';
+    e.currentTarget.style.backgroundColor = 'var(--mantine-color-blue-light)';
+    e.currentTarget.style.border = '2px dashed var(--mantine-color-blue-6)';
   };
 
   const handleDragLeave = (e) => {
@@ -162,7 +162,7 @@ export default function PersonalCollectionsList({
   return (
     <Box>
       <Group justify="space-between" mb={4} gap={2}>
-        <Text size="10px" fw={600} c="#9ca3af" tt="uppercase" lts="0.8px">
+        <Text size="10px" fw={600} c="var(--mantine-color-placeholder)" tt="uppercase" lts="0.8px">
           Kolekcje
         </Text>
 
@@ -170,21 +170,21 @@ export default function PersonalCollectionsList({
           <Menu shadow="sm" width={160}>
             <Menu.Target>
               <Tooltip label="Sortuj" position="top" withArrow>
-                <ActionIcon size="xs" variant="subtle" c="#9ca3af" style={{ width: '20px', height: '20px' }}>
+                <ActionIcon size="xs" variant="subtle" c="var(--mantine-color-placeholder)" style={{ width: '20px', height: '20px' }}>
                   <IconSortAscending size={11} />
                 </ActionIcon>
               </Tooltip>
             </Menu.Target>
-            <Menu.Dropdown style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
-              <Menu.Label c="#6b7280" fz="10px">Sortuj</Menu.Label>
-              <Menu.Item onClick={() => setSortBy('name')} c={sortBy === 'name' ? '#3b82f6' : '#111827'} fz="11px">A-Z</Menu.Item>
-              <Menu.Item onClick={() => setSortBy('date')} c={sortBy === 'date' ? '#3b82f6' : '#111827'} fz="11px">Data</Menu.Item>
-              <Menu.Item onClick={() => setSortBy('items')} c={sortBy === 'items' ? '#3b82f6' : '#111827'} fz="11px">Liczba</Menu.Item>
+            <Menu.Dropdown style={{ backgroundColor: 'var(--mantine-color-body)', border: '1px solid var(--mantine-color-default-border)' }}>
+              <Menu.Label c="dimmed" fz="10px">Sortuj</Menu.Label>
+              <Menu.Item onClick={() => setSortBy('name')} c={sortBy === 'name' ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-text)'} fz="11px">A-Z</Menu.Item>
+              <Menu.Item onClick={() => setSortBy('date')} c={sortBy === 'date' ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-text)'} fz="11px">Data</Menu.Item>
+              <Menu.Item onClick={() => setSortBy('items')} c={sortBy === 'items' ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-text)'} fz="11px">Liczba</Menu.Item>
             </Menu.Dropdown>
           </Menu>
 
           <Tooltip label="Dodaj kolekcję" position="top" withArrow>
-            <ActionIcon size="xs" variant="subtle" c="#9ca3af" onClick={onCreateNew} style={{ width: '20px', height: '20px' }}>
+            <ActionIcon size="xs" variant="subtle" c="var(--mantine-color-placeholder)" onClick={onCreateNew} style={{ width: '20px', height: '20px' }}>
               <IconFolderPlus size={11} />
             </ActionIcon>
           </Tooltip>
@@ -193,9 +193,9 @@ export default function PersonalCollectionsList({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={() => setSearchVisible(!searchVisible)}
-              style={{ backgroundColor: searchVisible ? '#f3f4f6' : 'transparent', width: '20px', height: '20px' }}
+              style={{ backgroundColor: searchVisible ? 'var(--app-active)' : 'transparent', width: '20px', height: '20px' }}
             >
               <IconSearch size={11} />
             </ActionIcon>
@@ -207,16 +207,16 @@ export default function PersonalCollectionsList({
         <TextInput
           placeholder="Szukaj kolekcji..."
           size="xs"
-          leftSection={<IconSearch size={12} color="#6b7280" />}
+          leftSection={<IconSearch size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           mb="xs"
           styles={{
-            input: { backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', fontSize: '12px', height: '26px' }
+            input: { backgroundColor: 'var(--app-hover)', border: '1px solid var(--mantine-color-default-border)', fontSize: '12px', height: '26px' }
           }}
           rightSection={
             searchQuery && (
-              <ActionIcon size="xs" variant="transparent" onClick={() => setSearchQuery('')} c="#6b7280">
+              <ActionIcon size="xs" variant="transparent" onClick={() => setSearchQuery('')} c="dimmed">
                 <IconX size={10} />
               </ActionIcon>
             )
@@ -225,7 +225,7 @@ export default function PersonalCollectionsList({
       </Collapse>
 
       {filteredCollections.length === 0 ? (
-        <Text size="xs" c="#9ca3af" fs="italic" ta="center" py="md">
+        <Text size="xs" c="var(--mantine-color-placeholder)" fs="italic" ta="center" py="md">
           {searchQuery ? 'Nie znaleziono kolekcji' : 'Brak kolekcji. Kliknij + aby dodać.'}
         </Text>
       ) : (

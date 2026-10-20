@@ -57,19 +57,19 @@ export default function CitationSection({ itemId }) {
         style={{ cursor: 'pointer', userSelect: 'none' }}
         mb="xs"
       >
-        <IconQuote size={16} color="#6366f1" />
-        <Text size="sm" fw={600} c="#374151" style={{ flex: 1 }}>
+        <IconQuote size={16} style={{ color: 'var(--mantine-primary-color-filled)' }} />
+        <Text size="sm" fw={600} c="var(--mantine-color-text)" style={{ flex: 1 }}>
           Generuj cytat
         </Text>
         {isOpen ? (
-          <IconChevronUp size={16} color="#9ca3af" />
+          <IconChevronUp size={16} style={{ color: 'var(--mantine-color-placeholder)' }} />
         ) : (
-          <IconChevronDown size={16} color="#9ca3af" />
+          <IconChevronDown size={16} style={{ color: 'var(--mantine-color-placeholder)' }} />
         )}
       </Group>
 
       <Collapse in={isOpen}>
-        <Paper p="sm" radius="md" style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}>
+        <Paper p="sm" radius="md" style={{ backgroundColor: 'var(--app-hover)', border: '1px solid var(--mantine-color-default-border)' }}>
           <Select
             label="Styl cytowania"
             placeholder="Wybierz styl"
@@ -79,7 +79,7 @@ export default function CitationSection({ itemId }) {
             size="xs"
             mb="sm"
             styles={{
-              label: { fontSize: '11px', color: '#6b7280', marginBottom: '4px' },
+              label: { fontSize: '11px', color: 'var(--mantine-color-dimmed)', marginBottom: '4px' },
               input: { fontSize: '12px' }
             }}
           />
@@ -99,18 +99,18 @@ export default function CitationSection({ itemId }) {
 
           {citation && (
             <Box>
-              <Text size="xs" c="#6b7280" mb={4}>
+              <Text size="xs" c="dimmed" mb={4}>
                 Wygenerowany cytat:
               </Text>
               <Paper
                 p="xs"
                 radius="sm"
                 style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'var(--mantine-color-body)',
+                  border: '1px solid var(--mantine-color-default-border)',
                   fontSize: '11px',
                   lineHeight: 1.5,
-                  color: '#374151'
+                  color: 'var(--mantine-color-text)'
                 }}
               >
                 {citation}

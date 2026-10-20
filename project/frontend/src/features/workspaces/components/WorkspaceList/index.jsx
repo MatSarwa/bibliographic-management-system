@@ -5,6 +5,7 @@ import workspaceService from '../../services/workspaceService';
 import WorkspaceSettings from '../WorkspaceSettings';
 import WorkspaceCollectionModal from '../WorkspaceCollectionModal';
 import WorkspaceNode from './WorkspaceNode';
+import { useRefresh, useRefreshVersion } from '../../../../shared/store/refreshStore';
 
 export default function WorkspaceList({
   onSelectCollection,
@@ -18,6 +19,10 @@ export default function WorkspaceList({
   const [selectedWorkspaceForCollection, setSelectedWorkspaceForCollection] = useState(null);
   const [editCollection, setEditCollection] = useState(null);
 
+  const workspacesVersion = useRefreshVersion('workspaces');
+  const refresh = useRefresh();
+  const refreshWorkspaces = () => refresh('workspaces');
+
   useEffect(() => {
     if (propsWorkspaces) {
       setWorkspaces(propsWorkspaces);
@@ -25,17 +30,16 @@ export default function WorkspaceList({
     } else {
       fetchWorkspaces();
     }
-
-    const handleRefresh = () => {
-      if (!propsWorkspaces) fetchWorkspaces();
-    };
-
-    window.addEventListener('refreshWorkspaces', handleRefresh);
-    return () => window.removeEventListener('refreshWorkspaces', handleRefresh);
   }, [propsWorkspaces]);
 
-  const fetchWorkspaces = async () => {
-    setLoading(true);
+  // With props, the parent hook refetches and passes new workspaces down; without, fetch here.
+  // Silent, so expanded workspaces in the tree do not collapse behind a loader.
+  useEffect(() => {
+    if (!propsWorkspaces && workspacesVersion > 0) fetchWorkspaces({ silent: true });
+  }, [workspacesVersion]);
+
+  const fetchWorkspaces = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     const result = await workspaceService.getAll();
     if (result.success) {
       setWorkspaces(result.data);
@@ -76,7 +80,7 @@ export default function WorkspaceList({
       setCollectionModalOpened(false);
       setSelectedWorkspaceForCollection(null);
       setEditCollection(null);
-      await fetchWorkspaces();
+      refreshWorkspaces();
       return true;
     } else {
       notifications.show({ title: 'Błąd', message: result.error, color: 'red' });
@@ -90,7 +94,7 @@ export default function WorkspaceList({
 
   if (workspaces.length === 0) {
     return (
-      <Text size="xs" c="#9ca3af" ta="center" py="md" fs="italic">
+      <Text size="xs" c="var(--mantine-color-placeholder)" ta="center" py="md" fs="italic">
         Brak workspaces. Kliknij + aby dodać.
       </Text>
     );
@@ -107,7 +111,7 @@ export default function WorkspaceList({
             onOpenSettings={handleOpenSettings}
             onOpenCollectionModal={handleOpenCollectionModal}
             onEditCollection={handleEditCollection}
-            onRefresh={fetchWorkspaces}
+            onRefresh={refreshWorkspaces}
           />
         ))}
       </Stack>
@@ -116,7 +120,7 @@ export default function WorkspaceList({
         workspace={settingsWorkspace}
         opened={settingsOpened}
         onClose={() => { setSettingsOpened(false); setSettingsWorkspace(null); }}
-        onUpdate={fetchWorkspaces}
+        onUpdate={refreshWorkspaces}
       />
 
       <WorkspaceCollectionModal

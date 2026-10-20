@@ -23,7 +23,7 @@ class CitationController {
     });
 
     if (!item) {
-      return ResponseHelper.error(res, 'Item nie znaleziony', 404);
+      return ResponseHelper.error(res, 'Nie znaleziono pozycji', 404);
     }
 
     try {

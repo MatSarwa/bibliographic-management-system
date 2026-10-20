@@ -1,5 +1,6 @@
 const { Workspace, WorkspaceMember, Collection, User } = require('../../models');
 const { Op } = require('sequelize');
+const AppError = require('../../shared/utils/app-error');
 const { 
   ROLES, 
   checkPermission, 
@@ -13,7 +14,7 @@ class WorkspacesService {
     const { name, description, settings } = workspaceData;
 
     if (!name || !name.trim()) {
-      throw new Error('Nazwa workspace jest wymagana');
+      throw new AppError('Nazwa workspace jest wymagana', 400);
     }
 
     const workspace = await Workspace.create({
@@ -100,7 +101,7 @@ class WorkspacesService {
     });
 
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     const member = await WorkspaceMember.findOne({
@@ -116,7 +117,7 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
 
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     const member = await WorkspaceMember.findOne({
@@ -140,7 +141,7 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
 
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     checkOwnerOnly('DELETE_WORKSPACE', workspace, userId);
@@ -154,7 +155,7 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
 
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     checkOwnerOnly('TRANSFER_OWNERSHIP', workspace, userId);
@@ -164,7 +165,7 @@ class WorkspacesService {
     });
 
     if (!newOwnerMember) {
-      throw new Error('Nowy właściciel musi być członkiem workspace');
+      throw new AppError('Nowy właściciel musi być członkiem workspace', 400);
     }
 
     await workspace.update({ createdBy: newOwnerId });
@@ -183,11 +184,11 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
 
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     if (isOwner(workspace, userId)) {
-      throw new Error('Właściciel nie może opuścić workspace. Najpierw przekaż ownership lub usuń workspace.');
+      throw new AppError('Właściciel nie może opuścić workspace. Najpierw przekaż ownership lub usuń workspace.', 400);
     }
 
     const member = await WorkspaceMember.findOne({
@@ -195,7 +196,7 @@ class WorkspacesService {
     });
 
     if (!member) {
-      throw new Error('Nie jesteś członkiem tego workspace');
+      throw new AppError('Nie jesteś członkiem tego workspace', 403);
     }
 
     if (member.role === ROLES.ADMIN) {
@@ -204,7 +205,7 @@ class WorkspacesService {
       });
 
       if (adminCount <= 1) {
-        throw new Error('Nie możesz opuścić workspace jako ostatni admin.');
+        throw new AppError('Nie możesz opuścić workspace jako ostatni admin.', 400);
       }
     }
 
@@ -217,7 +218,7 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
     
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     const requester = await WorkspaceMember.findOne({
@@ -235,19 +236,19 @@ class WorkspacesService {
     });
 
     if (existingMember) {
-      throw new Error('User jest już członkiem workspace');
+      throw new AppError('User jest już członkiem workspace', 409);
     }
 
     const userExists = await User.findByPk(memberData.userId);
     if (!userExists) {
-      throw new Error('User nie znaleziony');
+      throw new AppError('User nie znaleziony', 404);
     }
 
     const validRoles = Object.values(ROLES);
     const role = memberData.role || ROLES.VIEWER;
     
     if (!validRoles.includes(role)) {
-      throw new Error(`Nieprawidłowa rola. Dostępne: ${validRoles.join(', ')}`);
+      throw new AppError(`Nieprawidłowa rola. Dostępne: ${validRoles.join(', ')}`, 400);
     }
 
     const member = await WorkspaceMember.create({
@@ -274,7 +275,7 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
     
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     const requester = await WorkspaceMember.findOne({
@@ -288,11 +289,11 @@ class WorkspacesService {
     });
 
     if (!memberToRemove) {
-      throw new Error('Członek nie znaleziony');
+      throw new AppError('Członek nie znaleziony', 404);
     }
 
     if (memberToRemove.userId === workspace.createdBy) {
-      throw new Error('Nie można usunąć właściciela workspace');
+      throw new AppError('Nie można usunąć właściciela workspace', 400);
     }
 
     if (memberToRemove.role === ROLES.ADMIN) {
@@ -308,7 +309,7 @@ class WorkspacesService {
     const workspace = await Workspace.findByPk(workspaceId);
     
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     const requester = await WorkspaceMember.findOne({
@@ -322,16 +323,16 @@ class WorkspacesService {
     });
 
     if (!memberToUpdate) {
-      throw new Error('Członek nie znaleziony');
+      throw new AppError('Członek nie znaleziony', 404);
     }
 
     if (memberToUpdate.userId === workspace.createdBy) {
-      throw new Error('Nie można zmienić roli właściciela');
+      throw new AppError('Nie można zmienić roli właściciela', 400);
     }
 
     const validRoles = Object.values(ROLES);
     if (!validRoles.includes(newRole)) {
-      throw new Error(`Nieprawidłowa rola. Dostępne: ${validRoles.join(', ')}`);
+      throw new AppError(`Nieprawidłowa rola. Dostępne: ${validRoles.join(', ')}`, 400);
     }
 
     if (memberToUpdate.role === ROLES.ADMIN || newRole === ROLES.ADMIN) {
@@ -365,7 +366,7 @@ class WorkspacesService {
     });
 
     if (!workspace) {
-      throw new Error('Workspace nie znaleziony');
+      throw new AppError('Workspace nie znaleziony', 404);
     }
 
     const member = await WorkspaceMember.findOne({

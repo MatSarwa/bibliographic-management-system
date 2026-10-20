@@ -10,7 +10,6 @@ export const useAuthStore = create(
       loading: false,
 
       setAuth: (user, token) => {
-        console.log('SET_AUTH called with:', { user, token: token?.substring(0, 20) });
         localStorage.setItem('token', token);
         localStorage.setItem('userId', user.id);
         set({
@@ -19,12 +18,10 @@ export const useAuthStore = create(
           isAuthenticated: true,
           loading: false,
         });
-        console.log('AUTH SET COMPLETE');
       },
 
       setUserFromGoogle: (user, token) => {
 
-        console.log('SET_USER_FROM_GOOGLE called with:', { user, token: token?.substring(0, 20) });
 
         if (!user?.id || !user?.username || !token) {
           console.warn('setUserFromGoogle: invalid data', { user, token });
@@ -45,7 +42,6 @@ export const useAuthStore = create(
       setLoading: (loading) => set({ loading }),
 
       logout: () => {
-        console.log('LOGOUT called');
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('auth-storage');
@@ -65,7 +61,6 @@ export const useAuthStore = create(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state, error) => {
-        console.log('REHYDRATE from localStorage:', state);
         if (error) {
           console.error('REHYDRATE ERROR:', error);
         }

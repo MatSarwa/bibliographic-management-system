@@ -8,7 +8,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('Database connected successfully');
-    console.log('Database:', config.database.name);
+    console.log('Database:', sequelize.getDatabaseName());
     
     app.listen(PORT, () => {
       console.log('Server running on http://localhost:' + PORT);

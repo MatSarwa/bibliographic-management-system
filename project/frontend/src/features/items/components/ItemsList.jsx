@@ -6,6 +6,7 @@ import ItemsToolbar from './ItemsToolbar';
 import ItemsTable from './ItemsTable';
 import ItemModal from './ItemModal';
 import ActionPanel from './ActionPanel';
+import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
 
 export default function ItemsList({ 
   collectionId, 
@@ -23,17 +24,26 @@ export default function ItemsList({
   const [editItem, setEditItem] = useState(null);
   const [columnState, setColumnState] = useState(null);
 
+  const itemsVersion = useRefreshVersion('items');
+  const refresh = useRefresh();
+  // Item changes also change item counts shown next to collections and workspaces.
+  const refreshItems = () => refresh('items', 'collections', 'workspaces');
+
   useEffect(() => {
     fetchItems();
   }, [collectionId, viewType, workspaceId]);
 
-  const fetchItems = async () => {
-    setLoading(true);
+  // Refetch in the background after changes made anywhere in the app (no loader flash).
+  useEffect(() => {
+    if (itemsVersion > 0) fetchItems({ silent: true });
+  }, [itemsVersion]);
+
+  const fetchItems = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       let response;
       
       if (workspaceId && collectionId) {
-        console.log('Fetching workspace items:', { workspaceId, collectionId });
         response = await api.get(`/workspaces/${workspaceId}/collections/${collectionId}/items`);
       } 
       else if (viewType === 'all') {
@@ -47,13 +57,12 @@ export default function ItemsList({
       }
 
       const data = response?.data?.data || response?.data || [];
-      console.log('Items fetched:', data.length);
       setItems(data);
     } catch (err) {
       console.error('Error fetching items:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się pobrać itemów',
+        message: 'Nie udało się pobrać pozycji',
         color: 'red',
       });
       setItems([]);
@@ -74,17 +83,17 @@ export default function ItemsList({
       if (response.data) {
         notifications.show({
           title: 'Sukces!',
-          message: 'Item dodany',
+          message: 'Dodano pozycję',
           color: 'green',
         });
-        fetchItems();
+        refreshItems();
         return true;
       }
     } catch (err) {
       console.error('Error creating item:', err);
       notifications.show({
         title: 'Błąd',
-        message: err.response?.data?.message || 'Nie udało się dodać itemu',
+        message: err.response?.data?.message || 'Nie udało się dodać pozycji',
         color: 'red',
       });
       return false;
@@ -98,17 +107,17 @@ export default function ItemsList({
       if (response.data) {
         notifications.show({
           title: 'Sukces!',
-          message: 'Item zaktualizowany',
+          message: 'Zapisano zmiany',
           color: 'green',
         });
-        fetchItems();
+        refreshItems();
         return true;
       }
     } catch (err) {
       console.error('Error updating item:', err);
       notifications.show({
         title: 'Błąd',
-        message: err.response?.data?.message || 'Nie udało się zaktualizować itemu',
+        message: err.response?.data?.message || 'Nie udało się zapisać zmian',
         color: 'red',
       });
       return false;
@@ -116,7 +125,7 @@ export default function ItemsList({
   };
 
   const handleDelete = async (itemId) => {
-    if (!window.confirm('Czy na pewno usunąć ten item?')) {
+    if (!window.confirm('Czy na pewno przenieść tę pozycję do kosza?')) {
       return;
     }
 
@@ -124,15 +133,15 @@ export default function ItemsList({
       await api.delete(`/items/${itemId}`);
       notifications.show({
         title: 'Sukces!',
-        message: 'Item usunięty',
+        message: 'Przeniesiono do kosza',
         color: 'green',
       });
-      fetchItems();
+      refreshItems();
     } catch (err) {
       console.error('Error deleting item:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się usunąć itemu',
+        message: 'Nie udało się usunąć pozycji',
         color: 'red',
       });
     }
@@ -150,7 +159,7 @@ export default function ItemsList({
         color: 'green',
       });
       
-      fetchItems();
+      refreshItems();
     } catch (err) {
       console.error('Error toggling favorite:', err);
       notifications.show({
@@ -274,7 +283,7 @@ export default function ItemsList({
         onToggleFavorite={handleToggleFavorite}
         onToggleSelect={handleToggleSelect}
         onColumnStateChange={setColumnState}
-        onRefresh={fetchItems}
+        onRefresh={refreshItems}
         isWorkspace={!!workspaceId}
       />
 
@@ -301,7 +310,7 @@ export default function ItemsList({
         <ActionPanel
           selectedItemIds={selectedItemIds}
           onClose={() => setSelectedItemIds([])}
-          onRefresh={fetchItems}
+          onRefresh={refreshItems}
           currentWorkspaceId={workspaceId}
           currentCollectionId={currentCollectionId}
         />

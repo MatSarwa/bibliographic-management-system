@@ -30,6 +30,8 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import classes from '../../../shared/styles/interactive.module.css';
+import { downloadCollectionExport } from '../../../shared/utils/download';
 
 function CollectionNode({
   collection,
@@ -61,27 +63,10 @@ function CollectionNode({
   const isShared = sharedWith.length > 0;
   const memberCount = sharedWith.length;
 
-  console.log(`${collection.name} - isShared:`, isShared, 'memberCount:', memberCount, 'sharedWith:', sharedWith);
 
   const handleExportCollection = (collectionId, format, e) => {
     e.stopPropagation();
-    const token = localStorage.getItem('token');
-    
-    fetch(`http://localhost:5000/api/items/export/${format}?collectionId=${collectionId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `kolekcja_${collection.name}_${Date.now()}.${format}`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      })
-      .catch(err => {
-        console.error('EKSPORT BŁĄD:', err);
-        alert('Błąd eksportu');
-      });
+    downloadCollectionExport(collectionId, format, `kolekcja_${collection.name}`);
   };
 
   const handleDragStart = (e, collection) => {
@@ -125,21 +110,21 @@ function CollectionNode({
           paddingTop: '2px',
           paddingBottom: '2px',
           cursor: 'pointer',
-          backgroundColor: isSelected ? '#f3f4f6' : (isHovered ? '#f9fafb' : 'transparent'),
+          backgroundColor: isSelected ? 'var(--app-active)' : (isHovered ? 'var(--app-hover)' : 'transparent'),
           borderRadius: '4px',
           transition: 'background-color 0.15s ease',
           marginBottom: '1px',
           display: 'flex',
           alignItems: 'center',
           minHeight: '26px',
-          border: isSelected ? '1px solid #e5e7eb' : '1px solid transparent'
+          border: isSelected ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent'
         }}
       >
         {!isShared && (
           <ActionIcon
             size="xs"
             variant="transparent"
-            c="#9ca3af"
+            c="var(--mantine-color-placeholder)"
             style={{
               opacity: isHovered ? 1 : 0,
               transition: 'opacity 0.15s ease',
@@ -157,7 +142,7 @@ function CollectionNode({
           <Box style={{ width: '20px', marginRight: '4px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {isHovered && (
               <Tooltip label="Kolekcja udostępniona - nie można zagnieżdżać" withArrow>
-                <IconLock size={11} color="#06b6d4" />
+                <IconLock size={11} style={{ color: 'var(--mantine-color-cyan-6)' }} />
               </Tooltip>
             )}
           </Box>
@@ -178,9 +163,9 @@ function CollectionNode({
             }}
           >
             {isExpanded ? (
-              <IconChevronDown size={12} color="#6b7280" />
+              <IconChevronDown size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
             ) : (
-              <IconChevronRight size={12} color="#6b7280" />
+              <IconChevronRight size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
             )}
           </UnstyledButton>
         ) : (
@@ -190,12 +175,12 @@ function CollectionNode({
         <Box mr={6} style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           {hasChildren ? (
             isExpanded ? (
-              <IconFolderOpen size={14} color="#6b7280" />
+              <IconFolderOpen size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
             ) : (
-              <IconFolder size={14} color="#6b7280" />
+              <IconFolder size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
             )
           ) : (
-            <IconFolder size={14} color="#9ca3af" />
+            <IconFolder size={14} style={{ color: 'var(--mantine-color-placeholder)' }} />
           )}
         </Box>
 
@@ -203,7 +188,7 @@ function CollectionNode({
 
           <Text
             size="13px"
-            c={isSelected ? '#111827' : '#6b7280'}
+            c={isSelected ? 'var(--mantine-color-text)' : 'var(--mantine-color-dimmed)'}
             fw={isSelected ? 500 : 400}
             style={{
               lineHeight: '1.2',
@@ -230,13 +215,13 @@ function CollectionNode({
                   flexShrink: 0
                 }}
               >
-                <IconUsers size={12} color="#06b6d4" />
+                <IconUsers size={12} style={{ color: 'var(--mantine-color-cyan-6)' }} />
               </Box>
             </Tooltip>
           )}
 
           {itemCount > 0 && (
-            <Text size="11px" c="#9ca3af" fw={400} style={{ flexShrink: 0 }}>
+            <Text size="11px" c="var(--mantine-color-placeholder)" fw={400} style={{ flexShrink: 0 }}>
               {itemCount}
             </Text>
           )}
@@ -248,7 +233,7 @@ function CollectionNode({
               <ActionIcon
                 size="xs"
                 variant="transparent"
-                c="#9ca3af"
+                c="var(--mantine-color-placeholder)"
                 onClick={(e) => {
                   e.stopPropagation();
                   setMenuOpened(!menuOpened);
@@ -258,11 +243,11 @@ function CollectionNode({
                 <IconDots size={12} />
               </ActionIcon>
             </Menu.Target>
-            <Menu.Dropdown style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
-              <Menu.Label c="#6b7280" fz="10px">Udostępnianie</Menu.Label>
+            <Menu.Dropdown style={{ backgroundColor: 'var(--mantine-color-body)', border: '1px solid var(--mantine-color-default-border)' }}>
+              <Menu.Label c="dimmed" fz="10px">Udostępnianie</Menu.Label>
 
               <Menu.Item 
-                leftSection={<IconUsers size={14} color={canShare ? '#06b6d4' : '#9ca3af'} />} 
+                leftSection={<IconUsers size={14} style={{ color: canShare ? 'var(--mantine-color-cyan-6)' : 'var(--mantine-color-placeholder)' }} />} 
                 onClick={(e) => {
                   e.stopPropagation();
                   if (canShare && onShare) {
@@ -272,7 +257,7 @@ function CollectionNode({
                 }} 
                 fz="12px"
                 disabled={!canShare}
-                c={canShare ? '#111827' : '#9ca3af'}
+                c={canShare ? 'var(--mantine-color-text)' : 'var(--mantine-color-placeholder)'}
               >
                 {isShared ? `Zarządzaj (${memberCount})` : 'Udostępnij...'}
               </Menu.Item>
@@ -282,7 +267,7 @@ function CollectionNode({
                   leftSection={<IconLock size={14} />} 
                   disabled
                   fz="11px"
-                  c="#9ca3af"
+                  c="var(--mantine-color-placeholder)"
                   style={{ whiteSpace: 'normal', height: 'auto', padding: '6px 8px' }}
                 >
                   {isNested 
@@ -292,7 +277,7 @@ function CollectionNode({
               )}
               
               <Menu.Divider />
-              <Menu.Label c="#6b7280" fz="10px">Eksport</Menu.Label>
+              <Menu.Label c="dimmed" fz="10px">Eksport</Menu.Label>
               <Menu.Item 
                 leftSection={<IconDownload size={14} />} 
                 onClick={(e) => { 
@@ -315,7 +300,7 @@ function CollectionNode({
               </Menu.Item>
               
               <Menu.Divider />
-              <Menu.Label c="#6b7280" fz="10px">Zarządzanie</Menu.Label>
+              <Menu.Label c="dimmed" fz="10px">Zarządzanie</Menu.Label>
               <Menu.Item 
                 leftSection={<IconEdit size={14} />} 
                 onClick={(e) => { 
@@ -431,8 +416,8 @@ export default function CollectionsList({
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    e.currentTarget.style.backgroundColor = '#f0f9ff';
-    e.currentTarget.style.border = '2px dashed #3b82f6';
+    e.currentTarget.style.backgroundColor = 'var(--mantine-color-blue-light)';
+    e.currentTarget.style.border = '2px dashed var(--mantine-color-blue-6)';
   };
 
   const handleDragLeave = (e) => {
@@ -447,12 +432,6 @@ export default function CollectionsList({
     e.currentTarget.style.border = '';
 
     if (draggedCollection && draggedCollection.id !== targetCollection.id) {
-      console.log(' DROP:', {
-        dragged: draggedCollection.name,
-        draggedId: draggedCollection.id,
-        target: targetCollection.name,
-        targetId: targetCollection.id
-      });
 
       const draggedSharedWith = draggedCollection.sharedWith || draggedCollection.memberships || [];
       const targetSharedWith = targetCollection.sharedWith || targetCollection.memberships || [];
@@ -521,7 +500,7 @@ export default function CollectionsList({
   return (
     <Box>
       <Group justify="space-between" mb={4} gap={2}>
-        <Text size="10px" fw={600} c="#9ca3af" tt="uppercase" lts="0.8px">
+        <Text size="10px" fw={600} c="var(--mantine-color-placeholder)" tt="uppercase" lts="0.8px">
           Kolekcje
         </Text>
 
@@ -532,18 +511,18 @@ export default function CollectionsList({
                 <ActionIcon
                   size="xs"
                   variant="subtle"
-                  c="#9ca3af"
+                  c="var(--mantine-color-placeholder)"
                   style={{ width: '20px', height: '20px' }}
                 >
                   <IconSortAscending size={11} />
                 </ActionIcon>
               </Tooltip>
             </Menu.Target>
-            <Menu.Dropdown style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
-              <Menu.Label c="#6b7280" fz="10px">Sortuj</Menu.Label>
+            <Menu.Dropdown style={{ backgroundColor: 'var(--mantine-color-body)', border: '1px solid var(--mantine-color-default-border)' }}>
+              <Menu.Label c="dimmed" fz="10px">Sortuj</Menu.Label>
               <Menu.Item
                 onClick={() => setSortBy('name')}
-                c={sortBy === 'name' ? '#3b82f6' : '#111827'}
+                c={sortBy === 'name' ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-text)'}
                 fz="11px"
                 style={{ padding: '4px 8px' }}
               >
@@ -551,7 +530,7 @@ export default function CollectionsList({
               </Menu.Item>
               <Menu.Item
                 onClick={() => setSortBy('date')}
-                c={sortBy === 'date' ? '#3b82f6' : '#111827'}
+                c={sortBy === 'date' ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-text)'}
                 fz="11px"
                 style={{ padding: '4px 8px' }}
               >
@@ -559,7 +538,7 @@ export default function CollectionsList({
               </Menu.Item>
               <Menu.Item
                 onClick={() => setSortBy('items')}
-                c={sortBy === 'items' ? '#3b82f6' : '#111827'}
+                c={sortBy === 'items' ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-text)'}
                 fz="11px"
                 style={{ padding: '4px 8px' }}
               >
@@ -572,7 +551,7 @@ export default function CollectionsList({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={onCreateNew}
               style={{ width: '20px', height: '20px' }}
             >
@@ -584,10 +563,10 @@ export default function CollectionsList({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={() => setSearchVisible(!searchVisible)}
               style={{
-                backgroundColor: searchVisible ? '#f3f4f6' : 'transparent',
+                backgroundColor: searchVisible ? 'var(--app-active)' : 'transparent',
                 width: '20px',
                 height: '20px'
               }}
@@ -602,31 +581,18 @@ export default function CollectionsList({
         <TextInput
           placeholder="Szukaj kolekcji..."
           size="xs"
-          leftSection={<IconSearch size={12} color="#6b7280" />}
+          leftSection={<IconSearch size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           mb="xs"
-          styles={{
-            input: {
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              color: '#111827',
-              fontSize: '12px',
-              height: '26px',
-              minHeight: '26px',
-              '&:focus': {
-                borderColor: '#3b82f6',
-                backgroundColor: '#ffffff'
-              }
-            }
-          }}
+          classNames={{ input: classes.compactSearch }}
           rightSection={
             searchQuery && (
               <ActionIcon
                 size="xs"
                 variant="transparent"
                 onClick={() => setSearchQuery('')}
-                c="#6b7280"
+                c="dimmed"
               >
                 <IconX size={10} />
               </ActionIcon>
@@ -636,7 +602,7 @@ export default function CollectionsList({
       </Collapse>
 
       {filteredCollections.length === 0 ? (
-        <Text size="xs" c="#9ca3af" fs="italic" ta="center" py="md">
+        <Text size="xs" c="var(--mantine-color-placeholder)" fs="italic" ta="center" py="md">
           {searchQuery ? 'Nie znaleziono kolekcji' : 'Brak kolekcji. Kliknij + aby dodać.'}
         </Text>
       ) : (

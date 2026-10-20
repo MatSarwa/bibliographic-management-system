@@ -35,8 +35,8 @@ export default function ItemRow({
   return (
     <Table.Tr
       style={{
-        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
-        borderBottom: '1px solid #e5e7eb',
+        backgroundColor: isSelected ? 'var(--mantine-primary-color-light)' : 'transparent',
+        borderBottom: '1px solid var(--mantine-color-default-border)',
         cursor: 'pointer'
       }}
       onClick={() => onSelect(item)}
@@ -60,17 +60,7 @@ export default function ItemRow({
           size="xs"
           color="blue"
           radius="sm"
-          styles={{ 
-            input: { 
-              cursor: 'pointer',
-              borderColor: '#9ca3af',
-              borderWidth: '1.5px',
-              '&:checked': {
-                backgroundColor: '#3b82f6',
-                borderColor: '#3b82f6'
-              }
-            } 
-          }}
+          styles={{ input: { cursor: 'pointer', borderWidth: '1.5px' } }}
         />
       </Table.Td>
       
@@ -84,9 +74,9 @@ export default function ItemRow({
           openDelay={500}
           styles={{
             tooltip: {
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
-              color: '#111827',
+              backgroundColor: 'var(--mantine-color-body)',
+              border: '1px solid var(--mantine-color-default-border)',
+              color: 'var(--mantine-color-text)',
               fontSize: '13px'
             }
           }}
@@ -95,7 +85,7 @@ export default function ItemRow({
             size="sm" 
             fw={500} 
             lineClamp={1} 
-            c="#111827"
+            c="var(--mantine-color-text)"
             style={{ 
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -117,16 +107,16 @@ export default function ItemRow({
           openDelay={500}
           styles={{
             tooltip: {
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
-              color: '#6b7280',
+              backgroundColor: 'var(--mantine-color-body)',
+              border: '1px solid var(--mantine-color-default-border)',
+              color: 'var(--mantine-color-dimmed)',
               fontSize: '13px'
             }
           }}
         >
           <Text 
             size="sm" 
-            c="#6b7280"
+            c="dimmed"
             lineClamp={1} 
             style={{ 
               overflow: 'hidden',
@@ -141,7 +131,7 @@ export default function ItemRow({
       
       {showYear && (
         <Table.Td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-          <Text size="sm" c="#6b7280">{item.year || '—'}</Text>
+          <Text size="sm" c="dimmed">{item.year || '—'}</Text>
         </Table.Td>
       )}
       
@@ -176,9 +166,9 @@ export default function ItemRow({
               openDelay={500}
               styles={{
                 tooltip: {
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  color: '#111827',
+                  backgroundColor: 'var(--mantine-color-body)',
+                  border: '1px solid var(--mantine-color-default-border)',
+                  color: 'var(--mantine-color-text)',
                   fontSize: '12px'
                 }
               }}
@@ -201,12 +191,12 @@ export default function ItemRow({
                   </Badge>
                 ))}
                 {item.tags.length > 2 && (
-                  <Text size="xs" c="#6b7280" fw={500}>+{item.tags.length - 2}</Text>
+                  <Text size="xs" c="dimmed" fw={500}>+{item.tags.length - 2}</Text>
                 )}
               </Group>
             </Tooltip>
           ) : (
-            <Text size="xs" c="#9ca3af">—</Text>
+            <Text size="xs" c="var(--mantine-color-placeholder)">—</Text>
           )}
         </Table.Td>
       )}

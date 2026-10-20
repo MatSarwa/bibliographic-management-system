@@ -33,8 +33,8 @@ export default function ExportPanel({ selectedItemIds, onClose }) {
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#ffffff',
-        borderTop: '2px solid #6366f1',
+        backgroundColor: 'var(--mantine-color-body)',
+        borderTop: '2px solid var(--mantine-primary-color-filled)',
         boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06)',
         padding: '16px 24px',
         zIndex: 1000,
@@ -60,13 +60,13 @@ export default function ExportPanel({ selectedItemIds, onClose }) {
         <Group gap="md">
           <Box
             style={{
-              backgroundColor: '#eff6ff',
+              backgroundColor: 'var(--mantine-color-blue-light)',
               padding: '8px 16px',
               borderRadius: '8px',
-              border: '1px solid #dbeafe'
+              border: '1px solid var(--mantine-color-blue-light)'
             }}
           >
-            <Text size="sm" fw={600} c="#1e40af">
+            <Text size="sm" fw={600} c="var(--mantine-color-blue-light-color)">
               {selectedItemIds.length} {selectedItemIds.length === 1 ? 'pozycja' : 'pozycji'} zaznaczona
             </Text>
           </Box>
@@ -95,7 +95,7 @@ export default function ExportPanel({ selectedItemIds, onClose }) {
             variant="subtle"
             size="sm"
             onClick={onClose}
-            c="#6b7280"
+            c="dimmed"
           >
             Odznacz wszystkie
           </Button>

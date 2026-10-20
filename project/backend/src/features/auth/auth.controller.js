@@ -21,7 +21,6 @@ class AuthController {
 
     const { user } = await authService.register({ username, email, password });
 
-    console.log('Zarejestrowano:', username, email);
 
     ResponseHelper.created(res, 
       { email: user.email },
@@ -39,7 +38,6 @@ class AuthController {
     try {
       const { token, user } = await authService.login({ login, password });
 
-      console.log('Zalogowano:', user.username, '(', user.email, ')');
 
       ResponseHelper.success(res, {
         token,
@@ -69,9 +67,20 @@ class AuthController {
 
     const user = await authService.verifyEmail(token);
 
-    console.log('Email zweryfikowany dla:', user.email);
 
     ResponseHelper.success(res, null, 'Email zweryfikowany pomyślnie! Możesz się teraz zalogować.');
+  });
+
+  resendVerification = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return ResponseHelper.error(res, 'Podaj email', 400);
+    }
+
+    await authService.resendVerification(email);
+
+    ResponseHelper.success(res, null, 'Jeśli konto wymaga weryfikacji, wysłaliśmy nowy link na podany adres');
   });
 
   changePassword = asyncHandler(async (req, res) => {
@@ -87,7 +96,6 @@ class AuthController {
 
     await authService.changePassword(req.user.id, { currentPassword, newPassword });
 
-    console.log('Hasło zmienione dla user ID:', req.user.id);
 
     ResponseHelper.success(res, null, 'Hasło zostało zmienione pomyślnie');
   });
@@ -101,9 +109,7 @@ class AuthController {
 
     await authService.forgotPassword(email);
 
-    console.log('Email resetujący wysłany do:', email);
-
-    ResponseHelper.success(res, null, 'Link do resetowania hasła został wysłany na email');
+    ResponseHelper.success(res, null, 'Jeśli konto z tym adresem istnieje, wysłaliśmy na nie link do resetowania hasła');
   });
 
   resetPassword = asyncHandler(async (req, res) => {
@@ -119,7 +125,6 @@ class AuthController {
 
     const user = await authService.resetPassword({ token, newPassword });
 
-    console.log('Hasło zresetowane dla:', user.email);
 
     ResponseHelper.success(res, null, 'Hasło zostało zmienione! Możesz się teraz zalogować.');
   });
@@ -144,7 +149,6 @@ class AuthController {
 });
 
 googleCallback = (req, res) => {
-  console.log('GOOGLE CALLBACK STARTED');
   
   if (!req.user) {
     return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_user`);
@@ -159,18 +163,12 @@ googleCallback = (req, res) => {
     expiresAt: Date.now() + 60000
   });
 
-  console.log('Zalogowano przez Google:', req.user.username);
-  console.log('Code:', code.substring(0, 10) + '...');
-  const redirectUrl = `${process.env.FRONTEND_URL}/auth/google/success?code=${code}`;
-  console.log('REDIRECT URL:', redirectUrl); 
 
   res.redirect(`${process.env.FRONTEND_URL}/auth/google/success?code=${code}`);
 };
 
 exchangeGoogleCode = (req, res) => {
   const { code } = req.body;
-  
-  console.log('Exchange code request:', code?.substring(0, 10) + '...');
 
   if (!code) {
     return res.status(400).json({ success: false, message: 'Brak kodu' });
@@ -195,7 +193,6 @@ exchangeGoogleCode = (req, res) => {
     { expiresIn: '7d' }
   );
 
-  console.log('Token wygenerowany dla:', data.username);
 
   res.json({
     success: true,

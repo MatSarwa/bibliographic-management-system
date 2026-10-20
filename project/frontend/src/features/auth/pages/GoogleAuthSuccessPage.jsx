@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { Loader, Container, Text, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import AuthBackground from '../components/AuthBackground';
+import { API_URL } from '../../../shared/utils/api';
 
 export default function GoogleAuthSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -32,7 +33,7 @@ export default function GoogleAuthSuccessPage() {
       return;
     }
 
-    fetch('http://localhost:5000/api/auth/google/exchange', {
+    fetch(`${API_URL}/auth/google/exchange`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code })
@@ -73,7 +74,7 @@ export default function GoogleAuthSuccessPage() {
 
   return (
     <AuthBackground>
-      <Container size={420} style={{ paddingTop: '100px' }}>
+      <Container w="100%" size={420} style={{ paddingTop: '100px' }}>
         <Stack align="center" gap="md">
           {error ? (
             <>

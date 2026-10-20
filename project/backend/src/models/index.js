@@ -8,18 +8,20 @@ if (!dbConfig) {
   throw new Error(`Brak konfiguracji dla środowiska: ${env}. Dodaj sekcję '${env}' do config.js.`);
 }
 
-const sequelize = new Sequelize(
-  dbConfig.database,
-  dbConfig.username,
-  dbConfig.password,
-  {
-    host: dbConfig.host,
-    port: dbConfig.port,
-    dialect: dbConfig.dialect,
-    logging: dbConfig.logging,
-    storage: dbConfig.storage  
-  }
-);
+const sequelize = dbConfig.use_env_variable
+  ? new Sequelize(process.env[dbConfig.use_env_variable], dbConfig)
+  : new Sequelize(
+    dbConfig.database,
+    dbConfig.username,
+    dbConfig.password,
+    {
+      host: dbConfig.host,
+      port: dbConfig.port,
+      dialect: dbConfig.dialect,
+      logging: dbConfig.logging,
+      storage: dbConfig.storage
+    }
+  );
 
 const db = { sequelize, Sequelize };
 

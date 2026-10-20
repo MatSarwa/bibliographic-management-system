@@ -1,3 +1,4 @@
+const AppError = require('../../shared/utils/app-error');
 class CitationService {
   
   static STYLES = {
@@ -255,7 +256,7 @@ class CitationService {
   generateCitation(item, styleCode = 'apa') {
     const style = CitationService.STYLES[styleCode];
     if (!style) {
-      throw new Error('Nieznany styl cytowania');
+      throw new AppError('Nieznany styl cytowania', 400);
     }
 
     const data = this.extractData(item);

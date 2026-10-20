@@ -2,7 +2,11 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { User } = require('../../../models');
 
-passport.use(new GoogleStrategy({
+// Google login is optional: without OAuth keys (e.g. on the demo server) the strategy is not
+// registered, instead of crashing the whole server at startup.
+const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+
+if (googleEnabled) passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK_URL
@@ -34,7 +38,6 @@ passport.use(new GoogleStrategy({
         isVerified: true
       });
 
-      console.log('Nowy user przez Google:', username);
 
       done(null, user);
     } catch (err) {
@@ -56,5 +59,7 @@ passport.deserializeUser(async (id, done) => {
     done(err, null);
   }
 });
+
+passport.googleEnabled = googleEnabled;
 
 module.exports = passport;

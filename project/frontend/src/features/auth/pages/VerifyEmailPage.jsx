@@ -50,7 +50,7 @@ export default function VerifyEmailPage() {
 
   return (
     <AuthBackground>
-      <Container
+      <Container w="100%"
         size={420}
         style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}
       >
@@ -59,16 +59,16 @@ export default function VerifyEmailPage() {
           shadow="xl"
           p={36}
           radius="md"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
+          style={{ backgroundColor: 'var(--mantine-color-body)' }}
         >
           <Stack align="center" gap="md">
             {status === 'verifying' && (
               <>
                 <Loader size="lg" color="violet" />
-                <Title order={3} c="#111827">
+                <Title order={3} c="var(--mantine-color-text)">
                   Weryfikacja emaila...
                 </Title>
-                <Text size="sm" c="#6b7280">
+                <Text size="sm" c="dimmed">
                   Proszę czekać
                 </Text>
               </>
@@ -85,7 +85,7 @@ export default function VerifyEmailPage() {
                 >
                   <Text size="sm">Email został zweryfikowany pomyślnie!</Text>
                 </Alert>
-                <Text size="sm" c="#6b7280">
+                <Text size="sm" c="dimmed">
                   Za chwilę zostaniesz przekierowany...
                 </Text>
               </>

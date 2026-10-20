@@ -16,8 +16,8 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    console.error('JWT verify error:', err.message);
-    return res.status(403).json({ 
+    // 401 (not 403) so the frontend knows the session is gone and logs the user out.
+    return res.status(401).json({
       success: false,
       message: 'Nieprawidłowy lub wygasły token' 
     });

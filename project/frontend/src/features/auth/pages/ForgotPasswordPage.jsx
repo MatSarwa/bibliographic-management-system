@@ -38,13 +38,13 @@ export default function ForgotPasswordPage() {
   if (success) {
     return (
       <AuthBackground>
-        <Container size={420} style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}>
-          <Paper withBorder shadow="xl" p={36} radius="md" style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}>
+        <Container w="100%" size={420} style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}>
+          <Paper withBorder shadow="xl" p={36} radius="md" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Alert icon={<IconCheck size={18} />} color="green">
               Link do resetowania hasła został wysłany na {email}
             </Alert>
             <Text size="sm" ta="center" mt="md">
-              <Link to="/login" style={{ color: '#6366f1' }}>
+              <Link to="/login" style={{ color: 'var(--mantine-primary-color-filled)' }}>
                 Powrót do logowania
               </Link>
             </Text>
@@ -56,9 +56,9 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthBackground>
-      <Container size={420} style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}>
-        <Paper withBorder shadow="xl" p={36} radius="md" style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}>
-          <Title order={2} ta="center" mb="xl" c="#111827">
+      <Container w="100%" size={420} style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}>
+        <Paper withBorder shadow="xl" p={36} radius="md" style={{ backgroundColor: 'var(--mantine-color-body)' }}>
+          <Title order={2} ta="center" mb="xl" c="var(--mantine-color-text)">
             Resetowanie hasła
           </Title>
 
@@ -78,11 +78,11 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 size="md"
               />
-              <Button type="submit" fullWidth size="md" loading={loading} style={{ backgroundColor: '#6366f1' }}>
+              <Button type="submit" fullWidth size="md" loading={loading} style={{ backgroundColor: 'var(--mantine-primary-color-filled)' }}>
                 Wyślij link resetujący
               </Button>
               <Text size="sm" ta="center">
-                <Link to="/login" style={{ color: '#6366f1', textDecoration: 'none' }}>
+                <Link to="/login" style={{ color: 'var(--mantine-primary-color-filled)', textDecoration: 'none' }}>
                   Powrót do logowania
                 </Link>
               </Text>

@@ -87,10 +87,21 @@ describe('AuthService - Pełne Testy Jednostkowe', () => {
     it('should throw error if email not verified', async () => {
       const fakeUser = { password: 'hashed', isVerified: false, email: 'a@a.com' };
       User.findOne.mockResolvedValueOnce(fakeUser);
+      bcrypt.compare.mockResolvedValueOnce(true);
 
       const errorPromise = AuthService.login({ login: 'a@a.com', password: 'pass' });
       await expect(errorPromise).rejects.toThrow('Email nie został zweryfikowany');
-      await expect(errorPromise).rejects.toMatchObject({ needsVerification: true, email: 'a@a.com' });
+      await expect(errorPromise).rejects.toMatchObject({ needsVerification: true, email: 'a@a.com', statusCode: 403 });
+    });
+
+    it('should not reveal email of unverified account when password is wrong', async () => {
+      const fakeUser = { password: 'hashed', isVerified: false, email: 'secret@a.com' };
+      User.findOne.mockResolvedValueOnce(fakeUser);
+      bcrypt.compare.mockResolvedValueOnce(false);
+
+      const errorPromise = AuthService.login({ login: 'someone', password: 'guess' });
+      await expect(errorPromise).rejects.toThrow('Nieprawidłowy login lub hasło');
+      await expect(errorPromise).rejects.not.toHaveProperty('email');
     });
 
     it('should throw error if password does not match', async () => {
@@ -186,21 +197,54 @@ describe('AuthService - Pełne Testy Jednostkowe', () => {
     });
   });
 
-  describe('forgotPassword', () => {
-    it('should throw error if user not found', async () => {
-      User.findOne.mockResolvedValueOnce(null);
+  describe('resendVerification', () => {
+    it('should generate a new token and send email for unverified account', async () => {
+      const fakeUser = { username: 'user', password: 'hashed', isVerified: false, update: jest.fn().mockResolvedValueOnce() };
+      User.findOne.mockResolvedValueOnce(fakeUser);
+      crypto.randomBytes.mockReturnValueOnce({ toString: () => 'newtoken' });
 
-      await expect(
-        AuthService.forgotPassword('no@email.com')
-      ).rejects.toThrow('Użytkownik z tym emailem nie istnieje');
+      const result = await AuthService.resendVerification('user@email.com');
+
+      expect(fakeUser.update).toHaveBeenCalledWith(expect.objectContaining({
+        verificationToken: 'newtoken',
+        verificationTokenExpires: expect.any(Date)
+      }));
+      expect(sendVerificationEmail).toHaveBeenCalledWith('user@email.com', 'newtoken', 'user');
+      expect(result).toEqual({ success: true });
     });
 
-    it('should throw error if account is Google-only', async () => {
+    it.each([
+      ['user not found', null],
+      ['account already verified', { password: 'hashed', isVerified: true }],
+      ['account is Google-only', { password: null, isVerified: false }],
+    ])('should succeed silently and send nothing if %s', async (_, user) => {
+      User.findOne.mockResolvedValueOnce(user);
+
+      const result = await AuthService.resendVerification('x@email.com');
+
+      expect(result).toEqual({ success: true });
+      expect(sendVerificationEmail).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('forgotPassword', () => {
+    // Unknown and Google-only emails get the same answer as real ones (no account enumeration).
+    it('should succeed silently and send nothing if user not found', async () => {
+      User.findOne.mockResolvedValueOnce(null);
+
+      const result = await AuthService.forgotPassword('no@email.com');
+
+      expect(result).toEqual({ success: true });
+      expect(sendPasswordResetEmail).not.toHaveBeenCalled();
+    });
+
+    it('should succeed silently and send nothing if account is Google-only', async () => {
       User.findOne.mockResolvedValueOnce({ password: null });
 
-      await expect(
-        AuthService.forgotPassword('google@email.com')
-      ).rejects.toThrow('To konto zostało utworzone przez Google. Zaloguj się przez Google.');
+      const result = await AuthService.forgotPassword('google@email.com');
+
+      expect(result).toEqual({ success: true });
+      expect(sendPasswordResetEmail).not.toHaveBeenCalled();
     });
 
     it('should generate reset token, update user, and send email', async () => {

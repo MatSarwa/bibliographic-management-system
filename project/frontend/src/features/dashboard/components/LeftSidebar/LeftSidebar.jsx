@@ -31,8 +31,8 @@ export default function LeftSidebar({
       ref={leftRef}
       style={{
         width: '280px',
-        backgroundColor: '#ffffff',
-        borderRight: '1px solid #e5e7eb',
+        backgroundColor: 'var(--mantine-color-body)',
+        borderRight: '1px solid var(--mantine-color-default-border)',
         position: 'relative',
         overflow: 'visible'
       }}
@@ -47,7 +47,7 @@ export default function LeftSidebar({
               trashCount={sidebar.trashCount}
             />
 
-            <Divider my="xs" color="#e5e7eb" />
+            <Divider my="xs" color="var(--mantine-color-default-border)" />
 
             <CollectionsSection
               collections={sidebar.collections}
@@ -61,7 +61,7 @@ export default function LeftSidebar({
               getCollectionItemCount={sidebar.getCollectionItemCount}
             />
 
-            <Divider my="xs" color="#e5e7eb" />
+            <Divider my="xs" color="var(--mantine-color-default-border)" />
 
             <WorkspacesSection
               workspaces={sidebar.workspaces}

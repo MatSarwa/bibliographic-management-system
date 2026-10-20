@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import App from './App';
+import ErrorBoundary from './shared/components/ErrorBoundary';
 import { useAuthStore } from './features/auth/store/authStore';
 import api from './shared/utils/api';
+import { theme } from './theme';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
+import './shared/styles/global.css';
 
 function AuthInitializer({ children }) {
   const { setAuth, setLoading, logout } = useAuthStore();
@@ -53,29 +56,13 @@ function AuthInitializer({ children }) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <MantineProvider
-      theme={{
-        primaryColor: 'violet',
-        colors: {
-          violet: [
-            '#f3f0ff',
-            '#e5dbff',
-            '#d0bfff',
-            '#b197fc',
-            '#9775fa',
-            '#845ef7',
-            '#7950f2',
-            '#7048e8',
-            '#6741d9',
-            '#5f3dc4',
-          ],
-        },
-      }}
-    >
+    <MantineProvider theme={theme} defaultColorScheme="auto">
       <Notifications position="top-right" />
-      <AuthInitializer>
-        <App />
-      </AuthInitializer>
+      <ErrorBoundary>
+        <AuthInitializer>
+          <App />
+        </AuthInitializer>
+      </ErrorBoundary>
     </MantineProvider>
   </React.StrictMode>,
 );

@@ -79,7 +79,7 @@ export default function LabelsView() {
       <Group justify="space-between" mb="xl">
         <div>
           <Group gap="xs">
-            <IconTag size={28} color="#6366f1" />
+            <IconTag size={28} style={{ color: 'var(--mantine-primary-color-filled)' }} />
             <Text size="xl" fw={700}>
               Etykiety
             </Text>
@@ -101,7 +101,7 @@ export default function LabelsView() {
       </Group>
 
       {isAdding && (
-        <Card p="md" mb="md" withBorder style={{ backgroundColor: '#f9fafb' }}>
+        <Card p="md" mb="md" withBorder style={{ backgroundColor: 'var(--app-hover)' }}>
           <Stack gap="md">
             <Text size="sm" fw={600}>
               Nowa etykieta
@@ -127,7 +127,7 @@ export default function LabelsView() {
                     onClick={() => setNewColor(color)}
                     style={{
                       cursor: 'pointer',
-                      border: newColor === color ? '3px solid #3b82f6' : '2px solid #e5e7eb'
+                      border: newColor === color ? '3px solid var(--mantine-color-blue-6)' : '2px solid var(--mantine-color-default-border)'
                     }}
                   />
                 ))}
@@ -159,7 +159,7 @@ export default function LabelsView() {
       {labels.length === 0 ? (
         <Center py="xl">
           <Stack align="center" gap="md">
-            <IconTag size={48} color="#9ca3af" />
+            <IconTag size={48} style={{ color: 'var(--mantine-color-placeholder)' }} />
             <Text size="lg" c="dimmed">
               Brak etykiet
             </Text>
@@ -173,7 +173,7 @@ export default function LabelsView() {
           {labels.map((label) => (
             <Grid.Col key={label.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
               {editingId === label.id ? (
-                <Card p="md" withBorder style={{ backgroundColor: '#f9fafb' }}>
+                <Card p="md" withBorder style={{ backgroundColor: 'var(--app-hover)' }}>
                   <Stack gap="md">
                     <TextInput
                       value={editName}
@@ -193,7 +193,7 @@ export default function LabelsView() {
                             onClick={() => setEditColor(color)}
                             style={{
                               cursor: 'pointer',
-                              border: editColor === color ? '2px solid #3b82f6' : '2px solid transparent'
+                              border: editColor === color ? '2px solid var(--mantine-color-blue-6)' : '2px solid transparent'
                             }}
                           />
                         ))}

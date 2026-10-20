@@ -9,7 +9,6 @@ export default function ProtectedRoute({ children }) {
   useEffect(() => {
   
     const token = localStorage.getItem('token');
-    console.log('ProtectedRoute - token:', token ? 'EXISTS' : 'MISSING');
     
     setHasToken(!!token);
     setChecking(false);
@@ -24,7 +23,6 @@ export default function ProtectedRoute({ children }) {
   }
 
   if (!hasToken) {
-    console.log(' Brak tokena, przekierowuję na /login');
     return <Navigate to="/login" replace />;
   }
 

@@ -14,7 +14,6 @@ const collectionsService = {
         };
       });
       
-      console.log('Kolekcje po mapowaniu:', collections);
       
       return { success: true, data: collections };
     } catch (error) {
@@ -39,7 +38,6 @@ const collectionsService = {
 
   async create(collectionData) {
     try {
-      console.log('API call - creating collection:', collectionData);
       const { data } = await api.post('/collections', collectionData);
       return { success: true, data: data.data || data };
     } catch (error) {
@@ -53,7 +51,6 @@ const collectionsService = {
 
   async update(id, collectionData) {
     try {
-      console.log('API call - updating collection:', { id, data: collectionData });
       const { data } = await api.put(`/collections/${id}`, collectionData);
       return { success: true, data: data.data || data };
     } catch (error) {
@@ -91,7 +88,6 @@ const collectionsService = {
 
   async shareCollection(collectionId, userData) {
     try {
-      console.log('Sharing collection:', { collectionId, userData });
       const { data } = await api.post(`/collection-sharing/${collectionId}/share`, userData);
       return { success: true, data: data.data || data };
     } catch (error) {
@@ -105,7 +101,6 @@ const collectionsService = {
 
   async unshareCollection(collectionId, userId) {
     try {
-      console.log('Unsharing collection:', { collectionId, userId });
       const { data } = await api.delete(`/collection-sharing/${collectionId}/share/${userId}`);
       return { success: true, data };
     } catch (error) {
@@ -119,7 +114,6 @@ const collectionsService = {
 
   async getSharedUsers(collectionId) {
     try {
-      console.log('Getting shared users for:', collectionId);
       const { data } = await api.get(`/collection-sharing/${collectionId}/shared-users`);
       return { success: true, data: data.data || data };
     } catch (error) {

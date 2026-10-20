@@ -8,7 +8,7 @@ export default function AuthHeader() {
         <IconBook size={22} stroke={2} color="white" />
       </ThemeIcon>
       <div>
-        <Title order={2} c="#111827" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
+        <Title order={2} c="var(--mantine-color-text)" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
           BibliografiaApp
         </Title>
       </div>

@@ -2,6 +2,7 @@ import { Box, Group, Text, ActionIcon, Button } from '@mantine/core';
 import { IconLogout, IconPlus } from '@tabler/icons-react';
 import { useAuthStore } from '../../auth/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import ColorSchemeToggle from '../../../shared/components/ColorSchemeToggle';
 
 export default function Navbar({ onOpenAddModal }) {
   const { user, logout } = useAuthStore();
@@ -16,8 +17,8 @@ export default function Navbar({ onOpenAddModal }) {
     <Box
       style={{
         height: '60px',
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e5e7eb',
+        backgroundColor: 'var(--mantine-color-body)',
+        borderBottom: '1px solid var(--mantine-color-default-border)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -38,9 +39,11 @@ export default function Navbar({ onOpenAddModal }) {
       </Button>
 
       <Group gap="md">
-        <Text size="sm" c="#6b7280">
-          Witaj, <Text span fw={500} c="#111827">{user?.username || 'User'}</Text>!
+        <Text size="sm" c="dimmed">
+          Witaj, <Text span fw={500} c="var(--mantine-color-text)">{user?.username || 'User'}</Text>!
         </Text>
+
+        <ColorSchemeToggle />
 
         <ActionIcon
           variant="subtle"

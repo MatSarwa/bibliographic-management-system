@@ -8,7 +8,7 @@ export default function AuthBackground({ children }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%)',
+        background: 'linear-gradient(135deg, var(--app-hover) 0%, var(--mantine-color-default-border) 100%)',
         position: 'relative',
       }}
     >

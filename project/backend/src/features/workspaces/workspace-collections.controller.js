@@ -48,7 +48,6 @@ class WorkspaceCollectionsController {
       req.body
     );
 
-    console.log('Workspace collection utworzona');
 
     ResponseHelper.created(res, collection, 'Kolekcja utworzona pomyślnie');
   });
@@ -63,7 +62,6 @@ class WorkspaceCollectionsController {
       req.body
     );
 
-    console.log('Workspace collection zaktualizowana');
 
     ResponseHelper.success(res, collection, 'Kolekcja zaktualizowana pomyślnie');
   });
@@ -77,7 +75,6 @@ class WorkspaceCollectionsController {
       collectionId
     );
 
-    console.log('Workspace collection usunięta');
 
     ResponseHelper.success(res, result, result.message);
   });

@@ -33,7 +33,6 @@ class HistoryController {
       parseInt(version)
     );
 
-    console.log('Item przywrócony do wersji:', version);
 
     ResponseHelper.success(res, result, result.message);
   });

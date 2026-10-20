@@ -9,7 +9,6 @@ class OpenLibraryProvider extends BaseProvider {
   async fetchByISBN(isbn) {
     try {
       await this.rateLimit();
-      console.log(`[OpenLibrary] Fetching ISBN: ${isbn}`);
 
       const response = await this.client.get(`${this.baseURL}/books`, {
         params: {
@@ -40,7 +39,6 @@ class OpenLibraryProvider extends BaseProvider {
   async search(query, options = {}) {
     try {
       await this.rateLimit();
-      console.log(`[OpenLibrary] Searching: "${query}"`);
 
       const response = await this.client.get('https://openlibrary.org/search.json', {
         params: {

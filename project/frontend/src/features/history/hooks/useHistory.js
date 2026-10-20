@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import historyService from '../services/historyService';
 import { notifications } from '@mantine/notifications';
+import { useRefresh } from '../../../shared/store/refreshStore';
 
 export function useHistory(itemId) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const refresh = useRefresh();
 
   useEffect(() => {
     if (itemId) {
@@ -42,6 +44,8 @@ export function useHistory(itemId) {
         color: 'green',
       });
       fetchHistory();
+      // Restoring a version changes the item itself, so lists and the detail panel must refetch.
+      refresh('items');
       return true;
     } else {
       notifications.show({

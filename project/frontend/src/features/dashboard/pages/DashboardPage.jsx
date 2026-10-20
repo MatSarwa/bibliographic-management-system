@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import itemsService from '../../items/services/itemsService';
+import { useRefreshVersion } from '../../../shared/store/refreshStore';
 import ItemsList from '../../items/components/ItemsList';
 import TrashView from '../../items/components/TrashView';
 import LabelsView from '../../labels/components/LabelsView';
@@ -17,6 +19,19 @@ export default function DashboardPage() {
     getCollectionId(),
     selectedView.type
   );
+
+  // The detail panel shows a snapshot of the clicked item; reload it after any item change
+  // (labels, restored version, favorite...). If it was deleted or moved away, close the panel.
+  const itemsVersion = useRefreshVersion('items');
+  useEffect(() => {
+    if (!selectedItem || itemsVersion === 0) return;
+    itemsService.getById(selectedItem.id)
+      .then((result) => {
+        if (result?.success && result.data && result.data.status !== 'trashed') setSelectedItem(result.data);
+        else setSelectedItem(null);
+      })
+      .catch(() => setSelectedItem(null));
+  }, [itemsVersion]);
 
   function getCollectionId() {
     if (selectedView.type === 'all') return 'all';
@@ -43,13 +58,11 @@ export default function DashboardPage() {
   }
 
   const handleEditItem = (item) => {
-    console.log('DashboardPage - EDIT ITEM:', item);
     setEditItem(item);
     setEditModalOpened(true);
   };
 
   const handleSubmitEdit = async (itemData) => {
-    console.log('DashboardPage - SUBMIT EDIT:', itemData);
     
     if (editItem) {
       const success = await handleUpdate(editItem.id, itemData);
@@ -66,7 +79,6 @@ export default function DashboardPage() {
   };
 
   const handleSubmitAdd = async (itemData) => {
-    console.log('DashboardPage - SUBMIT ADD:', itemData);
     
     const success = await handleCreate(itemData);
     
@@ -76,13 +88,10 @@ export default function DashboardPage() {
   };
 
   const handleOpenAddModal = () => {
-    console.log('DashboardPage - OPEN ADD MODAL');
-    console.log('Default collection ID:', getCollectionId());
     setAddModalOpened(true);
   };
 
   const handleSelectView = (view) => {
-    console.log('DashboardPage - SELECT VIEW:', view);
     setSelectedView(view);
     setSelectedItem(null);
   };
@@ -120,7 +129,6 @@ export default function DashboardPage() {
       <ItemModal
         opened={editModalOpened}
         onClose={() => {
-          console.log('Closing EDIT modal');
           setEditModalOpened(false);
           setEditItem(null);
         }}
@@ -131,7 +139,6 @@ export default function DashboardPage() {
       <ItemModal
         opened={addModalOpened}
         onClose={() => {
-          console.log('Closing ADD modal');
           setAddModalOpened(false);
         }}
         onSubmit={handleSubmitAdd}

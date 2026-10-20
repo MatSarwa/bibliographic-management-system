@@ -16,7 +16,7 @@ export default function DashboardLayout({
   const layout = useLayout();
 
   return (
-    <Box style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#f9fafb' }}>
+    <Box style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--app-hover)' }}>
       <Navbar onOpenAddModal={onOpenAddModal} />
 
       <Box style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
@@ -34,7 +34,7 @@ export default function DashboardLayout({
         <Box
           style={{
             flex: 1,
-            backgroundColor: '#f9fafb',
+            backgroundColor: 'var(--app-hover)',
             overflow: 'auto',
           }}
         >

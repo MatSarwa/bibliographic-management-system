@@ -24,18 +24,8 @@ const myRole = isOwner ? 'owner' : myMembership?.role;
 const canManageMembers = isOwner || myRole === 'admin';
 
 
-  console.log('PERMISSIONS:', { isOwner, myRole, canManageMembers, currentUserId, createdBy: workspace?.createdBy });
 
-  console.log('WorkspaceSettings:', { 
-    isOwner, 
-    myRole, 
-    canManageMembers, 
-    createdBy: workspace?.createdBy, 
-    currentUserId 
-  });
 
-   console.log('AUTH STORE USER:', user);
-  console.log('WORKSPACE:', workspace);
   
   useEffect(() => {
     if (workspace && opened) fetchMembers();

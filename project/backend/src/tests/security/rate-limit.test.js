@@ -1,4 +1,9 @@
 const request = require('supertest');
+
+// Low limits so blocking kicks in within a few requests (must be set before app loads).
+process.env.AUTH_RATE_LIMIT_MAX = '5';
+process.env.GLOBAL_RATE_LIMIT_MAX = '50';
+
 const app = require('../../app');
 
 beforeAll(() => {

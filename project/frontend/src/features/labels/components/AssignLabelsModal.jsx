@@ -15,8 +15,10 @@ import { useState, useEffect } from 'react';
 import { useLabels } from '../hooks/useLabels';
 import labelsService from '../services/labelsService';
 import { notifications } from '@mantine/notifications';
+import { useRefresh } from '../../../shared/store/refreshStore';
 
 export default function AssignLabelsModal({ opened, onClose, item, onSuccess }) {
+  const refresh = useRefresh();
   const { labels, loading } = useLabels();
   const [selectedLabelIds, setSelectedLabelIds] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -51,6 +53,7 @@ export default function AssignLabelsModal({ opened, onClose, item, onSuccess }) 
         message: 'Etykiety zaktualizowane',
         color: 'green',
       });
+      refresh('items', 'labels');
       onSuccess?.();
       onClose();
     } else {
@@ -99,9 +102,9 @@ export default function AssignLabelsModal({ opened, onClose, item, onSuccess }) 
                   onClick={() => handleToggleLabel(label.id)}
                   style={{
                     cursor: 'pointer',
-                    backgroundColor: isSelected ? '#f3f4f6' : 'transparent',
+                    backgroundColor: isSelected ? 'var(--app-active)' : 'transparent',
                     borderRadius: '4px',
-                    border: isSelected ? '2px solid #6366f1' : '2px solid transparent',
+                    border: isSelected ? '2px solid var(--mantine-primary-color-filled)' : '2px solid transparent',
                     transition: 'all 0.15s ease'
                   }}
                 >

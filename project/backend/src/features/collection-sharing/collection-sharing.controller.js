@@ -19,7 +19,6 @@ class CollectionSharingController {
     );
 
     const identifier = email || username;
-    console.log('Kolekcja shared:', collectionId, 'z:', identifier, 'przez:', req.user.username);
 
     ResponseHelper.created(res, member, 'Kolekcja została udostępniona');
   });
@@ -33,7 +32,6 @@ class CollectionSharingController {
       userId
     );
 
-    console.log('Sharing usunięty:', collectionId, 'user:', userId);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -63,7 +61,6 @@ class CollectionSharingController {
       collectionId
     );
 
-    console.log('User opuścił shared kolekcję:', collectionId, 'user:', req.user.username);
 
     ResponseHelper.success(res, null, result.message);
   });

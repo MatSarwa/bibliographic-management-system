@@ -1,3 +1,4 @@
+const AppError = require('../utils/app-error');
 
 const ROLES = {
   VIEWER: 'viewer',
@@ -70,11 +71,11 @@ function hasPermission(permission, role) {
 
 function checkPermission(permission, member) {
   if (!member) {
-    throw new Error('Brak dostępu do workspace');
+    throw new AppError('Brak dostępu do workspace', 403);
   }
   
   if (!hasPermission(permission, member.role)) {
-    throw new Error(`Brak uprawnień: ${permission}. Wymagana rola: ${PERMISSIONS[permission]?.join(' lub ')}`);
+    throw new AppError(`Brak uprawnień: ${permission}. Wymagana rola: ${PERMISSIONS[permission]?.join(' lub ')}`, 403);
   }
 }
 
@@ -86,7 +87,7 @@ function isOwner(workspace, userId) {
 function checkOwnerOnly(action, workspace, userId) {
   if (OWNER_ONLY_ACTIONS.includes(action)) {
     if (!isOwner(workspace, userId)) {
-      throw new Error(`Tylko właściciel workspace może: ${action}`);
+      throw new AppError(`Tylko właściciel workspace może: ${action}`, 403);
     }
   }
 }

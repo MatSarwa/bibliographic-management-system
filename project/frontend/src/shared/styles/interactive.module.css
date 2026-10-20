@@ -1,0 +1,38 @@
+/* Hover/focus/active states – these cannot be expressed in inline `style` props. */
+
+.navLink {
+  border-radius: 4px;
+  padding: 6px 8px;
+  min-height: 28px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.navLink:hover {
+  background-color: var(--app-hover);
+}
+
+.navLink[data-active],
+.navLink[data-active]:hover {
+  background-color: var(--app-active);
+  color: var(--mantine-color-text);
+  font-weight: 500;
+}
+
+.collectionOption:not(:disabled):hover {
+  background-color: var(--app-hover);
+}
+
+.compactSearch {
+  background-color: var(--app-hover);
+  border: 1px solid var(--mantine-color-default-border);
+  color: var(--mantine-color-text);
+  font-size: 12px;
+  height: 26px;
+  min-height: 26px;
+}
+
+.compactSearch:focus {
+  border-color: var(--mantine-color-blue-6);
+  background-color: var(--mantine-color-body);
+}

@@ -1,5 +1,6 @@
 const { Label, ItemLabel } = require('../../models');
 const { Op } = require('sequelize');
+const AppError = require('../../shared/utils/app-error');
 
 class LabelsService {
   async createLabel(userId, { name, color }) {
@@ -12,7 +13,7 @@ class LabelsService {
     });
 
     if (existingLabel) {
-      throw new Error('Masz już label o tej nazwie');
+      throw new AppError('Masz już label o tej nazwie', 409);
     }
 
     const label = await Label.create({
@@ -43,7 +44,7 @@ class LabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     return label;
@@ -58,7 +59,7 @@ class LabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     if (name && name !== label.name) {
@@ -71,7 +72,7 @@ class LabelsService {
       });
 
       if (existingLabel) {
-        throw new Error('Masz już label o tej nazwie');
+        throw new AppError('Masz już label o tej nazwie', 409);
       }
     }
 
@@ -92,7 +93,7 @@ class LabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     await label.destroy();
@@ -109,7 +110,7 @@ class LabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     const itemCount = await ItemLabel.count({

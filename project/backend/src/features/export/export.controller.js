@@ -14,7 +14,6 @@ class ExportController {
 
     const content = await exportService.exportItem(req.user.id, itemId, format);
 
-    console.log('Item wyeksportowany:', itemId, 'format:', format, 'przez:', req.user.username);
 
     const extension = format === 'bibtex' ? 'bib' : 'ris';
     const filename = `item_${itemId.substring(0, 8)}.${extension}`;
@@ -38,7 +37,6 @@ class ExportController {
 
     const content = await exportService.exportMultipleItems(req.user.id, itemIds, format);
 
-    console.log('Items wyeksportowane:', itemIds.length, 'format:', format, 'przez:', req.user.username);
 
     const extension = format === 'bibtex' ? 'bib' : 'ris';
     const filename = `bibliography.${extension}`;
@@ -58,7 +56,6 @@ class ExportController {
 
     const content = await exportService.exportCollection(req.user.id, collectionId, format);
 
-    console.log('Kolekcja wyeksportowana:', collectionId, 'format:', format, 'przez:', req.user.username);
 
     const extension = format === 'bibtex' ? 'bib' : 'ris';
     const filename = `collection_${collectionId.substring(0, 8)}.${extension}`;

@@ -55,7 +55,6 @@ const sendVerificationEmail = async (email, token, username) => {
       `
     });
 
-    console.log('Email weryfikacyjny wysłany do:', email);
     return { success: true };
     
   } catch (error) {
@@ -112,7 +111,6 @@ const sendPasswordResetEmail = async (email, token, username) => {
       `
     });
 
-    console.log('Email resetujący wysłany do:', email);
     return { success: true };
     
   } catch (error) {

@@ -17,7 +17,6 @@ class WorkspaceController {
       settings
     });
 
-    console.log('Workspace utworzony:', name, 'przez user:', req.user.username);
 
     ResponseHelper.created(res, workspace, 'Workspace utworzony pomyślnie');
   });
@@ -46,7 +45,6 @@ class WorkspaceController {
       settings
     });
 
-    console.log('Workspace zaktualizowany:', workspace.name);
 
     ResponseHelper.success(res, workspace, 'Workspace zaktualizowany pomyślnie');
   });
@@ -56,7 +54,6 @@ class WorkspaceController {
 
     const result = await workspaceService.delete(req.user.id, id);
 
-    console.log('Workspace usunięty, ID:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -71,7 +68,6 @@ class WorkspaceController {
 
     const result = await workspaceService.transferOwnership(req.user.id, id, newOwnerId);
 
-    console.log('Ownership przekazany, workspace:', id, '→ user:', newOwnerId);
 
     ResponseHelper.success(res, result, result.message);
   });
@@ -99,7 +95,6 @@ class WorkspaceController {
       role: role || 'viewer'
     });
 
-    console.log('Członek dodany do workspace:', id);
 
     ResponseHelper.created(res, member, 'Członek dodany pomyślnie');
   });
@@ -109,7 +104,6 @@ class WorkspaceController {
 
     const result = await workspaceService.removeMember(req.user.id, id, userId);
 
-    console.log('Członek usunięty z workspace:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -124,7 +118,6 @@ class WorkspaceController {
 
     const member = await workspaceService.updateMemberRole(req.user.id, id, userId, role);
 
-    console.log('Rola członka zaktualizowana:', userId, '→', role);
 
     ResponseHelper.success(res, member, 'Rola zaktualizowana pomyślnie');
   });
@@ -142,7 +135,6 @@ class WorkspaceController {
 
     const result = await workspaceService.leaveWorkspace(req.user.id, id);
 
-    console.log('User opuścił workspace:', id, 'user:', req.user.username);
 
     ResponseHelper.success(res, null, result.message);
   });

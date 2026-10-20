@@ -1,6 +1,7 @@
 const { Item, User, Collection, Label, ItemHistory, WorkspaceMember } = require('../../models');
 const { Op } = require('sequelize');
 const { checkPermission, hasPermission } = require('../../shared/constants/permissions');
+const AppError = require('../../shared/utils/app-error');
 
 class ItemsService {
 
@@ -29,7 +30,7 @@ class ItemsService {
     } = data;
 
     if (!title) {
-      throw new Error('Tytuł jest wymagany');
+      throw new AppError('Tytuł jest wymagany', 400);
     }
 
     let collection = null;
@@ -39,7 +40,7 @@ class ItemsService {
       collection = await Collection.findByPk(collectionId);
       
       if (!collection) {
-        throw new Error('Kolekcja nie znaleziona');
+        throw new AppError('Kolekcja nie znaleziona', 404);
       }
 
       if (collection.workspaceId) {
@@ -52,7 +53,7 @@ class ItemsService {
       } else {
 
         if (collection.ownerId !== userId) {
-          throw new Error('Brak dostępu do kolekcji');
+          throw new AppError('Brak dostępu do kolekcji', 403);
         }
       }
     }
@@ -211,7 +212,7 @@ class ItemsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (item.collection?.workspaceId) {
@@ -219,7 +220,7 @@ class ItemsService {
       checkPermission('VIEW_REFERENCES', member);
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak dostępu do itemu');
+        throw new AppError('Brak dostępu do tej pozycji', 403);
       }
     }
 
@@ -243,7 +244,7 @@ class ItemsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (item.collection?.workspaceId) {
@@ -251,7 +252,7 @@ class ItemsService {
       checkPermission('UPDATE_REFERENCE', member);
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak uprawnień');
+        throw new AppError('Brak uprawnień', 403);
       }
     }
 
@@ -272,11 +273,11 @@ class ItemsService {
         const collection = await Collection.findByPk(collectionId);
 
         if (!collection) {
-          throw new Error('Kolekcja nie znaleziona');
+          throw new AppError('Kolekcja nie znaleziona', 404);
         }
         
         if (collection.ownerId !== userId) {
-          throw new Error('Brak dostępu do kolekcji');
+          throw new AppError('Brak dostępu do kolekcji', 403);
         }
       }
     }
@@ -332,7 +333,7 @@ class ItemsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (item.collection?.workspaceId) {
@@ -340,7 +341,7 @@ class ItemsService {
       checkPermission('DELETE_REFERENCE', member);
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak uprawnień');
+        throw new AppError('Brak uprawnień', 403);
       }
     }
 
@@ -362,7 +363,7 @@ class ItemsService {
       );
     }
 
-    return { message: 'Item przeniesiony do kosza' };
+    return { message: 'Przeniesiono do kosza' };
   }
 
   async restoreItem(userId, itemId) {
@@ -379,11 +380,11 @@ class ItemsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (item.status !== 'trashed') {
-      throw new Error('Item nie jest usunięty');
+      throw new AppError('Pozycja nie jest w koszu', 400);
     }
 
     if (item.collection?.workspaceId) {
@@ -391,7 +392,7 @@ class ItemsService {
       checkPermission('UPDATE_REFERENCE', member);
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak uprawnień');
+        throw new AppError('Brak uprawnień', 403);
       }
     }
 
@@ -418,7 +419,7 @@ class ItemsService {
       });
     }
 
-    return { message: 'Item przywrócony' };
+    return { message: 'Przywrócono pozycję' };
   }
 
   async permanentDelete(userId, itemId) {
@@ -438,7 +439,7 @@ class ItemsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony w koszu');
+      throw new AppError('Nie znaleziono pozycji w koszu', 404);
     }
 
     if (item.collection?.workspaceId) {
@@ -452,17 +453,17 @@ class ItemsService {
       });
 
       if (!member) {
-        throw new Error('Tylko admin może usuwać na zawsze');
+        throw new AppError('Tylko admin może usuwać na zawsze', 403);
       }
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak uprawnień');
+        throw new AppError('Brak uprawnień', 403);
       }
     }
 
     await item.destroy();
 
-    return { message: 'Item usunięty na zawsze' };
+    return { message: 'Pozycja usunięta na zawsze' };
   }
 
   async toggleFavorite(userId, itemId) {
@@ -482,7 +483,7 @@ class ItemsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (item.collection?.workspaceId) {
@@ -490,7 +491,7 @@ class ItemsService {
       checkPermission('UPDATE_REFERENCE', member);
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak uprawnień');
+        throw new AppError('Brak uprawnień', 403);
       }
     }
 

@@ -1,5 +1,6 @@
 const { Collection, CollectionMember, User } = require('../../models');
 const { Op } = require('sequelize');
+const AppError = require('../../shared/utils/app-error');
 
 class CollectionSharingService {
 
@@ -7,7 +8,7 @@ class CollectionSharingService {
     const { email, username } = userData;
 
     if (!email && !username) {
-      throw new Error('Email lub username jest wymagany');
+      throw new AppError('Email lub username jest wymagany', 400);
     }
 
     const collection = await Collection.findOne({
@@ -18,11 +19,11 @@ class CollectionSharingService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona lub brak uprawnień');
+      throw new AppError('Kolekcja nie znaleziona lub brak uprawnień', 404);
     }
 
     if (collection.isSystemDefault) {
-      throw new Error('Nie można sharować domyślnej kolekcji');
+      throw new AppError('Nie można sharować domyślnej kolekcji', 400);
     }
 
     const subfolderCount = await Collection.count({
@@ -32,7 +33,7 @@ class CollectionSharingService {
     });
 
     if (subfolderCount > 0) {
-      throw new Error(`Nie można sharować folderu który ma ${subfolderCount} podfolderów. Sharuj tylko foldery bez zagnieżdżenia.`);
+      throw new AppError(`Nie można sharować folderu który ma ${subfolderCount} podfolderów. Sharuj tylko foldery bez zagnieżdżenia.`, 400);
     }
 
     const whereConditions = [];
@@ -53,11 +54,11 @@ class CollectionSharingService {
 
     if (!userToShare) {
       const identifier = email || username;
-      throw new Error(`User "${identifier}" nie istnieje`);
+      throw new AppError(`User "${identifier}" nie istnieje`, 404);
     }
 
     if (userToShare.id === ownerId) {
-      throw new Error('Nie możesz sharować kolekcji z samym sobą');
+      throw new AppError('Nie możesz sharować kolekcji z samym sobą', 400);
     }
 
     const existing = await CollectionMember.findOne({
@@ -68,7 +69,7 @@ class CollectionSharingService {
     });
 
     if (existing) {
-      throw new Error('Kolekcja jest już shared z tym userem');
+      throw new AppError('Kolekcja jest już shared z tym userem', 409);
     }
 
     const member = await CollectionMember.create({
@@ -99,7 +100,7 @@ class CollectionSharingService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona lub brak uprawnień');
+      throw new AppError('Kolekcja nie znaleziona lub brak uprawnień', 404);
     }
 
     const deleted = await CollectionMember.destroy({
@@ -110,7 +111,7 @@ class CollectionSharingService {
     });
 
     if (deleted === 0) {
-      throw new Error('Kolekcja nie była shared z tym userem');
+      throw new AppError('Kolekcja nie była shared z tym userem', 404);
     }
 
     return { message: 'Sharing usunięty' };
@@ -121,7 +122,7 @@ class CollectionSharingService {
     const hasAccess = await this.checkAccess(userId, collectionId);
 
     if (!hasAccess) {
-      throw new Error('Brak dostępu do tej kolekcji');
+      throw new AppError('Brak dostępu do tej kolekcji', 403);
     }
 
     const collection = await Collection.findByPk(collectionId, {
@@ -207,11 +208,11 @@ class CollectionSharingService {
     const collection = await Collection.findByPk(collectionId);
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
     if (collection.ownerId === userId) {
-      throw new Error('Owner nie może opuścić swojej kolekcji. Usuń sharing zamiast tego.');
+      throw new AppError('Owner nie może opuścić swojej kolekcji. Usuń sharing zamiast tego.', 400);
     }
 
     const deleted = await CollectionMember.destroy({
@@ -222,7 +223,7 @@ class CollectionSharingService {
     });
 
     if (deleted === 0) {
-      throw new Error('Kolekcja nie była shared z tobą');
+      throw new AppError('Kolekcja nie była shared z tobą', 404);
     }
 
     return { message: 'Opuściłeś shared kolekcję' };

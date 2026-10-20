@@ -84,8 +84,8 @@ export default function WorkspaceCollectionsList({
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    e.currentTarget.style.backgroundColor = '#f0f9ff';
-    e.currentTarget.style.border = '2px dashed #6366f1';
+    e.currentTarget.style.backgroundColor = 'var(--mantine-color-blue-light)';
+    e.currentTarget.style.border = '2px dashed var(--mantine-primary-color-filled)';
   };
 
   const handleDragLeave = (e) => {
@@ -134,7 +134,7 @@ export default function WorkspaceCollectionsList({
   return (
     <Box>
       <Group justify="space-between" mb={4} gap={2}>
-        <Text size="10px" fw={600} c="#9ca3af" tt="uppercase" lts="0.8px">
+        <Text size="10px" fw={600} c="var(--mantine-color-placeholder)" tt="uppercase" lts="0.8px">
           Kolekcje
         </Text>
 
@@ -143,7 +143,7 @@ export default function WorkspaceCollectionsList({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={onCreateNew}
               style={{ width: '20px', height: '20px' }}
             >
@@ -154,7 +154,7 @@ export default function WorkspaceCollectionsList({
       </Group>
       
       {collectionsTree.length === 0 ? (
-        <Text size="xs" c="#9ca3af" fs="italic" ta="center" py="md">
+        <Text size="xs" c="var(--mantine-color-placeholder)" fs="italic" ta="center" py="md">
           Brak kolekcji w workspace
         </Text>
       ) : (

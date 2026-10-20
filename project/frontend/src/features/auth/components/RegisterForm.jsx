@@ -1,4 +1,4 @@
-import { Alert, Stack, TextInput, PasswordInput, Button, Text, Group } from '@mantine/core';
+import { Alert, Box, Stack, TextInput, PasswordInput, Button, Text, Group } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useAuthForm } from '../hooks/useAuthForm';
 
@@ -15,10 +15,16 @@ export default function RegisterForm() {
 
   return (
     <>
-      <Text fw={600} size="lg" ta="center" mb="md" c="#111827">Utworz konto</Text>
+      <Text fw={600} size="lg" ta="center" mb="md" c="var(--mantine-color-text)">Utworz konto</Text>
 
-      {error && <Alert icon={<IconAlertCircle size={16} />} color="red" mb="sm" p="xs">{error}</Alert>}
-      {success && <Alert color="teal" mb="sm" p="xs">{success}</Alert>}
+      {/* Fixed-height slot for one message at a time, so the form never changes size when it appears. */}
+      <Box mih={44} mb="sm">
+        {error ? (
+          <Alert icon={<IconAlertCircle size={16} />} color="red" p="xs">{error}</Alert>
+        ) : success ? (
+          <Alert color="teal" p="xs">{success}</Alert>
+        ) : null}
+      </Box>
 
       <form onSubmit={handleSubmit}>
         <Stack gap="sm">

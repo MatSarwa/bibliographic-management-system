@@ -28,9 +28,8 @@ class ItemsController {
       collectionId
     });
 
-    console.log('Item utworzony:', title, 'przez user:', req.user.username);
 
-    ResponseHelper.created(res, item, 'Item utworzony pomyślnie');
+    ResponseHelper.created(res, item, 'Dodano pozycję');
   });
 
   getAllItems = asyncHandler(async (req, res) => {
@@ -88,9 +87,8 @@ class ItemsController {
       collectionId
     });
 
-    console.log('Item zaktualizowany:', item.title);
 
-    ResponseHelper.success(res, item, 'Item zaktualizowany pomyślnie');
+    ResponseHelper.success(res, item, 'Zapisano zmiany');
   });
 
   moveToTrash = asyncHandler(async (req, res) => {
@@ -98,7 +96,6 @@ class ItemsController {
 
     const result = await itemsService.moveToTrash(req.user.id, id);
 
-    console.log('Item przeniesiony do kosza, ID:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -108,7 +105,6 @@ class ItemsController {
 
     const result = await itemsService.restoreItem(req.user.id, id);
 
-    console.log('Item przywrócony, ID:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -118,7 +114,6 @@ class ItemsController {
 
     const result = await itemsService.permanentDelete(req.user.id, id);
 
-    console.log('Item usunięty na zawsze, ID:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -128,7 +123,6 @@ class ItemsController {
 
     const item = await itemsService.toggleFavorite(req.user.id, id);
 
-    console.log('Toggle favorite:', item.title, '→', item.favorite);
 
     ResponseHelper.success(res, item, 'Status ulubionego zmieniony');
   });
@@ -138,7 +132,6 @@ restoreItem = asyncHandler(async (req, res) => {
 
   const result = await itemsService.restoreItem(req.user.id, id);
 
-  console.log('Item przywrócony:', id);
 
   ResponseHelper.success(res, null, result.message);
 });

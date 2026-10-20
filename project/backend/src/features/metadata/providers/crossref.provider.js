@@ -9,7 +9,6 @@ class CrossRefProvider extends BaseProvider {
   async fetchByDOI(doi) {
     try {
       await this.rateLimit();
-      console.log(`[CrossRef] Fetching DOI: ${doi}`);
 
       const response = await this.client.get(`${this.baseURL}/${doi}`);
       return this.normalize(response.data.message);
@@ -21,7 +20,6 @@ class CrossRefProvider extends BaseProvider {
   async fetchByISBN(isbn) {
     try {
       await this.rateLimit();
-      console.log(`[CrossRef] Fetching ISBN: ${isbn}`);
 
       const response = await this.client.get(`${this.baseURL}`, {
         params: { filter: `isbn:${isbn}`, rows: 1 }
@@ -41,7 +39,6 @@ class CrossRefProvider extends BaseProvider {
   async search(query, options = {}) {
     try {
       await this.rateLimit();
-      console.log(`[CrossRef] Searching: "${query}"`);
 
       const response = await this.client.get(`${this.baseURL}`, {
         params: {

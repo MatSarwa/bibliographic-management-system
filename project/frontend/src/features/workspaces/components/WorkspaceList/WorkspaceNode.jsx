@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text, Box, ActionIcon, Collapse, Group, Badge,
   Loader, Center, UnstyledButton, Menu, Tooltip, Stack
@@ -10,6 +10,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import workspaceService from '../../services/workspaceService';
 import CollectionItem from './CollectionItem';
+import { useRefreshVersion } from '../../../../shared/store/refreshStore';
+import { downloadCollectionExport } from '../../../../shared/utils/download';
 
 export default function WorkspaceNode({
   workspace,
@@ -28,8 +30,10 @@ export default function WorkspaceNode({
 
   const memberCount = workspace.members?.length || 0;
 
-  const fetchCollections = async () => {
-    setLoadingCollections(true);
+  const workspacesVersion = useRefreshVersion('workspaces');
+
+  const fetchCollections = async ({ silent = false } = {}) => {
+    if (!silent) setLoadingCollections(true);
     const result = await workspaceService.getCollections(workspace.id);
     if (result.success) {
       setCollections(result.data);
@@ -37,11 +41,17 @@ export default function WorkspaceNode({
     setLoadingCollections(false);
   };
 
+  // Collections are cached after the first expand; refetch them when something changed.
+  useEffect(() => {
+    if (isExpanded && workspacesVersion > 0) fetchCollections({ silent: true });
+  }, [workspacesVersion]);
+
   const handleToggle = () => {
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
-    if (newExpanded && collections.length === 0) {
-      fetchCollections();
+    if (newExpanded) {
+      // Show cached collections at once and refresh them quietly; loader only on the first expand.
+      fetchCollections({ silent: collections.length > 0 });
     }
   };
 
@@ -51,7 +61,6 @@ export default function WorkspaceNode({
     const result = await workspaceService.deleteCollection(workspace.id, collectionId);
     if (result.success) {
       notifications.show({ title: 'Sukces!', message: 'Kolekcja usunięta', color: 'green' });
-      fetchCollections();
       onRefresh?.();
     } else {
       notifications.show({ title: 'Błąd', message: result.error, color: 'red' });
@@ -60,19 +69,7 @@ export default function WorkspaceNode({
 
   const handleExportCollection = (collectionId, format, e) => {
     e.stopPropagation();
-    const token = localStorage.getItem('token');
-    
-    fetch(`http://localhost:5000/api/items/export/${format}?collectionId=${collectionId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `workspace_collection_${Date.now()}.${format}`;
-        link.click();
-      })
-      .catch(() => alert('Błąd eksportu'));
+    downloadCollectionExport(collectionId, format, 'workspace_kolekcja');
   };
 
   const buildCollectionTree = (collections) => {
@@ -121,7 +118,7 @@ export default function WorkspaceNode({
           paddingTop: '3px',
           paddingBottom: '3px',
           cursor: 'pointer',
-          backgroundColor: isHovered ? '#f9fafb' : 'transparent',
+          backgroundColor: isHovered ? 'var(--app-hover)' : 'transparent',
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',
@@ -130,15 +127,15 @@ export default function WorkspaceNode({
       >
         <UnstyledButton onClick={handleToggle} style={{ padding: '2px', marginRight: '4px' }}>
           {isExpanded 
-            ? <IconChevronDown size={12} color="#6b7280" /> 
-            : <IconChevronRight size={12} color="#6b7280" />
+            ? <IconChevronDown size={12} style={{ color: 'var(--mantine-color-dimmed)' }} /> 
+            : <IconChevronRight size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
           }
         </UnstyledButton>
 
-        <Box mr={6}><IconBriefcase size={14} color="#6b7280" /></Box>
+        <Box mr={6}><IconBriefcase size={14} style={{ color: 'var(--mantine-color-dimmed)' }} /></Box>
 
         <Group gap={6} style={{ flex: 1, minWidth: 0 }} onClick={handleToggle}>
-          <Text size="13px" c="#6b7280" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <Text size="13px" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {workspace.name}
           </Text>
           {memberCount > 0 && (
@@ -153,7 +150,7 @@ export default function WorkspaceNode({
         {isHovered && (
           <Menu shadow="md" width={200} opened={menuOpened} onChange={setMenuOpened}>
             <Menu.Target>
-              <ActionIcon size="xs" variant="transparent" c="#9ca3af" onClick={(e) => { e.stopPropagation(); setMenuOpened(!menuOpened); }}>
+              <ActionIcon size="xs" variant="transparent" c="var(--mantine-color-placeholder)" onClick={(e) => { e.stopPropagation(); setMenuOpened(!menuOpened); }}>
                 <IconDots size={12} />
               </ActionIcon>
             </Menu.Target>
@@ -174,7 +171,7 @@ export default function WorkspaceNode({
           {loadingCollections ? (
             <Center p="xs"><Loader size="xs" color="gray" /></Center>
           ) : collectionTree.length === 0 ? (
-            <Text size="11px" c="#9ca3af" ta="center" py="xs" fs="italic">Brak kolekcji. Dodaj pierwszą!</Text>
+            <Text size="11px" c="var(--mantine-color-placeholder)" ta="center" py="xs" fs="italic">Brak kolekcji. Dodaj pierwszą!</Text>
           ) : (
             <Stack gap={1}>{renderCollectionTree(collectionTree, level + 1)}</Stack>
           )}

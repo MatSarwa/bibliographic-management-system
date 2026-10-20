@@ -1,13 +1,12 @@
 const config = require('./config/providers.config');
 const ProviderClasses = require('./providers');
 const identifierDetector = require('./utils/identifier-detector');
+const AppError = require('../../shared/utils/app-error');
 
 class MetadataService {
   constructor() {
     this.providers = {};
     
-    console.log('Initializing Metadata Service...');
-    console.log('Available provider classes:', Object.keys(ProviderClasses));
     
     Object.entries(config)
       .filter(([name]) => !['identifierProviders', 'cache'].includes(name))
@@ -19,7 +18,6 @@ class MetadataService {
           if (typeof ProviderClass === 'function') {
             try {
               this.providers[name] = new ProviderClass(providerConfig);
-              console.log(`${name} initialized successfully`);
             } catch (error) {
               console.error(`${name} initialization failed:`, error.message);
             }
@@ -28,10 +26,8 @@ class MetadataService {
           }
         } else {
           if (!providerConfig.baseURL) {
-            console.log(`Skipping ${name} - no baseURL`);
           }
           if (!ProviderClasses[name]) {
-            console.log(`Skipping ${name} - class not found`);
           }
         }
       });
@@ -39,25 +35,21 @@ class MetadataService {
     this.cache = new Map();
     this.cacheTTL = config.cache?.ttl ? config.cache.ttl * 1000 : 3600000;
 
-    console.log('Metadata service initialized with providers:', Object.keys(this.providers));
-    console.log('Total providers active:', Object.keys(this.providers).length);
   }
 
   async fetch(identifier) {
 
     const cached = this.getFromCache(identifier);
     if (cached) {
-      console.log(`[Cache HIT] ${identifier}`);
       return cached;
     }
 
     const detected = identifierDetector.detect(identifier);
     
     if (!detected.isValid) {
-      throw new Error(`Invalid identifier: ${identifier}`);
+      throw new AppError(`Invalid identifier: ${identifier}`, 400);
     }
 
-    console.log(`[Metadata] Detected: ${detected.type} = ${detected.value}`);
 
     const providerNames = config.identifierProviders?.[detected.type] || [];
     
@@ -77,7 +69,6 @@ class MetadataService {
       }
 
       try {
-        console.log(`[Metadata] Trying provider: ${providerName}`);
         
         if (detected.type === 'doi') {
           result = await provider.fetchByDOI(detected.value);
@@ -88,11 +79,10 @@ class MetadataService {
         } else if (detected.type === 'arxiv') {
           result = await provider.fetchById(detected.value);
         } else {
-          throw new Error(`Unsupported identifier type: ${detected.type}`);
+          throw new AppError(`Unsupported identifier type: ${detected.type}`, 400);
         }
 
         if (result) {
-          console.log(`[Metadata] Success with ${providerName}`);
           break;
         }
       } catch (error) {
@@ -108,7 +98,6 @@ class MetadataService {
 
     this.setCache(identifier, result);
 
-    console.log(`[Metadata] Successfully fetched: ${result.title?.substring(0, 50)}...`);
 
     return result;
   }
@@ -116,16 +105,13 @@ class MetadataService {
   async search(query, options = {}) {
     const providerNames = Object.keys(this.providers);
 
-    console.log(`[Metadata] Searching "${query}" across ${providerNames.length} providers...`);
 
     const results = await Promise.all(
       providerNames.map(async (name) => {
         const provider = this.providers[name];
         
         try {
-          console.log(`[Metadata] Searching in ${name}...`);
           const providerResults = await provider.search(query, options);
-          console.log(`[Metadata] ${name} returned ${providerResults.length} results`);
           return providerResults;
         } catch (error) {
           console.error(`[${name}] Search failed:`, error.message);
@@ -137,7 +123,6 @@ class MetadataService {
     const allResults = results.flat();
     const limited = allResults.slice(0, options.limit || 20);
 
-    console.log(`[Metadata] Total results: ${allResults.length}, returning: ${limited.length}`);
 
     return limited;
   }
@@ -170,7 +155,6 @@ class MetadataService {
   clearCache() {
     const size = this.cache.size;
     this.cache.clear();
-    console.log(`[Cache] Cleared ${size} entries`);
   }
 
   getCacheStats() {

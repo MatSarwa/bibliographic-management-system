@@ -38,8 +38,9 @@ describe('AUTH INTEGRATION: Rejestracja (POST /auth/register)', () => {
             .send(TEST_USER_DATA);
 
         expect(response.statusCode).toBe(201);
-        expect(response.body.user.email).toBe(TEST_USER_DATA.email);
-        expect(response.body.verificationToken).toBeDefined(); 
+        expect(response.body.data.email).toBe(TEST_USER_DATA.email);
+        // The verification token is sent by email only; exposing it in the API would skip verification.
+        expect(response.body.data.verificationToken).toBeUndefined();
 
         const userInDb = await User.findOne({ where: { email: TEST_USER_DATA.email } });
         expect(userInDb).not.toBeNull();
@@ -49,7 +50,7 @@ describe('AUTH INTEGRATION: Rejestracja (POST /auth/register)', () => {
         expect(userInDb.isVerified).toBe(false);
     });
 
-    it('should return 400 (Bad Request) if the email already exists in DB', async () => {
+    it('should return 409 (Conflict) if the email already exists in DB', async () => {
         
         await User.create({
             username: 'ExistingUser',
@@ -61,7 +62,7 @@ describe('AUTH INTEGRATION: Rejestracja (POST /auth/register)', () => {
             .post('/api/auth/register')
             .send(TEST_USER_DATA);
 
-        expect(response.statusCode).toBe(400);
+        expect(response.statusCode).toBe(409);
         expect(response.body.message).toBe('Email już jest używany');
         
         const count = await User.count({ where: { email: TEST_USER_DATA.email } });

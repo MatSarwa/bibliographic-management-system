@@ -1,17 +1,25 @@
 import { useState, useEffect } from 'react';
 import labelsService from '../services/labelsService';
 import { notifications } from '@mantine/notifications';
+import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
 
 export function useLabels() {
   const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const labelsVersion = useRefreshVersion('labels');
+  const refresh = useRefresh();
 
   useEffect(() => {
     fetchLabels();
   }, []);
 
-  const fetchLabels = async () => {
-    setLoading(true);
+  // Several components use this hook, each with its own copy; keep them all in sync.
+  useEffect(() => {
+    if (labelsVersion > 0) fetchLabels({ silent: true });
+  }, [labelsVersion]);
+
+  const fetchLabels = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     const result = await labelsService.getAll();
     
     if (result.success) {
@@ -35,7 +43,7 @@ export function useLabels() {
         message: 'Label utworzony',
         color: 'green',
       });
-      fetchLabels();
+      refresh('labels');
       return true;
     } else {
       notifications.show({
@@ -56,7 +64,8 @@ export function useLabels() {
         message: 'Label zaktualizowany',
         color: 'green',
       });
-      fetchLabels();
+      // Items display label names and colors, so they refetch too.
+      refresh('labels', 'items');
       return true;
     } else {
       notifications.show({
@@ -81,7 +90,7 @@ export function useLabels() {
         message: 'Label usunięty',
         color: 'green',
       });
-      fetchLabels();
+      refresh('labels', 'items');
     } else {
       notifications.show({
         title: 'Błąd',

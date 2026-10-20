@@ -26,6 +26,7 @@ import { notifications } from '@mantine/notifications';
 import api from '../../../shared/utils/api';
 import { useCollectionsStore } from '../../collections/store/collectionsStore';
 import { useWorkspaceStore } from '../../workspaces/store/workspaceStore';
+import classes from '../../../shared/styles/interactive.module.css';
 
 export default function ActionPanel({ 
   selectedItemIds, 
@@ -288,6 +289,7 @@ export default function ActionPanel({
       <UnstyledButton
         onClick={() => !disabled && onClick(collection)}
         disabled={disabled}
+        className={classes.collectionOption}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -296,21 +298,18 @@ export default function ActionPanel({
           paddingLeft: `${12 + level * 20}px`,
           borderRadius: 6,
           width: '100%',
-          backgroundColor: disabled ? '#f3f4f6' : 'transparent',
+          backgroundColor: disabled ? 'var(--app-active)' : undefined,
           opacity: disabled ? 0.5 : 1,
           cursor: disabled ? 'not-allowed' : 'pointer',
-          transition: 'background-color 0.15s',
-          '&:hover': {
-            backgroundColor: disabled ? '#f3f4f6' : '#f9fafb'
-          }
+          transition: 'background-color 0.15s'
         }}
       >
-        <IconFolder size={16} color={disabled ? '#9ca3af' : '#6b7280'} />
-        <Text size="sm" c={disabled ? '#9ca3af' : '#374151'}>
+        <IconFolder size={16} style={{ color: disabled ? 'var(--mantine-color-placeholder)' : 'var(--mantine-color-dimmed)' }} />
+        <Text size="sm" c={disabled ? 'var(--mantine-color-placeholder)' : 'var(--mantine-color-text)'}>
           {collection.name}
         </Text>
         {disabled && (
-          <Text size="xs" c="#9ca3af" ml="auto">(obecna)</Text>
+          <Text size="xs" c="var(--mantine-color-placeholder)" ml="auto">(obecna)</Text>
         )}
       </UnstyledButton>
       {collection.children?.map(child => (
@@ -333,8 +332,8 @@ export default function ActionPanel({
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: '#ffffff',
-          borderTop: '2px solid #6366f1',
+          backgroundColor: 'var(--mantine-color-body)',
+          borderTop: '2px solid var(--mantine-primary-color-filled)',
           boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
           padding: '12px 24px',
           zIndex: 100
@@ -345,13 +344,13 @@ export default function ActionPanel({
 
             <Box
               style={{
-                backgroundColor: '#eff6ff',
+                backgroundColor: 'var(--mantine-color-blue-light)',
                 padding: '6px 14px',
                 borderRadius: 6,
-                border: '1px solid #dbeafe'
+                border: '1px solid var(--mantine-color-blue-light)'
               }}
             >
-              <Text size="sm" fw={600} c="#1e40af">
+              <Text size="sm" fw={600} c="var(--mantine-color-blue-light-color)">
                 {selectedItemIds.length} {selectedItemIds.length === 1 ? 'pozycja' : 'pozycji'}
               </Text>
             </Box>
@@ -377,7 +376,7 @@ export default function ActionPanel({
               Eksportuj
             </Button>
 
-            <Button variant="subtle" size="sm" onClick={onClose} c="#6b7280">
+            <Button variant="subtle" size="sm" onClick={onClose} c="dimmed">
               Odznacz
             </Button>
           </Group>
@@ -393,7 +392,7 @@ export default function ActionPanel({
         onClose={() => setMoveModalOpened(false)}
         title={
           <Group gap="xs">
-            <IconFolderShare size={20} color="#6366f1" />
+            <IconFolderShare size={20} style={{ color: 'var(--mantine-primary-color-filled)' }} />
             <Text fw={600}>Przenieś / Kopiuj {selectedItemIds.length} pozycji</Text>
           </Group>
         }
@@ -405,7 +404,7 @@ export default function ActionPanel({
             
             {isInWorkspace && (
               <>
-                <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
                   Przenieś do innej kolekcji w workspace
                 </Text>
                 
@@ -426,7 +425,7 @@ export default function ActionPanel({
                           cursor: 'pointer'
                         }}
                       >
-                        <IconFolder size={16} color="#6b7280" />
+                        <IconFolder size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
                         <Text size="sm">{col.name}</Text>
                       </UnstyledButton>
                     ))
@@ -438,7 +437,7 @@ export default function ActionPanel({
 
                 <Divider my="sm" />
 
-                <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
                   Kopiuj do prywatnej biblioteki
                 </Text>
 
@@ -451,12 +450,12 @@ export default function ActionPanel({
                     gap: 8,
                     padding: '10px 12px',
                     borderRadius: 6,
-                    backgroundColor: '#f0fdf4',
+                    backgroundColor: 'var(--mantine-color-green-light)',
                     cursor: 'pointer'
                   }}
                 >
-                  <IconFolder size={16} color="#16a34a" />
-                  <Text size="sm" c="#16a34a" fw={500}>Wszystkie (bez kolekcji)</Text>
+                  <IconFolder size={16} style={{ color: 'var(--mantine-color-green-7)' }} />
+                  <Text size="sm" c="var(--mantine-color-green-7)" fw={500}>Wszystkie (bez kolekcji)</Text>
                 </UnstyledButton>
 
                 {collectionTree.map(col => (
@@ -471,7 +470,7 @@ export default function ActionPanel({
 
             {!isInWorkspace && (
               <>
-                <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
                   Przenieś do kolekcji
                 </Text>
 
@@ -484,14 +483,14 @@ export default function ActionPanel({
                     gap: 8,
                     padding: '10px 12px',
                     borderRadius: 6,
-                    backgroundColor: !currentCollectionId ? '#f3f4f6' : '#f0fdf4',
+                    backgroundColor: !currentCollectionId ? 'var(--app-active)' : 'var(--mantine-color-green-light)',
                     opacity: !currentCollectionId ? 0.5 : 1,
                     cursor: !currentCollectionId ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  <IconFolder size={16} color="#16a34a" />
-                  <Text size="sm" c="#16a34a" fw={500}> Wszystkie (bez kolekcji)</Text>
-                  {!currentCollectionId && <Text size="xs" c="#9ca3af" ml="auto">(obecna)</Text>}
+                  <IconFolder size={16} style={{ color: 'var(--mantine-color-green-7)' }} />
+                  <Text size="sm" c="var(--mantine-color-green-7)" fw={500}> Wszystkie (bez kolekcji)</Text>
+                  {!currentCollectionId && <Text size="xs" c="var(--mantine-color-placeholder)" ml="auto">(obecna)</Text>}
                 </UnstyledButton>
 
                 {collectionTree.map(col => (
@@ -506,7 +505,7 @@ export default function ActionPanel({
                 {workspaces.length > 0 && (
                   <>
                     <Divider my="sm" />
-                    <Text size="xs" fw={600} c="#6b7280" tt="uppercase" mb={4}>
+                    <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
                       Kopiuj do workspace
                     </Text>
 
@@ -521,16 +520,16 @@ export default function ActionPanel({
                             padding: '10px 12px',
                             borderRadius: 6,
                             width: '100%',
-                            backgroundColor: expandedWorkspaces[ws.id] ? '#f5f3ff' : 'transparent',
+                            backgroundColor: expandedWorkspaces[ws.id] ? 'var(--mantine-color-violet-light)' : 'transparent',
                             cursor: 'pointer'
                           }}
                         >
                           {expandedWorkspaces[ws.id] ? (
-                            <IconChevronDown size={14} color="#6366f1" />
+                            <IconChevronDown size={14} style={{ color: 'var(--mantine-primary-color-filled)' }} />
                           ) : (
-                            <IconChevronRight size={14} color="#6b7280" />
+                            <IconChevronRight size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
                           )}
-                          <IconBriefcase size={16} color="#6366f1" />
+                          <IconBriefcase size={16} style={{ color: 'var(--mantine-primary-color-filled)' }} />
                           <Text size="sm" fw={500}>{ws.name}</Text>
                           {loadingWorkspace === ws.id && <Loader size={12} ml="auto" />}
                         </UnstyledButton>
@@ -554,8 +553,8 @@ export default function ActionPanel({
                                     cursor: 'pointer'
                                   }}
                                 >
-                                  <IconFolder size={14} color="#9ca3af" />
-                                  <Text size="sm" c="#6b7280">{col.name}</Text>
+                                  <IconFolder size={14} style={{ color: 'var(--mantine-color-placeholder)' }} />
+                                  <Text size="sm" c="dimmed">{col.name}</Text>
                                 </UnstyledButton>
                               ))
                             ) : (
@@ -580,7 +579,7 @@ export default function ActionPanel({
         onClose={() => setExportModalOpened(false)}
         title={
           <Group gap="xs">
-            <IconFileExport size={20} color="#3b82f6" />
+            <IconFileExport size={20} style={{ color: 'var(--mantine-color-blue-6)' }} />
             <Text fw={600}>Eksportuj {selectedItemIds.length} pozycji</Text>
           </Group>
         }

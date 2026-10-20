@@ -11,7 +11,6 @@ class ArxivProvider extends BaseProvider {
   async fetchById(arxivId) {
     try {
       await this.rateLimit();
-      console.log(`[arXiv] Fetching ID: ${arxivId}`);
 
       const response = await this.client.get(`${this.baseURL}/query`, {
         params: { id_list: arxivId }
@@ -33,7 +32,6 @@ class ArxivProvider extends BaseProvider {
   async search(query, options = {}) {
     try {
       await this.rateLimit();
-      console.log(`[arXiv] Searching: "${query}"`);
 
       const response = await this.client.get(`${this.baseURL}/query`, {
         params: {

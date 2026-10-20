@@ -38,7 +38,6 @@ export default function SettingsTab({
       notifications.show({ title: 'Opuszczono workspace', message: 'Pomyślnie opuściłeś workspace', color: 'blue' });
       onClose();
       onUpdate?.();
-      window.dispatchEvent(new CustomEvent('refreshWorkspaces'));
     } else {
       notifications.show({ title: 'Błąd', message: result.error, color: 'red' });
     }
@@ -56,7 +55,7 @@ export default function SettingsTab({
       )}
 
       {!isOwner && (
-        <Card p="md" withBorder style={{ borderColor: '#f59e0b' }}>
+        <Card p="md" withBorder style={{ borderColor: 'var(--mantine-color-orange-5)' }}>
           <Text size="sm" fw={600} c="orange" mb="xs">Członkostwo</Text>
           <Text size="xs" c="dimmed" mb="sm">
             Opuszczenie workspace spowoduje utratę dostępu do wszystkich jego zasobów.
@@ -68,7 +67,7 @@ export default function SettingsTab({
       )}
 
       {isOwner && (
-        <Card p="md" withBorder style={{ borderColor: '#ef4444' }}>
+        <Card p="md" withBorder style={{ borderColor: 'var(--mantine-color-red-6)' }}>
           <Text size="sm" fw={600} c="red" mb="xs">Strefa niebezpieczna</Text>
           
           {members?.members?.length <= 1 ? (

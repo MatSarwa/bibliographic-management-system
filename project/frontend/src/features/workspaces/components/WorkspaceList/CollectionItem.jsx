@@ -25,7 +25,7 @@ export default function CollectionItem({
         paddingTop: '2px',
         paddingBottom: '2px',
         cursor: 'pointer',
-        backgroundColor: isHovered ? '#f9fafb' : 'transparent',
+        backgroundColor: isHovered ? 'var(--app-hover)' : 'transparent',
         borderRadius: '4px',
         display: 'flex',
         alignItems: 'center',
@@ -33,12 +33,12 @@ export default function CollectionItem({
       }}
     >
       <Box mr={6}>
-        <IconFolder size={12} color={collection.settings?.color || '#9ca3af'} />
+        <IconFolder size={12} style={{ color: collection.settings?.color || 'var(--mantine-color-placeholder)' }} />
       </Box>
 
       <Text
         size="12px"
-        c="#6b7280"
+        c="dimmed"
         style={{
           flex: 1,
           overflow: 'hidden',
@@ -55,7 +55,7 @@ export default function CollectionItem({
             <ActionIcon
               size="xs"
               variant="transparent"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={(e) => { e.stopPropagation(); setMenuOpened(!menuOpened); }}
             >
               <IconDots size={12} />

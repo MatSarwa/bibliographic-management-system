@@ -82,7 +82,7 @@ export default function Resizer({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: isHovered ? '#d1d5db' : '#e5e7eb',
+          backgroundColor: isHovered ? 'var(--app-border-strong)' : 'var(--mantine-color-default-border)',
           transition: 'all 0.2s ease'
         }}
         onClick={onToggleCollapse}
@@ -99,8 +99,8 @@ export default function Resizer({
             style={{
               opacity: isHovered ? 1 : 0,
               transition: 'opacity 0.2s ease',
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
+              backgroundColor: 'var(--mantine-color-body)',
+              border: '1px solid var(--mantine-color-default-border)',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               zIndex: 10 
             }}
@@ -151,10 +151,10 @@ export default function Resizer({
           width: '3px',
           height: '32px',
           backgroundColor: isDragging.current 
-            ? '#9ca3af' 
+            ? 'var(--mantine-color-placeholder)' 
             : isHovered 
-              ? '#d1d5db' 
-              : '#e5e7eb',
+              ? 'var(--app-border-strong)' 
+              : 'var(--mantine-color-default-border)',
           borderRadius: '2px',
           transition: 'all 0.2s ease',
           pointerEvents: 'none',
@@ -177,8 +177,8 @@ export default function Resizer({
             width: '20px',
             height: '20px',
             borderRadius: '3px',
-            backgroundColor: isHovered ? '#f3f4f6' : 'transparent',
-            border: isHovered ? '1px solid #e5e7eb' : '1px solid transparent',
+            backgroundColor: isHovered ? 'var(--app-active)' : 'transparent',
+            border: isHovered ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -190,9 +190,9 @@ export default function Resizer({
           }}
         >
           {position === 'right' ? (
-            <IconChevronLeft size={14} color="#6b7280" />
+            <IconChevronLeft size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
           ) : (
-            <IconChevronRight size={14} color="#6b7280" />
+            <IconChevronRight size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
           )}
         </Box>
       </Tooltip>
@@ -202,10 +202,10 @@ export default function Resizer({
           width: '3px',
           height: '32px',
           backgroundColor: isDragging.current 
-            ? '#9ca3af' 
+            ? 'var(--mantine-color-placeholder)' 
             : isHovered 
-              ? '#d1d5db' 
-              : '#e5e7eb',
+              ? 'var(--app-border-strong)' 
+              : 'var(--mantine-color-default-border)',
           borderRadius: '2px',
           transition: 'all 0.2s ease',
           pointerEvents: 'none',

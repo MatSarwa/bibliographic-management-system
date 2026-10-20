@@ -16,7 +16,6 @@ class CollectionsController {
       settings
     });
 
-    console.log('Kolekcja utworzona:', name, 'przez user:', req.user.username);
 
     ResponseHelper.created(res, collection, 'Kolekcja utworzona pomyślnie');
   });
@@ -52,7 +51,6 @@ class CollectionsController {
       isPublic
     });
 
-    console.log('Kolekcja zaktualizowana:', collection.name);
 
     ResponseHelper.success(res, collection, 'Kolekcja zaktualizowana pomyślnie');
   });
@@ -62,7 +60,6 @@ class CollectionsController {
 
     const result = await collectionsService.deleteCollection(req.user.id, id);
 
-    console.log('Kolekcja usunięta, ID:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -72,7 +69,6 @@ restoreCollection = asyncHandler(async (req, res) => {
 
   const result = await collectionsService.restoreCollection(req.user.id, id);
 
-  console.log('Kolekcja przywrócona:', id);
 
   ResponseHelper.success(res, null, result.message);
 });

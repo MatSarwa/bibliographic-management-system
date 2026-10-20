@@ -11,7 +11,6 @@ class PubMedProvider extends BaseProvider {
   async fetchById(pmid) {
     try {
       await this.rateLimit();
-      console.log(`[PubMed] Fetching PMID: ${pmid}`);
 
       const params = {
         db: 'pubmed',
@@ -40,7 +39,6 @@ class PubMedProvider extends BaseProvider {
   async search(query, options = {}) {
     try {
       await this.rateLimit();
-      console.log(`[PubMed] Searching: "${query}"`);
 
       const searchParams = {
         db: 'pubmed',

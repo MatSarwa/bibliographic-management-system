@@ -16,7 +16,7 @@ export default function WorkspacesSection({
   return (
     <>
       <Group justify="space-between" mb={4} gap={2}>
-        <Text size="10px" fw={600} c="#9ca3af" tt="uppercase" lts="0.8px">
+        <Text size="10px" fw={600} c="var(--mantine-color-placeholder)" tt="uppercase" lts="0.8px">
           Workspaces
         </Text>
 
@@ -31,7 +31,7 @@ export default function WorkspacesSection({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={onToggleSort}
               style={{ width: '20px', height: '20px' }}
             >
@@ -43,7 +43,7 @@ export default function WorkspacesSection({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c="#9ca3af"
+              c="var(--mantine-color-placeholder)"
               onClick={onCreateNew}
               style={{ width: '20px', height: '20px' }}
             >
@@ -55,7 +55,7 @@ export default function WorkspacesSection({
             <ActionIcon
               size="xs"
               variant="subtle"
-              c={showWorkspaceSearch || workspaceSearch ? '#6366f1' : '#9ca3af'}
+              c={showWorkspaceSearch || workspaceSearch ? 'var(--mantine-primary-color-filled)' : 'var(--mantine-color-placeholder)'}
               onClick={onToggleSearch}
               style={{ width: '20px', height: '20px' }}
             >

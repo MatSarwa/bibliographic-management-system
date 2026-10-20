@@ -26,8 +26,8 @@ export default function RightSidebar({
       ref={rightRef}
       style={{
         width: '320px',
-        backgroundColor: '#ffffff',
-        borderLeft: '1px solid #e5e7eb',
+        backgroundColor: 'var(--mantine-color-body)',
+        borderLeft: '1px solid var(--mantine-color-default-border)',
         position: 'relative',
         overflow: 'visible'
       }}

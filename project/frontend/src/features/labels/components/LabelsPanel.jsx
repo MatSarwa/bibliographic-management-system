@@ -84,11 +84,11 @@ export default function LabelsPanel() {
       >
         <Group gap="xs">
           {isExpanded ? (
-            <IconChevronDown size={12} color="#6b7280" />
+            <IconChevronDown size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
           ) : (
-            <IconChevronRight size={12} color="#6b7280" />
+            <IconChevronRight size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
           )}
-          <Text size="10px" fw={600} c="#9ca3af" tt="uppercase" lts="0.8px">
+          <Text size="10px" fw={600} c="var(--mantine-color-placeholder)" tt="uppercase" lts="0.8px">
             Etykiety
           </Text>
           <Badge size="xs" variant="light" color="gray">
@@ -100,7 +100,7 @@ export default function LabelsPanel() {
           <ActionIcon
             size="xs"
             variant="subtle"
-            c="#9ca3af"
+            c="var(--mantine-color-placeholder)"
             onClick={(e) => {
               e.stopPropagation();
               setIsAdding(true);
@@ -115,7 +115,7 @@ export default function LabelsPanel() {
       <Collapse in={isExpanded}>
         <Stack gap="xs" mt="xs">
           {isAdding && (
-            <Box p="xs" style={{ backgroundColor: '#f9fafb', borderRadius: '4px' }}>
+            <Box p="xs" style={{ backgroundColor: 'var(--app-hover)', borderRadius: '4px' }}>
               <Stack gap="xs">
                 <TextInput
                   placeholder="Nazwa etykiety"
@@ -133,7 +133,7 @@ export default function LabelsPanel() {
                       onClick={() => setNewColor(color)}
                       style={{
                         cursor: 'pointer',
-                        border: newColor === color ? '2px solid #3b82f6' : '2px solid transparent'
+                        border: newColor === color ? '2px solid var(--mantine-color-blue-6)' : '2px solid transparent'
                       }}
                     />
                   ))}
@@ -172,7 +172,7 @@ export default function LabelsPanel() {
                 key={label.id}
                 p="xs"
                 style={{
-                  backgroundColor: editingId === label.id ? '#f9fafb' : 'transparent',
+                  backgroundColor: editingId === label.id ? 'var(--app-hover)' : 'transparent',
                   borderRadius: '4px'
                 }}
               >
@@ -192,7 +192,7 @@ export default function LabelsPanel() {
                           onClick={() => setEditColor(color)}
                           style={{
                             cursor: 'pointer',
-                            border: editColor === color ? '2px solid #3b82f6' : '2px solid transparent'
+                            border: editColor === color ? '2px solid var(--mantine-color-blue-6)' : '2px solid transparent'
                           }}
                         />
                       ))}

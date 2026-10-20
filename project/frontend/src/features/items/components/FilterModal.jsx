@@ -82,9 +82,9 @@ export default function FilterModal({ opened, onClose, selectedLabels = [], onAp
                     onClick={() => handleToggleLabel(label.id)}
                     style={{
                       cursor: 'pointer',
-                      backgroundColor: isSelected ? '#f3f4f6' : 'transparent',
+                      backgroundColor: isSelected ? 'var(--app-active)' : 'transparent',
                       borderRadius: '4px',
-                      border: isSelected ? '2px solid #6366f1' : '2px solid transparent',
+                      border: isSelected ? '2px solid var(--mantine-primary-color-filled)' : '2px solid transparent',
                       transition: 'all 0.15s ease'
                     }}
                   >

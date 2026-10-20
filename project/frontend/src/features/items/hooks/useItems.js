@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useItemsStore } from '../store/itemsStore';
 import itemsService from '../services/itemsService';
 import { notifications } from '@mantine/notifications';
+import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
 
 export function useItems(collectionId, viewType) {
   const {
@@ -19,13 +20,22 @@ export function useItems(collectionId, viewType) {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
+  const itemsVersion = useRefreshVersion('items');
+  const refresh = useRefresh();
+  // Item changes also change item counts shown next to collections and workspaces.
+  const refreshItems = () => refresh('items', 'collections', 'workspaces');
+
   useEffect(() => {
     fetchItems();
   }, [collectionId, viewType]);
 
-  const fetchItems = async () => {
-    
-    setLoading(true);
+  // Refetch in the background after changes made anywhere in the app.
+  useEffect(() => {
+    if (itemsVersion > 0) fetchItems({ silent: true });
+  }, [itemsVersion]);
+
+  const fetchItems = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       let result;
 
@@ -51,14 +61,12 @@ export function useItems(collectionId, viewType) {
       console.error('Error fetching items:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się pobrać items',
+        message: 'Nie udało się pobrać pozycji',
         color: 'red',
       });
       setItems([]);
     } finally {
       setLoading(false);
-      console.log('useItems.fetchItems - END');
-      console.log('========================================');
     }
   };
 
@@ -70,10 +78,10 @@ export function useItems(collectionId, viewType) {
       
       if (result.success) {
         addItem(result.data);
-        console.log('Item added to store:', result.data);
+        refreshItems();
         notifications.show({
           title: 'Sukces!',
-          message: 'Item dodany',
+          message: 'Dodano pozycję',
           color: 'green',
         });
         return true;
@@ -83,12 +91,10 @@ export function useItems(collectionId, viewType) {
       console.error('Error creating item:', err);
       notifications.show({
         title: 'Błąd',
-        message: err.response?.data?.message || 'Nie udało się dodać item',
+        message: err.response?.data?.message || 'Nie udało się dodać pozycji',
         color: 'red',
       });
       return false;
-    } finally {
-      console.log('========================================');
     }
   };
 
@@ -97,14 +103,13 @@ export function useItems(collectionId, viewType) {
     try {
       const result = await itemsService.update(id, itemData);
       
-      console.log('Update result:', result);
       
       if (result.success) {
         updateItem(id, result.data);
-        console.log('Item updated in store');
+        refreshItems();
         notifications.show({
           title: 'Sukces!',
-          message: 'Item zaktualizowany',
+          message: 'Zapisano zmiany',
           color: 'green',
         });
         return true;
@@ -114,12 +119,10 @@ export function useItems(collectionId, viewType) {
       console.error('Error updating item:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się zaktualizować item',
+        message: 'Nie udało się zapisać zmian',
         color: 'red',
       });
       return false;
-    } finally {
-      console.log('========================================');
     }
   };
 
@@ -129,9 +132,10 @@ export function useItems(collectionId, viewType) {
       
       if (result.success) {
         removeItem(id);
+        refreshItems();
         notifications.show({
           title: 'Sukces!',
-          message: 'Item przeniesiony do kosza',
+          message: 'Przeniesiono do kosza',
           color: 'green',
         });
       }
@@ -139,7 +143,7 @@ export function useItems(collectionId, viewType) {
       console.error('Error deleting item:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się usunąć item',
+        message: 'Nie udało się usunąć pozycji',
         color: 'red',
       });
     }
@@ -151,6 +155,7 @@ export function useItems(collectionId, viewType) {
       
       if (result.success) {
         updateItem(id, { favorite: result.data.favorite });
+        refreshItems();
         notifications.show({
           title: result.data.favorite ? 'Dodano do ulubionych' : 'Usunięto z ulubionych',
           message: '',
@@ -161,7 +166,7 @@ export function useItems(collectionId, viewType) {
       console.error('Error toggling favorite:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się zmienić favorite',
+        message: 'Nie udało się zmienić ulubionych',
         color: 'red',
       });
     }
@@ -175,16 +180,16 @@ export function useItems(collectionId, viewType) {
         removeItem(id);
         notifications.show({
           title: 'Przywrócono!',
-          message: 'Item przywrócony z kosza',
+          message: 'Przywrócono pozycję z kosza',
           color: 'green',
         });
-        fetchItems();
+        refreshItems();
       }
     } catch (err) {
       console.error('Error restoring item:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się przywrócić item',
+        message: 'Nie udało się przywrócić pozycji',
         color: 'red',
       });
     }
@@ -200,9 +205,10 @@ export function useItems(collectionId, viewType) {
       
       if (result.success) {
         removeItem(id);
+        refreshItems();
         notifications.show({
           title: 'Usunięto!',
-          message: 'Item usunięty na zawsze',
+          message: 'Pozycja usunięta na zawsze',
           color: 'green',
         });
       }
@@ -210,14 +216,14 @@ export function useItems(collectionId, viewType) {
       console.error('Error permanent deleting item:', err);
       notifications.show({
         title: 'Błąd',
-        message: 'Nie udało się usunąć item',
+        message: 'Nie udało się usunąć pozycji',
         color: 'red',
       });
     }
   };
 
   const handleEmptyTrash = async () => {
-    if (!window.confirm('OPRÓŻNIĆ KOSZ? Wszystkie items zostaną usunięte NA ZAWSZE!')) {
+    if (!window.confirm('Opróżnić kosz? Wszystkie pozycje zostaną usunięte na zawsze.')) {
       return;
     }
 
@@ -226,9 +232,10 @@ export function useItems(collectionId, viewType) {
       
       if (result.success) {
         setItems([]);
+        refreshItems();
         notifications.show({
           title: 'Kosz opróżniony!',
-          message: 'Wszystkie items usunięte',
+          message: 'Wszystkie pozycje zostały usunięte',
           color: 'green',
         });
       }
@@ -243,27 +250,21 @@ export function useItems(collectionId, viewType) {
   };
 
   const filteredItems = useMemo(() => {
-    console.log('useItems - FILTERING AND SORTING');
-    console.log('Items in store:', items.length);
     
     let result = [...items];
 
-    if (viewType === 'trash' || collectionId === 'trash') {
-      console.log('View: TRASH');
-    } else {
+    const isTrash = viewType === 'trash' || collectionId === 'trash';
+    if (!isTrash) {
       if (viewType === 'favorites' || collectionId === 'favorites') {
-        console.log('View: FAVORITES');
         result = result.filter(item => item.favorite === true);
       }
 
       if (collectionId && collectionId !== 'all' && collectionId !== 'favorites') {
-        console.log('Filtering by collectionId:', collectionId);
         result = result.filter(item => item.collectionId === collectionId);
       }
     }
 
     if (search) {
-      console.log('Searching for:', search);
       const searchLower = search.toLowerCase();
       result = result.filter((item) => {
         const authorText = Array.isArray(item.authors)
@@ -295,7 +296,6 @@ export function useItems(collectionId, viewType) {
       }
     });
 
-    console.log('Filtered items count:', result.length);
     
     return result;
   }, [items, search, sortBy, viewType, collectionId]);

@@ -17,7 +17,6 @@ class CommentsController {
       parentId
     });
 
-    console.log('Komentarz dodany do item:', itemId);
 
     ResponseHelper.created(res, comment, 'Komentarz dodany pomyślnie');
   });
@@ -40,7 +39,6 @@ class CommentsController {
 
     const comment = await commentsService.updateComment(req.user.id, id, { content });
 
-    console.log('Komentarz zaktualizowany:', id);
 
     ResponseHelper.success(res, comment, 'Komentarz zaktualizowany pomyślnie');
   });
@@ -50,7 +48,6 @@ class CommentsController {
 
     const result = await commentsService.deleteComment(req.user.id, id);
 
-    console.log('Komentarz usunięty:', id);
 
     ResponseHelper.success(res, null, result.message);
   });
@@ -60,7 +57,6 @@ class CommentsController {
 
     const comment = await commentsService.resolveComment(req.user.id, id);
 
-    console.log('Komentarz resolved:', id);
 
     ResponseHelper.success(res, comment, 'Status komentarza zmieniony');
   });

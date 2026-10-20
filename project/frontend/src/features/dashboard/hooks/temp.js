@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCollections } from '../../collections/hooks/useCollections';
 import { useWorkspaces } from '../../workspaces/hooks/useWorkspaces';
-import { useItemsStore } from '../../items/store/itemsStore';
+import itemsService from '../../items/services/itemsService';
+import { useRefreshVersion } from '../../../shared/store/refreshStore';
 
 export function useLeftSidebar(onSelectView) {
  
@@ -22,8 +23,15 @@ export function useLeftSidebar(onSelectView) {
     handleUpdate: handleUpdateWorkspace
   } = useWorkspaces();
 
-  const { items } = useItemsStore();
-  const trashCount = items.filter(i => i.status === 'deleted').length;
+  // The items store only holds the current view, so the trash count is fetched on its own
+  // and refreshed after every item change.
+  const itemsVersion = useRefreshVersion('items');
+  const [trashCount, setTrashCount] = useState(0);
+  useEffect(() => {
+    itemsService.getTrash()
+      .then((result) => setTrashCount(result?.success ? (result.data || []).length : 0))
+      .catch(() => setTrashCount(0));
+  }, [itemsVersion]);
 
   const [collectionModalOpened, setCollectionModalOpened] = useState(false);
   const [editCollection, setEditCollection] = useState(null);
@@ -53,7 +61,6 @@ export function useLeftSidebar(onSelectView) {
   };
 
   const handleCollectionModalSubmit = async (data, editId) => {
-    console.log('handleCollectionModalSubmit:', { data, editId });
     if (editId) {
       return await handleUpdateCollection(editId, data);
     } else {
@@ -62,12 +69,10 @@ export function useLeftSidebar(onSelectView) {
   };
 
   const handleCollectionDragUpdate = async (collectionId, updates) => {
-    console.log('handleCollectionDragUpdate:', { collectionId, updates });
     return await handleUpdateCollection(collectionId, updates);
   };
 
   const handleShareCollection = (collection) => {
-    console.log('Udostępnij kolekcję:', collection);
     setShareCollection(collection);
     setShareModalOpened(true);
   };
@@ -97,7 +102,6 @@ export function useLeftSidebar(onSelectView) {
   };
 
   const handleSelectWorkspaceCollection = (collection, workspace) => {
-    console.log('Selected workspace collection:', collection, 'from workspace:', workspace);
     onSelectView({
       type: 'workspace-collection',
       data: { collection, workspace }

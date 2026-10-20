@@ -12,7 +12,6 @@ class LabelsController {
 
     const label = await labelsService.createLabel(req.user.id, { name, color });
 
-    console.log('Label utworzony:', name, 'przez user:', req.user.username);
 
     ResponseHelper.created(res, label, 'Label utworzony pomyślnie');
   });
@@ -41,7 +40,6 @@ class LabelsController {
 
     const label = await labelsService.updateLabel(req.user.id, id, { name, color });
 
-    console.log('Label zaktualizowany:', label.name);
 
     ResponseHelper.success(res, label, 'Label zaktualizowany pomyślnie');
   });
@@ -51,7 +49,6 @@ class LabelsController {
 
     const result = await labelsService.deleteLabel(req.user.id, id);
 
-    console.log('Label usunięty, ID:', id);
 
     ResponseHelper.success(res, null, result.message);
   });

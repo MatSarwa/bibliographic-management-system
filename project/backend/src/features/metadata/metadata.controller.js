@@ -12,7 +12,6 @@ class MetadataController {
 
     const metadata = await metadataService.fetch(identifier);
 
-    console.log('Metadata pobrane:', identifier);
 
     ResponseHelper.success(res, metadata);
   });

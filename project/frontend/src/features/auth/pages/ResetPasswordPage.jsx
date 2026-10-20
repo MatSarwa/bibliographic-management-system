@@ -74,7 +74,7 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <AuthBackground>
-        <Container
+        <Container w="100%"
           size={420}
           style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}
         >
@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
             shadow="xl"
             p={36}
             radius="md"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
+            style={{ backgroundColor: 'var(--mantine-color-body)' }}
           >
             <Alert icon={<IconCheck size={18} />} color="green">
               Hasło zostało zmienione! Za chwilę zostaniesz przekierowany do
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthBackground>
-      <Container
+      <Container w="100%"
         size={420}
         style={{ position: 'relative', zIndex: 1, paddingTop: '80px' }}
       >
@@ -106,9 +106,9 @@ export default function ResetPasswordPage() {
           shadow="xl"
           p={36}
           radius="md"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
+          style={{ backgroundColor: 'var(--mantine-color-body)' }}
         >
-          <Title order={2} ta="center" mb="xl" c="#111827">
+          <Title order={2} ta="center" mb="xl" c="var(--mantine-color-text)">
             Nowe hasło
           </Title>
 
@@ -133,11 +133,11 @@ export default function ResetPasswordPage() {
                 size="md"
                 styles={{
                   input: {
-                    backgroundColor: '#f9fafb',
-                    color: '#111827',
-                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'var(--app-hover)',
+                    color: 'var(--mantine-color-text)',
+                    border: '1px solid var(--mantine-color-default-border)',
                   },
-                  label: { color: '#6b7280' },
+                  label: { color: 'var(--mantine-color-dimmed)' },
                 }}
               />
               <PasswordInput
@@ -149,11 +149,11 @@ export default function ResetPasswordPage() {
                 size="md"
                 styles={{
                   input: {
-                    backgroundColor: '#f9fafb',
-                    color: '#111827',
-                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'var(--app-hover)',
+                    color: 'var(--mantine-color-text)',
+                    border: '1px solid var(--mantine-color-default-border)',
                   },
-                  label: { color: '#6b7280' },
+                  label: { color: 'var(--mantine-color-dimmed)' },
                 }}
               />
               <Button
@@ -161,14 +161,14 @@ export default function ResetPasswordPage() {
                 fullWidth
                 size="md"
                 loading={loading}
-                style={{ backgroundColor: '#6366f1' }}
+                style={{ backgroundColor: 'var(--mantine-primary-color-filled)' }}
               >
                 Zmień hasło
               </Button>
               <Text size="sm" ta="center">
                 <Link
                   to="/login"
-                  style={{ color: '#6366f1', textDecoration: 'none' }}
+                  style={{ color: 'var(--mantine-primary-color-filled)', textDecoration: 'none' }}
                 >
                   Powrót do logowania
                 </Link>

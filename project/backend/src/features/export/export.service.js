@@ -1,4 +1,6 @@
-const { Item, Label, Collection } = require('../../models');
+const { Item, Label, Collection, CollectionMember, WorkspaceMember } = require('../../models');
+const AppError = require('../../shared/utils/app-error');
+const { checkPermission } = require('../../shared/constants/permissions');
 
 class ExportService {
 
@@ -147,7 +149,7 @@ class ExportService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (format === 'bibtex') {
@@ -155,7 +157,7 @@ class ExportService {
     } else if (format === 'ris') {
       return this.generateRIS(item);
     } else {
-      throw new Error('Nieobsługiwany format');
+      throw new AppError('Nieobsługiwany format', 400);
     }
   }
 
@@ -177,7 +179,7 @@ class ExportService {
     });
 
     if (items.length === 0) {
-      throw new Error('Nie znaleziono itemów do eksportu');
+      throw new AppError('Nie znaleziono pozycji do eksportu', 404);
     }
 
     if (format === 'bibtex') {
@@ -185,26 +187,34 @@ class ExportService {
     } else if (format === 'ris') {
       return this.generateRIS(items);
     } else {
-      throw new Error('Nieobsługiwany format');
+      throw new AppError('Nieobsługiwany format', 400);
     }
   }
 
   async exportCollection(userId, collectionId, format) {
 
-    const collection = await Collection.findOne({
-      where: {
-        id: collectionId,
-        ownerId: userId
-      }
-    });
+    const collection = await Collection.findByPk(collectionId);
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
+    // Allowed: own collection, collection shared with the user, or a workspace collection the user can view.
+    if (collection.workspaceId) {
+      const member = await WorkspaceMember.findOne({
+        where: { workspaceId: collection.workspaceId, userId }
+      });
+      checkPermission('VIEW_REFERENCES', member);
+    } else if (collection.ownerId !== userId) {
+      const sharedWithUser = await CollectionMember.count({ where: { collectionId, userId } });
+      if (!sharedWithUser) {
+        throw new AppError('Kolekcja nie znaleziona', 404);
+      }
+    }
+
+    // Items of shared and workspace collections can be added by other members, so no userId filter.
     const items = await Item.findAll({
       where: {
-        userId,
         collectionId,
         status: 'active'
       },
@@ -219,7 +229,7 @@ class ExportService {
     });
 
     if (items.length === 0) {
-      throw new Error('Kolekcja jest pusta');
+      throw new AppError('Kolekcja jest pusta', 400);
     }
 
     if (format === 'bibtex') {
@@ -227,7 +237,7 @@ class ExportService {
     } else if (format === 'ris') {
       return this.generateRIS(items);
     } else {
-      throw new Error('Nieobsługiwany format');
+      throw new AppError('Nieobsługiwany format', 400);
     }
   }
 

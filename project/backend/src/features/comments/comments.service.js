@@ -1,5 +1,6 @@
 const { Comment, Item, User, WorkspaceMember, Collection } = require('../../models');
 const { checkPermission, hasPermission } = require('../../shared/constants/permissions');
+const AppError = require('../../shared/utils/app-error');
 
 class CommentsService {
 
@@ -20,7 +21,7 @@ class CommentsService {
     const { content, parentId } = data;
 
     if (!content) {
-      throw new Error('Treść komentarza jest wymagana');
+      throw new AppError('Treść komentarza jest wymagana', 400);
     }
 
     const item = await Item.findByPk(itemId, {
@@ -34,11 +35,11 @@ class CommentsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (!item.collection || !item.collection.workspaceId) {
-      throw new Error('Komentarze dostępne tylko dla workspace items');
+      throw new AppError('Komentarze są dostępne tylko dla pozycji w workspace', 400);
     }
 
     const member = await this.getMemberForItem(userId, item);
@@ -47,7 +48,7 @@ class CommentsService {
     if (parentId) {
       const parentComment = await Comment.findByPk(parentId);
       if (!parentComment || parentComment.itemId !== itemId) {
-        throw new Error('Parent comment nie znaleziony');
+        throw new AppError('Parent comment nie znaleziony', 404);
       }
     }
 
@@ -84,7 +85,7 @@ class CommentsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (item.collection && item.collection.workspaceId) {
@@ -92,7 +93,7 @@ class CommentsService {
       checkPermission('VIEW_COMMENTS', member);
     } else {
       if (item.userId !== userId) {
-        throw new Error('Brak dostępu do itemu');
+        throw new AppError('Brak dostępu do tej pozycji', 403);
       }
     }
 
@@ -133,7 +134,7 @@ class CommentsService {
     const { content } = data;
 
     if (!content) {
-      throw new Error('Treść komentarza jest wymagana');
+      throw new AppError('Treść komentarza jest wymagana', 400);
     }
 
     const comment = await Comment.findByPk(commentId, {
@@ -153,12 +154,12 @@ class CommentsService {
     });
 
     if (!comment) {
-      throw new Error('Komentarz nie znaleziony');
+      throw new AppError('Komentarz nie znaleziony', 404);
     }
 
     const canEdit = await this.canModifyComment(userId, comment);
     if (!canEdit) {
-      throw new Error('Brak uprawnień do edycji komentarza');
+      throw new AppError('Brak uprawnień do edycji komentarza', 403);
     }
 
     await comment.update({ content });
@@ -194,12 +195,12 @@ class CommentsService {
     });
 
     if (!comment) {
-      throw new Error('Komentarz nie znaleziony');
+      throw new AppError('Komentarz nie znaleziony', 404);
     }
 
     const canDelete = await this.canModifyComment(userId, comment);
     if (!canDelete) {
-      throw new Error('Brak uprawnień do usunięcia komentarza');
+      throw new AppError('Brak uprawnień do usunięcia komentarza', 403);
     }
 
     await comment.destroy();
@@ -225,12 +226,12 @@ class CommentsService {
     });
 
     if (!comment) {
-      throw new Error('Komentarz nie znaleziony');
+      throw new AppError('Komentarz nie znaleziony', 404);
     }
 
     const workspaceId = comment.item.collection?.workspaceId;
     if (!workspaceId) {
-      throw new Error('Resolve dostępne tylko dla workspace items');
+      throw new AppError('Rozwiązywanie komentarzy działa tylko dla pozycji w workspace', 400);
     }
 
     const member = await WorkspaceMember.findOne({

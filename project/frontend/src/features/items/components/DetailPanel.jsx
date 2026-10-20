@@ -47,8 +47,8 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
   if (!item) {
     return (
       <Box p="xl" style={{ textAlign: 'center', paddingTop: 100 }}>
-        <IconBook size={48} color="#9ca3af" style={{ opacity: 0.3 }} />
-        <Text size="sm" c="#6b7280" mt="md">
+        <IconBook size={48} style={{ color: 'var(--mantine-color-placeholder)', opacity: 0.3 }} />
+        <Text size="sm" c="dimmed" mt="md">
           Wybierz pozycję aby zobaczyć szczegóły
         </Text>
       </Box>
@@ -112,7 +112,7 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
           </Group>
         </Group>
 
-<Text size="md" fw={700} c="#111827" mb="xs" style={{ lineHeight: 1.3 }}>
+<Text size="md" fw={700} c="var(--mantine-color-text)" mb="xs" style={{ lineHeight: 1.3 }}>
   {item.title}
 </Text>
 
@@ -137,16 +137,16 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
   </Group>
 )}
         <Group gap="xs" mb="md">
-          <IconUser size={14} color="#6b7280" />
-          <Text size="sm" c="#6b7280">
+          <IconUser size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
+          <Text size="sm" c="dimmed">
             {displayAuthors}
           </Text>
           {item.year && (
             <>
-              <Text c="#9ca3af">•</Text>
+              <Text c="var(--mantine-color-placeholder)">•</Text>
               <Group gap={4}>
-                <IconCalendar size={14} color="#6b7280" />
-                <Text size="sm" c="#6b7280">{item.year}</Text>
+                <IconCalendar size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
+                <Text size="sm" c="dimmed">{item.year}</Text>
               </Group>
             </>
           )}
@@ -155,8 +155,8 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
         {item.tags && item.tags.length > 0 && (
           <Box mb="md">
             <Group gap="xs" mb="xs">
-              <IconTag size={12} color="#6b7280" />
-              <Text size="xs" c="#6b7280" fw={600}>
+              <IconTag size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
+              <Text size="xs" c="dimmed" fw={600}>
                 TAGI
               </Text>
             </Group>
@@ -170,7 +170,7 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
           </Box>
         )}
 
-        <Divider my="md" color="#e5e7eb" />
+        <Divider my="md" color="var(--mantine-color-default-border)" />
 
         <Box mb="md">
           <Group
@@ -178,14 +178,14 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
             style={{ cursor: 'pointer', userSelect: 'none' }}
             mb="xs"
           >
-            <IconQuote size={14} color="#6366f1" />
-            <Text size="xs" c="#6b7280" fw={600} style={{ flex: 1 }}>
+            <IconQuote size={14} style={{ color: 'var(--mantine-primary-color-filled)' }} />
+            <Text size="xs" c="dimmed" fw={600} style={{ flex: 1 }}>
               GENERUJ CYTAT
             </Text>
             {citationOpen ? (
-              <IconChevronUp size={14} color="#9ca3af" />
+              <IconChevronUp size={14} style={{ color: 'var(--mantine-color-placeholder)' }} />
             ) : (
-              <IconChevronDown size={14} color="#9ca3af" />
+              <IconChevronDown size={14} style={{ color: 'var(--mantine-color-placeholder)' }} />
             )}
           </Group>
 
@@ -194,8 +194,8 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
               p="sm" 
               radius="md" 
               style={{ 
-                backgroundColor: '#f9fafb', 
-                border: '1px solid #e5e7eb' 
+                backgroundColor: 'var(--app-hover)', 
+                border: '1px solid var(--mantine-color-default-border)' 
               }}
             >
               <Select
@@ -229,11 +229,11 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
                     p="xs"
                     radius="sm"
                     style={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e5e7eb',
+                      backgroundColor: 'var(--mantine-color-body)',
+                      border: '1px solid var(--mantine-color-default-border)',
                       fontSize: '11px',
                       lineHeight: 1.5,
-                      color: '#374151'
+                      color: 'var(--mantine-color-text)'
                     }}
                   >
                     {citation}
@@ -260,15 +260,15 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
           </Collapse>
         </Box>
 
-        <Divider my="md" color="#e5e7eb" />
+        <Divider my="md" color="var(--mantine-color-default-border)" />
 
         <Stack gap="sm">
           {item.publisher && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 WYDAWCA
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {item.publisher}
               </Text>
             </Box>
@@ -276,10 +276,10 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {journal && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 {item.metadata?.conference ? 'KONFERENCJA' : 'DZIENNIK'}
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {journal}
                 {volume && `, Vol. ${volume}`}
                 {issue && ` (${issue})`}
@@ -289,10 +289,10 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {location && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 LOKALIZACJA
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {location}
               </Text>
             </Box>
@@ -300,10 +300,10 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {date && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 DATA
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {date}
               </Text>
             </Box>
@@ -311,10 +311,10 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {pages && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 STRONY
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {pages}
               </Text>
             </Box>
@@ -322,12 +322,12 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {item.doi && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 DOI
               </Text>
               <Text
                 size="sm"
-                c="#6366f1"
+                c="var(--mantine-primary-color-filled)"
                 style={{ cursor: 'pointer', textDecoration: 'underline' }}
                 onClick={() => window.open(`https://doi.org/${item.doi}`, '_blank')}
               >
@@ -338,10 +338,10 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {item.isbn && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 ISBN
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {item.isbn}
               </Text>
             </Box>
@@ -349,12 +349,12 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {url && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600}>
+              <Text size="xs" c="dimmed" fw={600}>
                 LINK
               </Text>
               <Text
                 size="sm"
-                c="#6366f1"
+                c="var(--mantine-primary-color-filled)"
                 style={{ cursor: 'pointer', textDecoration: 'underline' }}
                 onClick={() => window.open(url, '_blank')}
                 lineClamp={1}
@@ -366,10 +366,10 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
           {keywords.length > 0 && (
             <Box>
-              <Text size="xs" c="#6b7280" fw={600} mb="xs">
+              <Text size="xs" c="dimmed" fw={600} mb="xs">
                 SŁOWA KLUCZOWE
               </Text>
-              <Text size="sm" c="#111827">
+              <Text size="sm" c="var(--mantine-color-text)">
                 {Array.isArray(keywords) ? keywords.join(', ') : keywords}
               </Text>
             </Box>
@@ -378,12 +378,12 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
         {abstractText && (
           <>
-            <Divider my="md" color="#e5e7eb" />
+            <Divider my="md" color="var(--mantine-color-default-border)" />
             <Box mb="md">
-              <Text size="xs" c="#6b7280" fw={600} mb="xs">
+              <Text size="xs" c="dimmed" fw={600} mb="xs">
                 ABSTRAKT
               </Text>
-              <Text size="sm" c="#111827" style={{ lineHeight: 1.5 }}>
+              <Text size="sm" c="var(--mantine-color-text)" style={{ lineHeight: 1.5 }}>
                 {abstractText}
               </Text>
             </Box>
@@ -392,23 +392,23 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
         {item.notes && (
           <>
-            <Divider my="md" color="#e5e7eb" />
+            <Divider my="md" color="var(--mantine-color-default-border)" />
             <Box mb="md">
               <Group gap="xs" mb="xs">
-                <IconNotes size={12} color="#6b7280" />
-                <Text size="xs" c="#6b7280" fw={600}>
+                <IconNotes size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
+                <Text size="xs" c="dimmed" fw={600}>
                   NOTATKI OSOBISTE
                 </Text>
               </Group>
               <Paper
                 p="sm"
                 style={{
-                  backgroundColor: '#f9fafb',
-                  border: '1px solid #e5e7eb',
-                  borderLeft: '3px solid #6366f1'
+                  backgroundColor: 'var(--app-hover)',
+                  border: '1px solid var(--mantine-color-default-border)',
+                  borderLeft: '3px solid var(--mantine-primary-color-filled)'
                 }}
               >
-                <Text size="sm" c="#111827" style={{ lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                <Text size="sm" c="var(--mantine-color-text)" style={{ lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
                   {item.notes}
                 </Text>
               </Paper>
@@ -418,9 +418,9 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
         {item.collection && (
           <>
-            <Divider my="md" color="#e5e7eb" />
+            <Divider my="md" color="var(--mantine-color-default-border)" />
             <Box>
-              <Text size="xs" c="#6b7280" fw={600} mb="xs">
+              <Text size="xs" c="dimmed" fw={600} mb="xs">
                 KOLEKCJA
               </Text>
               <Badge variant="light" color={isWorkspaceItem ? 'blue' : 'violet'}>
@@ -432,9 +432,9 @@ export default function DetailPanel({ item, onEdit, onToggleFavorite, isWorkspac
 
         {!isWorkspaceItem && item.labels && item.labels.length > 0 && (
           <>
-            <Divider my="md" color="#e5e7eb" />
+            <Divider my="md" color="var(--mantine-color-default-border)" />
             <Box>
-              <Text size="xs" c="#6b7280" fw={600} mb="xs">
+              <Text size="xs" c="dimmed" fw={600} mb="xs">
                 ETYKIETY
               </Text>
               <Group gap="xs">

@@ -151,7 +151,7 @@ export default function HistoryTimeline({
                     <Collapse in={isExpanded}>
                       <Stack gap="xs" mt="xs">
                         {Object.entries(changes).map(([key, value]) => (
-                          <Card key={key} p="xs" withBorder style={{ backgroundColor: '#fefce8' }}>
+                          <Card key={key} p="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-yellow-light)' }}>
                             <Text size="xs" fw={500} mb={4} c="violet" tt="uppercase">
                               {key}
                             </Text>
@@ -160,7 +160,7 @@ export default function HistoryTimeline({
                               p="xs"
                               mb={4}
                               style={{
-                                backgroundColor: '#fee2e2',
+                                backgroundColor: 'var(--mantine-color-red-light)',
                                 borderRadius: '4px',
                                 fontFamily: 'monospace',
                                 fontSize: '11px'
@@ -177,7 +177,7 @@ export default function HistoryTimeline({
                             <Box
                               p="xs"
                               style={{
-                                backgroundColor: '#dcfce7',
+                                backgroundColor: 'var(--mantine-color-green-light)',
                                 borderRadius: '4px',
                                 fontFamily: 'monospace',
                                 fontSize: '11px'

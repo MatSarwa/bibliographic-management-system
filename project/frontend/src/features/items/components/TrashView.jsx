@@ -23,11 +23,11 @@ export default function TrashView() {
     return (
       <Center style={{ height: '60vh' }}>
         <Stack align="center">
-          <IconTrash size={64} color="#9ca3af" style={{ opacity: 0.3 }} />
-          <Text size="lg" fw={600} c="#6b7280" mt="md">
+          <IconTrash size={64} style={{ color: 'var(--mantine-color-placeholder)', opacity: 0.3 }} />
+          <Text size="lg" fw={600} c="dimmed" mt="md">
             Kosz jest pusty
           </Text>
-          <Text size="sm" c="#9ca3af">
+          <Text size="sm" c="var(--mantine-color-placeholder)">
             Usunięte pozycje pojawią się tutaj
           </Text>
         </Stack>
@@ -38,15 +38,15 @@ export default function TrashView() {
   return (
     <Box p="md">
       <Group justify="space-between" mb="md" p="sm" style={{ 
-        backgroundColor: '#ffffff', 
+        backgroundColor: 'var(--mantine-color-body)', 
         borderRadius: '8px',
-        border: '1px solid #e5e7eb'
+        border: '1px solid var(--mantine-color-default-border)'
       }}>
         <div>
-          <Text size="xl" fw={700} c="#111827">
+          <Text size="xl" fw={700} c="var(--mantine-color-text)">
             Kosz
           </Text>
-          <Text size="sm" c="#6b7280">
+          <Text size="sm" c="dimmed">
             {items.length} {items.length === 1 ? 'pozycja' : 'pozycji'}
           </Text>
         </div>
@@ -62,32 +62,31 @@ export default function TrashView() {
       </Group>
 
       <Box style={{ 
-        border: '1px solid #e5e7eb',
+        border: '1px solid var(--mantine-color-default-border)',
         borderRadius: '4px',
         overflow: 'hidden',
-        backgroundColor: '#ffffff'
+        backgroundColor: 'var(--mantine-color-body)'
       }}>
         <Table
           highlightOnHover
           styles={{
             th: { 
-              backgroundColor: '#ffffff', 
-              color: '#111827', 
-              borderColor: '#e5e7eb',
-              borderBottom: '2px solid #e5e7eb',
+              backgroundColor: 'var(--mantine-color-body)', 
+              color: 'var(--mantine-color-text)', 
+              borderColor: 'var(--mantine-color-default-border)',
+              borderBottom: '2px solid var(--mantine-color-default-border)',
               padding: '12px 8px',
               fontSize: '13px',
               fontWeight: 600,
             },
             td: { 
-              color: '#111827', 
+              color: 'var(--mantine-color-text)', 
               padding: '12px 8px',
               fontSize: '14px',
             },
             tr: { 
               transition: 'background-color 0.15s ease',
-              '&:hover': { backgroundColor: '#f9fafb' },
-              borderBottom: '1px solid #e5e7eb'
+              borderBottom: '1px solid var(--mantine-color-default-border)'
             }
           }}
         >
@@ -103,19 +102,19 @@ export default function TrashView() {
             {items.map((item) => (
               <Table.Tr key={item.id}>
                 <Table.Td>
-                  <Text size="sm" fw={500} c="#111827">
+                  <Text size="sm" fw={500} c="var(--mantine-color-text)">
                     {item.title}
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text size="sm" c="#6b7280">
+                  <Text size="sm" c="dimmed">
                     {Array.isArray(item.authors) 
                       ? item.authors.join(', ') 
                       : item.author || 'Nieznany'}
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text size="sm" c="#6b7280">
+                  <Text size="sm" c="dimmed">
                     {item.year || '—'}
                   </Text>
                 </Table.Td>

@@ -1,5 +1,6 @@
 const { ItemHistory, Item, User, WorkspaceMember, Collection } = require('../../models');
 const { checkPermission } = require('../../shared/constants/permissions');
+const AppError = require('../../shared/utils/app-error');
 
 class HistoryService {
 
@@ -28,12 +29,12 @@ class HistoryService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (!item.collection || !item.collection.workspaceId) {
       if (item.userId !== userId) {
-        throw new Error('Brak dostępu do itemu');
+        throw new AppError('Brak dostępu do tej pozycji', 403);
       }
       return [];
     }
@@ -71,14 +72,14 @@ class HistoryService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (!item.collection || !item.collection.workspaceId) {
       if (item.userId !== userId) {
-        throw new Error('Brak dostępu do itemu');
+        throw new AppError('Brak dostępu do tej pozycji', 403);
       }
-      throw new Error('Personal items nie mają historii wersji');
+      throw new AppError('Pozycje prywatne nie mają historii wersji', 400);
     }
 
     const member = await this.getMemberForItem(userId, item);
@@ -96,7 +97,7 @@ class HistoryService {
     });
 
     if (!historyVersion) {
-      throw new Error('Wersja nie znaleziona');
+      throw new AppError('Wersja nie znaleziona', 404);
     }
 
     return historyVersion;
@@ -114,11 +115,11 @@ class HistoryService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     if (!item.collection || !item.collection.workspaceId) {
-      throw new Error('Restore działa tylko dla workspace items');
+      throw new AppError('Przywracanie wersji działa tylko dla pozycji w workspace', 400);
     }
 
     const member = await this.getMemberForItem(userId, item);
@@ -129,7 +130,7 @@ class HistoryService {
     });
 
     if (!historyVersion) {
-      throw new Error('Wersja nie znaleziona');
+      throw new AppError('Wersja nie znaleziona', 404);
     }
 
     const oldSnapshot = item.toJSON();
@@ -165,7 +166,7 @@ class HistoryService {
     });
 
     return {
-      message: `Item przywrócony do wersji ${version}`,
+      message: `Przywrócono wersję ${version}`,
       currentVersion: newVersion,
       restoredFrom: version
     };

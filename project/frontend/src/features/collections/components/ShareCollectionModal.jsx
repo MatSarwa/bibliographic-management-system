@@ -113,7 +113,7 @@ export default function ShareCollectionModal({
       onClose={onClose}
       title={
         <Group gap="xs">
-          <IconUsers size={20} color="#06b6d4" />
+          <IconUsers size={20} style={{ color: 'var(--mantine-color-cyan-6)' }} />
           <Text fw={600}>Udostępnij: {collection.name}</Text>
         </Group>
       }
@@ -167,7 +167,7 @@ export default function ShareCollectionModal({
           <>
             {owner && (
               <div>
-                <Text size="sm" fw={500} mb="xs" c="#6b7280">
+                <Text size="sm" fw={500} mb="xs" c="dimmed">
                   Właściciel
                 </Text>
                 <Paper p="sm" withBorder>
@@ -189,7 +189,7 @@ export default function ShareCollectionModal({
 
             {sharedUsers.length > 0 && (
               <div>
-                <Text size="sm" fw={500} mb="xs" c="#6b7280">
+                <Text size="sm" fw={500} mb="xs" c="dimmed">
                   Udostępniono dla ({sharedUsers.length})
                 </Text>
                 <Stack gap="xs">

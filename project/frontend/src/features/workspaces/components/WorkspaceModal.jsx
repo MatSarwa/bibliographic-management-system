@@ -29,7 +29,7 @@ export default function WorkspaceModal({
       if (editWorkspace) {
         setName(editWorkspace.name || '');
         setDescription(editWorkspace.description || '');
-        setColor(editWorkspace.settings?.color || '#6366f1');
+        setColor(editWorkspace.settings?.color || 'var(--mantine-primary-color-filled)');
       } else {
         resetForm();
       }
@@ -39,7 +39,7 @@ export default function WorkspaceModal({
   const resetForm = () => {
     setName('');
     setDescription('');
-    setColor('#6366f1');
+    setColor('var(--mantine-primary-color-filled)');
   };
 
   const handleSubmit = async () => {
@@ -56,7 +56,6 @@ export default function WorkspaceModal({
       settings: { color }
     };
 
-    console.log('Wysyłam dane workspace:', data);
 
     const success = await onSuccess(data, editWorkspace?.id);
     
@@ -64,7 +63,6 @@ export default function WorkspaceModal({
 
     if (success) {
       handleClose();
-      window.dispatchEvent(new CustomEvent('refreshWorkspaces'));
     }
   };
 
@@ -79,7 +77,7 @@ export default function WorkspaceModal({
       onClose={handleClose}
       title={
         <Group gap="xs">
-          <IconBriefcase size={20} color="#6366f1" />
+          <IconBriefcase size={20} style={{ color: 'var(--mantine-primary-color-filled)' }} />
           <Text fw={600}>
             {isEditMode ? 'Edytuj Workspace' : 'Nowy Workspace'}
           </Text>

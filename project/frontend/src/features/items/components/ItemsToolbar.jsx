@@ -61,7 +61,7 @@ export default function ItemsToolbar({
             <Menu.Item 
               onClick={() => setSortBy('dateAdded')}
               style={{ 
-                backgroundColor: sortBy === 'dateAdded' ? '#f3f4f6' : 'transparent',
+                backgroundColor: sortBy === 'dateAdded' ? 'var(--app-active)' : 'transparent',
                 fontWeight: sortBy === 'dateAdded' ? 500 : 400
               }}
             >
@@ -70,7 +70,7 @@ export default function ItemsToolbar({
             <Menu.Item 
               onClick={() => setSortBy('title')}
               style={{ 
-                backgroundColor: sortBy === 'title' ? '#f3f4f6' : 'transparent',
+                backgroundColor: sortBy === 'title' ? 'var(--app-active)' : 'transparent',
                 fontWeight: sortBy === 'title' ? 500 : 400
               }}
             >
@@ -79,7 +79,7 @@ export default function ItemsToolbar({
             <Menu.Item 
               onClick={() => setSortBy('year')}
               style={{ 
-                backgroundColor: sortBy === 'year' ? '#f3f4f6' : 'transparent',
+                backgroundColor: sortBy === 'year' ? 'var(--app-active)' : 'transparent',
                 fontWeight: sortBy === 'year' ? 500 : 400
               }}
             >
@@ -88,7 +88,7 @@ export default function ItemsToolbar({
             <Menu.Item 
               onClick={() => setSortBy('author')}
               style={{ 
-                backgroundColor: sortBy === 'author' ? '#f3f4f6' : 'transparent',
+                backgroundColor: sortBy === 'author' ? 'var(--app-active)' : 'transparent',
                 fontWeight: sortBy === 'author' ? 500 : 400
               }}
             >

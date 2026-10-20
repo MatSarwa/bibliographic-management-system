@@ -22,9 +22,9 @@ export function useAuthForm(isRegister) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setError('');
+    // The previous error stays visible until the new response arrives (it is replaced or
+    // cleared then); clearing it here made the alert vanish and the form jump on every retry.
     setSuccess('');
-    setNeedsVerification(false);
     setLoading(true);
 
     try {
@@ -49,6 +49,7 @@ export function useAuthForm(isRegister) {
         });
 
         if (response.success || response.data) {
+          setError('');
           setSuccess('Konto utworzone! Sprawdz email aby zweryfikowac konto.');
           notifications.show({
             title: 'Sukces!',
@@ -73,13 +74,6 @@ export function useAuthForm(isRegister) {
 
         if (result?.token) {
 
-          console.log('SETTING AUTH WITH:', {
-            username: result.username,
-            email: result.email,
-            id: result.userId,
-            altId: result.id,
-            altUser: result.user,
-          });
 
           setAuth(
             {
@@ -106,14 +100,15 @@ export function useAuthForm(isRegister) {
         }
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Wystapil blad';
-      setError(errorMsg);
+      // Shown only in the alert above the form; an extra toast would duplicate it.
+      setError(err.response?.data?.message || err.message || 'Wystapil blad');
 
-      notifications.show({
-        title: 'Blad',
-        message: errorMsg,
-        color: 'red',
-      });
+      // Unverified account comes back as 403, so axios lands here, not in the success branch.
+      const needsVerification = !!err.response?.data?.needsVerification;
+      setNeedsVerification(needsVerification);
+      if (needsVerification) {
+        setUserEmail(err.response.data.email || login);
+      }
     } finally {
       setLoading(false);
     }

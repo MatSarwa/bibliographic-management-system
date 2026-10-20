@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useCollectionsStore } from '../store/collectionsStore';
 import collectionsService from '../services/collectionsService';
 import { notifications } from '@mantine/notifications';
+import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
 
 export function useCollections() {
   const {
@@ -16,17 +17,24 @@ export function useCollections() {
     setLoading,
   } = useCollectionsStore();
 
+  const collectionsVersion = useRefreshVersion('collections');
+  const refresh = useRefresh();
+
   useEffect(() => {
     fetchCollections();
   }, []);
 
-  const fetchCollections = async () => {
-    setLoading(true);
+  // Refetch in the background when collections (or their item counts) change elsewhere.
+  useEffect(() => {
+    if (collectionsVersion > 0) fetchCollections({ silent: true });
+  }, [collectionsVersion]);
+
+  const fetchCollections = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const result = await collectionsService.getAll();
 
       if (result.success) {
-        console.log('Pobrane kolekcje (raw):', result.data);
         
         const collectionsWithMembers = await Promise.all(
           result.data.map(async (col) => {
@@ -34,15 +42,14 @@ export function useCollections() {
               const membersResult = await collectionsService.getSharedUsers(col.id);
               
               if (membersResult.success && membersResult.data.sharedWith) {
-                console.log(`${col.name} - members:`, membersResult.data.sharedWith);
                 return {
                   ...col,
                   itemCount: col.itemCount || 0,
                   sharedWith: membersResult.data.sharedWith 
                 };
               }
-            } catch (err) {
-              console.log(`${col.name} - nie udało się pobrać members`);
+            } catch {
+              // Members are optional extra info; show the collection without them.
             }
 
             return {
@@ -53,7 +60,6 @@ export function useCollections() {
           })
         );
         
-        console.log('Kolekcje z members:', collectionsWithMembers);
         setCollections(collectionsWithMembers);
       }
     } catch (err) {
@@ -70,7 +76,6 @@ export function useCollections() {
 
   const handleCreate = async (collectionData) => {
     try {
-      console.log('Creating collection:', collectionData);
       const result = await collectionsService.create(collectionData);
 
       if (result.success) {
@@ -98,14 +103,12 @@ export function useCollections() {
 
   const handleUpdate = async (id, collectionData) => {
     try {
-      console.log('Updating collection:', { id, data: collectionData });
       const result = await collectionsService.update(id, collectionData);
 
       if (result.success) {
         updateCollection(id, result.data);
         
         if (collectionData.parentId !== undefined) {
-          console.log('Refreshing collections after parent change...');
           await fetchCollections();
         }
         
@@ -140,8 +143,10 @@ export function useCollections() {
         if (selectedCollection?.id === id) {
           setSelectedCollection(null);
         }
-        
+
         await fetchCollections();
+        // Items from a deleted collection move or disappear, so item lists must refetch too.
+        refresh('items');
         
         notifications.show({
           title: 'Sukces!',

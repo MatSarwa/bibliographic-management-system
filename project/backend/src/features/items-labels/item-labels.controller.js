@@ -8,7 +8,6 @@ class ItemLabelsController {
 
     const item = await itemLabelsService.addLabelToItem(req.user.id, itemId, labelId);
 
-    console.log('Label dodany do itemu:', item.title);
 
     ResponseHelper.success(res, item, 'Label dodany pomyślnie');
   });
@@ -18,7 +17,6 @@ class ItemLabelsController {
 
     const item = await itemLabelsService.removeLabelFromItem(req.user.id, itemId, labelId);
 
-    console.log('Label usunięty z itemu:', item.title);
 
     ResponseHelper.success(res, item, 'Label usunięty pomyślnie');
   });
@@ -49,7 +47,6 @@ class ItemLabelsController {
 
     const item = await itemLabelsService.setItemLabels(req.user.id, itemId, labelIds);
 
-    console.log('Labels zaktualizowane dla itemu:', item.title);
 
     ResponseHelper.success(res, item, 'Labels zaktualizowane pomyślnie');
   });

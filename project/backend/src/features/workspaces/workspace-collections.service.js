@@ -1,6 +1,7 @@
 const { Collection, Item, Label, WorkspaceMember } = require('../../models');
 const { Op } = require('sequelize');
 const { checkPermission } = require('../../shared/constants/permissions');
+const AppError = require('../../shared/utils/app-error');
 
 class WorkspaceCollectionsService {
 
@@ -31,7 +32,7 @@ class WorkspaceCollectionsService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona w tym workspace');
+      throw new AppError('Kolekcja nie znaleziona w tym workspace', 404);
     }
 
     const itemCount = await Item.count({
@@ -53,7 +54,7 @@ class WorkspaceCollectionsService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona w tym workspace');
+      throw new AppError('Kolekcja nie znaleziona w tym workspace', 404);
     }
 
     const items = await Item.findAll({
@@ -78,7 +79,7 @@ class WorkspaceCollectionsService {
     checkPermission('CREATE_COLLECTION', member);
 
     if (!name) {
-      throw new Error('Nazwa kolekcji jest wymagana');
+      throw new AppError('Nazwa kolekcji jest wymagana', 400);
     }
 
     const existing = await Collection.findOne({
@@ -86,7 +87,7 @@ class WorkspaceCollectionsService {
     });
 
     if (existing) {
-      throw new Error('Kolekcja o tej nazwie już istnieje w workspace');
+      throw new AppError('Kolekcja o tej nazwie już istnieje w workspace', 409);
     }
 
     const collection = await Collection.create({
@@ -110,7 +111,7 @@ class WorkspaceCollectionsService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
     const { name, settings } = data;
@@ -125,7 +126,7 @@ class WorkspaceCollectionsService {
       });
 
       if (existing) {
-        throw new Error('Kolekcja o tej nazwie już istnieje');
+        throw new AppError('Kolekcja o tej nazwie już istnieje', 409);
       }
     }
 
@@ -146,7 +147,7 @@ class WorkspaceCollectionsService {
     });
 
     if (!collection) {
-      throw new Error('Kolekcja nie znaleziona');
+      throw new AppError('Kolekcja nie znaleziona', 404);
     }
 
     const itemCount = await Item.count({
@@ -154,7 +155,7 @@ class WorkspaceCollectionsService {
     });
 
     if (itemCount > 0) {
-      throw new Error(`Nie można usunąć kolekcji - zawiera ${itemCount} elementów`);
+      throw new AppError(`Nie można usunąć kolekcji - zawiera ${itemCount} elementów`, 400);
     }
 
     await collection.destroy();

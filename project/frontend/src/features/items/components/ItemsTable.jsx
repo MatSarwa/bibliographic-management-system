@@ -149,7 +149,7 @@ export default function ItemsTable({
                             borderRadius: '50%',
                             backgroundColor: label.color,
                             border: '2px solid white',
-                            boxShadow: '0 0 0 1px #e5e7eb',
+                            boxShadow: '0 0 0 1px var(--mantine-color-default-border)',
                             cursor: 'pointer',
                             flexShrink: 0
                           }}

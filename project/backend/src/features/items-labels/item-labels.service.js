@@ -1,4 +1,5 @@
 const { Item, Label, ItemLabel, Collection, WorkspaceMember } = require('../../models');
+const AppError = require('../../shared/utils/app-error');
 
 class ItemLabelsService {
   async addLabelToItem(userId, itemId, labelId) {
@@ -18,7 +19,7 @@ class ItemLabelsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     await this.checkItemAccess(userId, item);
@@ -31,7 +32,7 @@ class ItemLabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     const existing = await ItemLabel.findOne({
@@ -42,7 +43,7 @@ class ItemLabelsService {
     });
 
     if (existing) {
-      throw new Error('Label jest już przypisany do tego itemu');
+      throw new AppError('Ta etykieta jest już przypisana do tej pozycji', 409);
     }
 
     await ItemLabel.create({
@@ -80,7 +81,7 @@ class ItemLabelsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     await this.checkItemAccess(userId, item);
@@ -93,7 +94,7 @@ class ItemLabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     const deleted = await ItemLabel.destroy({
@@ -104,7 +105,7 @@ class ItemLabelsService {
     });
 
     if (deleted === 0) {
-      throw new Error('Label nie był przypisany do tego itemu');
+      throw new AppError('Ta etykieta nie była przypisana do tej pozycji', 404);
     }
 
     const updatedItem = await Item.findByPk(itemId, {
@@ -130,7 +131,7 @@ class ItemLabelsService {
     });
 
     if (!label) {
-      throw new Error('Label nie znaleziony');
+      throw new AppError('Label nie znaleziony', 404);
     }
 
     const items = await Item.findAll({
@@ -168,7 +169,7 @@ class ItemLabelsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     await this.checkItemAccess(userId, item);
@@ -190,7 +191,6 @@ class ItemLabelsService {
   }
 
   async setItemLabels(userId, itemId, labelIds) {
-    console.log('setItemLabels:', { userId, itemId, labelIds });
 
     const item = await Item.findOne({
       where: {
@@ -207,7 +207,7 @@ class ItemLabelsService {
     });
 
     if (!item) {
-      throw new Error('Item nie znaleziony');
+      throw new AppError('Nie znaleziono pozycji', 404);
     }
 
     await this.checkItemAccess(userId, item);
@@ -221,7 +221,7 @@ class ItemLabelsService {
       });
 
       if (labels.length !== labelIds.length) {
-        throw new Error('Niektóre labels nie zostały znalezione');
+        throw new AppError('Niektóre labels nie zostały znalezione', 400);
       }
     }
 
@@ -262,16 +262,16 @@ class ItemLabelsService {
       });
 
       if (!member) {
-        throw new Error('Brak dostępu do workspace');
+        throw new AppError('Brak dostępu do workspace', 403);
       }
 
       if (member.role === 'viewer') {
-        throw new Error('Viewer nie może edytować labels');
+        throw new AppError('Viewer nie może edytować labels', 403);
       }
     } else {
 
       if (item.userId !== userId) {
-        throw new Error('Brak dostępu do itemu');
+        throw new AppError('Brak dostępu do tej pozycji', 403);
       }
     }
   }

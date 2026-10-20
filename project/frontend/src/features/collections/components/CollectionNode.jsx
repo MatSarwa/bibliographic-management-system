@@ -22,6 +22,7 @@ import {
   IconChevronDown,
   IconChevronRight
 } from '@tabler/icons-react';
+import { downloadCollectionExport } from '../../../shared/utils/download';
 
 export default function CollectionNode({
   collection,
@@ -67,26 +68,7 @@ export default function CollectionNode({
 
   const handleExportCollection = (format, e) => {
     e.stopPropagation();
-    const token = localStorage.getItem('token');
-    
-    const baseUrl = workspaceId 
-      ? `http://localhost:5000/api/workspaces/${workspaceId}/collections/${collection.id}/export/${format}`
-      : `http://localhost:5000/api/items/export/${format}?collectionId=${collection.id}`;
-    
-    fetch(baseUrl, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `kolekcja_${collection.name}_${Date.now()}.${format}`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      })
-      .catch(err => {
-        console.error('EKSPORT BŁĄD:', err);
-      });
+    downloadCollectionExport(collection.id, format, `kolekcja_${collection.name}`);
   };
 
   const handleDragStartInternal = (e) => {
@@ -115,21 +97,21 @@ export default function CollectionNode({
           paddingTop: '2px',
           paddingBottom: '2px',
           cursor: 'pointer',
-          backgroundColor: isSelected ? '#f3f4f6' : (isHovered ? '#f9fafb' : 'transparent'),
+          backgroundColor: isSelected ? 'var(--app-active)' : (isHovered ? 'var(--app-hover)' : 'transparent'),
           borderRadius: '4px',
           transition: 'background-color 0.15s ease',
           marginBottom: '1px',
           display: 'flex',
           alignItems: 'center',
           minHeight: '26px',
-          border: isSelected ? '1px solid #e5e7eb' : '1px solid transparent'
+          border: isSelected ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent'
         }}
       >
         {showDragHandle && canDrag && (
           <ActionIcon
             size="xs"
             variant="transparent"
-            c="#9ca3af"
+            c="var(--mantine-color-placeholder)"
             style={{
               opacity: isHovered ? 1 : 0,
               transition: 'opacity 0.15s ease',
@@ -147,7 +129,7 @@ export default function CollectionNode({
           <Box style={{ width: '20px', marginRight: '4px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {isHovered && (
               <Tooltip label={isSystemDefault ? "Domyślna kolekcja" : "Kolekcja udostępniona"} withArrow>
-                <IconLock size={11} color={isSystemDefault ? "#9ca3af" : "#06b6d4"} />
+                <IconLock size={11} style={{ color: isSystemDefault ? 'var(--mantine-color-placeholder)' : 'var(--mantine-color-cyan-6)' }} />
               </Tooltip>
             )}
           </Box>
@@ -174,9 +156,9 @@ export default function CollectionNode({
             }}
           >
             {isExpanded ? (
-              <IconChevronDown size={12} color="#6b7280" />
+              <IconChevronDown size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
             ) : (
-              <IconChevronRight size={12} color="#6b7280" />
+              <IconChevronRight size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
             )}
           </UnstyledButton>
         ) : (
@@ -185,16 +167,16 @@ export default function CollectionNode({
 
         <Box mr={6} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           {hasChildren && isExpanded ? (
-            <IconFolderOpen size={14} color="#6b7280" />
+            <IconFolderOpen size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
           ) : (
-            <IconFolder size={14} color={hasChildren ? "#6b7280" : "#9ca3af"} />
+            <IconFolder size={14} style={{ color: hasChildren ? 'var(--mantine-color-dimmed)' : 'var(--mantine-color-placeholder)' }} />
           )}
         </Box>
 
         <Group gap={4} style={{ flex: 1, minWidth: 0 }}>
           <Text
             size="13px"
-            c={isSelected ? '#111827' : '#6b7280'}
+            c={isSelected ? 'var(--mantine-color-text)' : 'var(--mantine-color-dimmed)'}
             fw={isSelected ? 500 : 400}
             style={{
               lineHeight: '1.2',
@@ -209,7 +191,7 @@ export default function CollectionNode({
           </Text>
 
           {isSystemDefault && (
-            <Text size="9px" c="#9ca3af" fs="italic">
+            <Text size="9px" c="var(--mantine-color-placeholder)" fs="italic">
               (domyślna)
             </Text>
           )}
@@ -217,13 +199,13 @@ export default function CollectionNode({
           {isShared && (
             <Tooltip label={`Udostępniona dla ${memberCount} osób`} withArrow position="top">
               <Box style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                <IconUsers size={12} color="#06b6d4" />
+                <IconUsers size={12} style={{ color: 'var(--mantine-color-cyan-6)' }} />
               </Box>
             </Tooltip>
           )}
 
           {itemCount > 0 && (
-            <Text size="11px" c="#9ca3af" fw={400} style={{ flexShrink: 0 }}>
+            <Text size="11px" c="var(--mantine-color-placeholder)" fw={400} style={{ flexShrink: 0 }}>
               {itemCount}
             </Text>
           )}
@@ -235,7 +217,7 @@ export default function CollectionNode({
               <ActionIcon
                 size="xs"
                 variant="transparent"
-                c="#9ca3af"
+                c="var(--mantine-color-placeholder)"
                 onClick={(e) => {
                   e.stopPropagation();
                   setMenuOpened(!menuOpened);
@@ -245,13 +227,13 @@ export default function CollectionNode({
                 <IconDots size={12} />
               </ActionIcon>
             </Menu.Target>
-            <Menu.Dropdown style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+            <Menu.Dropdown style={{ backgroundColor: 'var(--mantine-color-body)', border: '1px solid var(--mantine-color-default-border)' }}>
 
               {showShareOption && (
                 <>
-                  <Menu.Label c="#6b7280" fz="10px">Udostępnianie</Menu.Label>
+                  <Menu.Label c="dimmed" fz="10px">Udostępnianie</Menu.Label>
                   <Menu.Item 
-                    leftSection={<IconUsers size={14} color={canShare ? '#06b6d4' : '#9ca3af'} />} 
+                    leftSection={<IconUsers size={14} style={{ color: canShare ? 'var(--mantine-color-cyan-6)' : 'var(--mantine-color-placeholder)' }} />} 
                     onClick={(e) => {
                       e.stopPropagation();
                       if (canShare && onShare) onShare(collection);
@@ -259,7 +241,7 @@ export default function CollectionNode({
                     }} 
                     fz="12px"
                     disabled={!canShare}
-                    c={canShare ? '#111827' : '#9ca3af'}
+                    c={canShare ? 'var(--mantine-color-text)' : 'var(--mantine-color-placeholder)'}
                   >
                     {isShared ? `Zarządzaj (${memberCount})` : 'Udostępnij...'}
                   </Menu.Item>
@@ -268,7 +250,7 @@ export default function CollectionNode({
                       leftSection={<IconLock size={14} />} 
                       disabled
                       fz="11px"
-                      c="#9ca3af"
+                      c="var(--mantine-color-placeholder)"
                       style={{ whiteSpace: 'normal', height: 'auto', padding: '6px 8px' }}
                     >
                       {isNested 
@@ -282,7 +264,7 @@ export default function CollectionNode({
 
               {showExportOption && (
                 <>
-                  <Menu.Label c="#6b7280" fz="10px">Eksport</Menu.Label>
+                  <Menu.Label c="dimmed" fz="10px">Eksport</Menu.Label>
                   <Menu.Item 
                     leftSection={<IconDownload size={14} />} 
                     onClick={(e) => { handleExportCollection('bibtex', e); setMenuOpened(false); }} 
@@ -303,7 +285,7 @@ export default function CollectionNode({
 
               {(canEdit || canDelete) && (
                 <>
-                  <Menu.Label c="#6b7280" fz="10px">Zarządzanie</Menu.Label>
+                  <Menu.Label c="dimmed" fz="10px">Zarządzanie</Menu.Label>
                   
                   {canEdit && !isSystemDefault && (
                     <Menu.Item 

@@ -1,27 +1,18 @@
 import { Text, NavLink, Badge } from '@mantine/core';
 import { IconList, IconHeart, IconTrash, IconTag } from '@tabler/icons-react';
+import classes from '../../../../shared/styles/interactive.module.css';
 
-const navLinkStyles = (isActive) => ({
-  root: {
-    borderRadius: '4px',
-    padding: '6px 8px',
-    minHeight: '28px',
-    color: isActive ? '#111827' : '#6b7280',
-    backgroundColor: isActive ? '#f3f4f6' : 'transparent',
-    fontWeight: isActive ? 500 : 400,
-    fontSize: '13px',
-    '&:hover': {
-      backgroundColor: isActive ? '#f3f4f6' : '#f9fafb'
-    }
-  },
+const navLinkClassNames = { root: classes.navLink };
+
+const navLinkStyles = {
   label: { fontSize: '13px', lineHeight: '1.2' },
   section: { marginRight: '6px' }
-});
+};
 
 export default function NavigationSection({ selectedView, onSelectView, trashCount }) {
   return (
     <>
-      <Text size="xs" fw={600} c="#9ca3af" tt="uppercase" mb="xs" lts="0.8px">
+      <Text size="xs" fw={600} c="var(--mantine-color-placeholder)" tt="uppercase" mb="xs" lts="0.8px">
         Nawigacja
       </Text>
 
@@ -31,7 +22,8 @@ export default function NavigationSection({ selectedView, onSelectView, trashCou
         active={selectedView?.type === 'all'}
         onClick={() => onSelectView({ type: 'all' })}
         mb={2}
-        styles={navLinkStyles(selectedView?.type === 'all')}
+        classNames={navLinkClassNames}
+        styles={navLinkStyles}
       />
 
       <NavLink
@@ -40,7 +32,8 @@ export default function NavigationSection({ selectedView, onSelectView, trashCou
         active={selectedView?.type === 'favorites'}
         onClick={() => onSelectView({ type: 'favorites' })}
         mb={2}
-        styles={navLinkStyles(selectedView?.type === 'favorites')}
+        classNames={navLinkClassNames}
+        styles={navLinkStyles}
       />
 
       <NavLink
@@ -56,8 +49,6 @@ export default function NavigationSection({ selectedView, onSelectView, trashCou
               variant="light"
               color="red"
               style={{
-                backgroundColor: '#fee2e2',
-                color: '#dc2626',
                 fontWeight: 500,
                 fontSize: '10px',
                 height: '16px',
@@ -68,7 +59,8 @@ export default function NavigationSection({ selectedView, onSelectView, trashCou
             </Badge>
           )
         }
-        styles={navLinkStyles(selectedView?.type === 'trash')}
+        classNames={navLinkClassNames}
+        styles={navLinkStyles}
       />
 
       <NavLink
@@ -77,7 +69,8 @@ export default function NavigationSection({ selectedView, onSelectView, trashCou
         active={selectedView?.type === 'labels'}
         onClick={() => onSelectView({ type: 'labels' })}
         mb={2}
-        styles={navLinkStyles(selectedView?.type === 'labels')}
+        classNames={navLinkClassNames}
+        styles={navLinkStyles}
       />
     </>
   );

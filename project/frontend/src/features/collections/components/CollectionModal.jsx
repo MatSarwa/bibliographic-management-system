@@ -51,7 +51,6 @@ export default function CollectionModal({
       parentId: parentId && parentId !== 'null' ? parentId : null
     };
 
-    console.log('Wysyłam dane:', data);
 
     const success = await onSuccess(data, editCollection?.id);
     
@@ -82,7 +81,7 @@ export default function CollectionModal({
       onClose={handleClose}
       title={
         <Group gap="xs">
-          <IconFolder size={20} color="#6366f1" />
+          <IconFolder size={20} style={{ color: 'var(--mantine-primary-color-filled)' }} />
           <Text fw={600}>
             {editCollection ? 'Edytuj kolekcję' : 'Nowa kolekcja'}
           </Text>

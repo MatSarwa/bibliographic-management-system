@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useWorkspaceStore } from '../store/workspaceStore';
 import workspaceService from '../services/workspaceService';
 import { notifications } from '@mantine/notifications';
+import { useRefreshVersion } from '../../../shared/store/refreshStore';
 
 export function useWorkspaces() {
   const {
@@ -16,17 +17,23 @@ export function useWorkspaces() {
     setLoading,
   } = useWorkspaceStore();
 
+  const workspacesVersion = useRefreshVersion('workspaces');
+
   useEffect(() => {
     fetchWorkspaces();
   }, []);
 
-  const fetchWorkspaces = async () => {
-    setLoading(true);
+  // Refetch in the background when workspaces, their collections or item counts change elsewhere.
+  useEffect(() => {
+    if (workspacesVersion > 0) fetchWorkspaces({ silent: true });
+  }, [workspacesVersion]);
+
+  const fetchWorkspaces = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const result = await workspaceService.getAll();
 
       if (result.success) {
-        console.log('Pobrane workspaces:', result.data);
         
         const workspacesWithCollections = await Promise.all(
           result.data.map(async (ws) => {
@@ -54,7 +61,6 @@ export function useWorkspaces() {
 
   const handleCreate = async (workspaceData) => {
     try {
-      console.log('Creating workspace:', workspaceData);
       const result = await workspaceService.create(workspaceData);
 
       if (result.success) {
@@ -82,7 +88,6 @@ export function useWorkspaces() {
 
   const handleUpdate = async (id, workspaceData) => {
     try {
-      console.log('Updating workspace:', { id, data: workspaceData });
       const result = await workspaceService.update(id, workspaceData);
 
       if (result.success) {

@@ -27,7 +27,7 @@ export default function WorkspaceCollectionModal({
     if (opened) {
       if (editCollection) {
         setName(editCollection.name || '');
-        setColor(editCollection.settings?.color || '#6366f1');
+        setColor(editCollection.settings?.color || 'var(--mantine-primary-color-filled)');
       } else {
         resetForm();
       }
@@ -36,7 +36,7 @@ export default function WorkspaceCollectionModal({
 
   const resetForm = () => {
     setName('');
-    setColor('#6366f1');
+    setColor('var(--mantine-primary-color-filled)');
   };
 
   const handleSubmit = async () => {
@@ -52,7 +52,6 @@ export default function WorkspaceCollectionModal({
       settings: { color }
     };
 
-    console.log(`${isEditMode ? 'Edytuję' : 'Tworzę'} kolekcję:`, data);
 
     const success = await onSuccess(data, editCollection?.id);
     
@@ -75,9 +74,9 @@ export default function WorkspaceCollectionModal({
       title={
         <Group gap="xs">
           {isEditMode ? (
-            <IconEdit size={20} color="#6366f1" />
+            <IconEdit size={20} style={{ color: 'var(--mantine-primary-color-filled)' }} />
           ) : (
-            <IconFolder size={20} color="#6366f1" />
+            <IconFolder size={20} style={{ color: 'var(--mantine-primary-color-filled)' }} />
           )}
           <Text fw={600}>
             {isEditMode 

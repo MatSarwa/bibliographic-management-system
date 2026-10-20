@@ -10,6 +10,12 @@ const { globalLimiter } = require('./shared/middleware/rate-limit.middleware');
 
 const app = express();
 
+// Hosting platforms (Render, Railway, Heroku) put a proxy in front of the app.
+// Without this, req.ip is the proxy's address and the rate limiter treats all users as one.
+if (config.env === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(helmet());
 app.use(cors({ origin: config.frontend.url, credentials: true }));
 app.use(express.json());

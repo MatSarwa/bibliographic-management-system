@@ -1,0 +1,13 @@
+/* App-level surface colors that Mantine has no direct variable for. */
+
+:root {
+  --app-hover: #f9fafb;
+  --app-active: #f3f4f6;
+  --app-border-strong: #d1d5db;
+}
+
+[data-mantine-color-scheme='dark'] {
+  --app-hover: var(--mantine-color-dark-6);
+  --app-active: var(--mantine-color-dark-5);
+  --app-border-strong: var(--mantine-color-dark-3);
+}

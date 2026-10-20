@@ -20,7 +20,7 @@ export default function MemberCard({
 
   if (isCreator) {
     return (
-      <Card p="sm" withBorder style={{ borderColor: '#a855f7', borderWidth: 2 }}>
+      <Card p="sm" withBorder style={{ borderColor: 'var(--mantine-color-grape-6)', borderWidth: 2 }}>
         <Group justify="space-between">
           <Group gap="sm">
             <Avatar color="violet" size="sm" radius="xl">
