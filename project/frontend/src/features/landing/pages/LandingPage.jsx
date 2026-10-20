@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Anchor, Badge, Button, Code, Container, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title,
+  Anchor, Badge, Button, Container, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title,
 } from '@mantine/core';
 import {
   IconBook, IconBrandGithub, IconDownload, IconFolders, IconHistory, IconLogin, IconQuote, IconSearch,
@@ -13,9 +13,6 @@ import Footer from '../../auth/components/Footer';
 import { authService } from '../../auth/services/authService';
 import { useAuthStore } from '../../auth/store/authStore';
 
-// Demo account created by `npm run seed:demo`; can be overridden per deployment.
-const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL || 'demo@example.com';
-const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || 'Demo1234!';
 const REPO_URL = 'https://github.com/MatSarwa/bibliographic-management-system';
 
 const FEATURES = [
@@ -36,7 +33,8 @@ export default function LandingPage() {
   const handleDemoLogin = async () => {
     setDemoLoading(true);
     try {
-      const { data } = await authService.login({ login: DEMO_EMAIL, password: DEMO_PASSWORD });
+      // Each visitor gets their own temporary account, so nobody sees changes made by others.
+      const { data } = await authService.startDemo();
       setAuth({ username: data.username, email: data.email, id: data.userId }, data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -71,11 +69,10 @@ export default function LandingPage() {
             ) : (
               <>
                 <Text fw={600}>Wypróbuj bez rejestracji</Text>
-                <Group gap="xs" justify="center">
-                  <Text size="sm" c="dimmed">Konto demo:</Text>
-                  <Code>{DEMO_EMAIL}</Code>
-                  <Code>{DEMO_PASSWORD}</Code>
-                </Group>
+                <Text size="sm" c="dimmed" maw={460}>
+                  Dostaniesz własne konto z przykładową biblioteką – możesz w nim wszystko zmieniać i usuwać.
+                  Zniknie automatycznie po 24 godzinach.
+                </Text>
                 <Group gap="sm" justify="center">
                   <Button
                     size="md"

@@ -109,7 +109,7 @@ Backend przyjmuje zapytania tylko z adresu ustawionego w `FRONTEND_URL`.
 ## 5. Sprawdzenie
 
 1. Wejdź na adres z Vercela.
-2. Zaloguj się kontem demo: `demo@example.com` / `Demo1234!`.
+2. Kliknij **Wypróbuj demo** – powstanie Twoje własne, tymczasowe konto z przykładowymi danymi.
 3. Sprawdź: lista pozycji, dodanie pozycji, eksport kolekcji do BibTeX, tryb ciemny, odświeżenie strony na `/dashboard` (nie może być 404).
 4. Wpisz link do wersji online w `README.md` (sekcja na górze).
 
@@ -125,9 +125,11 @@ Backend przyjmuje zapytania tylko z adresu ustawionego w `FRONTEND_URL`.
 | Render: błąd połączenia z bazą | Zły `DATABASE_URL` – skopiuj ponownie z Neona |
 | Po zmianie zmiennych w Vercelu nic się nie zmienia | Zmienne `VITE_*` są wkompilowane w build – zrób **Redeploy** |
 
-## Reset konta demo
+## Konta demo
 
-Odwiedzający mogą zmienić albo usunąć dane demo. Żeby przywrócić je do stanu początkowego, uruchom na swoim komputerze w `project/backend` (PowerShell):
+Przycisk **Wypróbuj demo** na stronie głównej tworzy każdemu odwiedzającemu osobne konto (`demo-xxxxxx`) z przykładową biblioteką. Odwiedzający nie widzą nawzajem swoich zmian, a konta starsze niż 24 godziny są usuwane automatycznie przy tworzeniu kolejnego – nie trzeba nic robić ręcznie.
+
+Niezależnie od tego istnieje wspólne konto `demo@example.com` / `Demo1234!` (tworzone przez `npm run seed:demo` w Start Command). Żeby przywrócić je do stanu początkowego, uruchom na swoim komputerze w `project/backend` (PowerShell):
 
 ```powershell
 $env:NODE_ENV="production"; $env:DATABASE_URL="<connection string z Neona>"; npm run seed:demo -- --reset

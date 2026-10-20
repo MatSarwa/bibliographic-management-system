@@ -26,6 +26,12 @@ export const authService = {
     return data;
   },
 
+  // Creates a fresh temporary demo account with sample data and returns its login token.
+  async startDemo() {
+    const { data } = await api.post('/auth/demo');
+    return data;
+  },
+
   async resendVerification(email) {
     const { data } = await api.post('/auth/resend-verification', { email });
     return data;

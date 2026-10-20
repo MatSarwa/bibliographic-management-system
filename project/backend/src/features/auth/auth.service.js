@@ -4,9 +4,7 @@ const crypto = require('crypto');
 const { User } = require('../../models');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../../shared/utils/email.service');
 const AppError = require('../../shared/utils/app-error');
-
-// Same default as the demo seed (src/database/seed-demo.js).
-const DEMO_EMAIL = process.env.DEMO_EMAIL || 'demo@example.com';
+const { isDemoEmail } = require('./demo/demo-accounts');
 
 class AuthService {
   async register({ username, email, password }) {
@@ -127,8 +125,8 @@ class AuthService {
       throw new AppError('To konto zostało utworzone przez Google. Nie możesz zmienić hasła.', 400);
     }
 
-    // The demo password is public; letting a visitor change it would lock everyone else out.
-    if (user.email === DEMO_EMAIL) {
+    // Demo accounts are throwaway or shared; changing their password would only lock others out.
+    if (isDemoEmail(user.email)) {
       throw new AppError('Nie można zmienić hasła konta demo', 403);
     }
 

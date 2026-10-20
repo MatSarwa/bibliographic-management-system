@@ -1,5 +1,6 @@
 const asyncHandler = require('../../shared/utils/async-handler');
 const authService = require('./auth.service');
+const demoService = require('./demo/demo.service');
 const ResponseHelper = require('../../shared/utils/response.helper');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -74,6 +75,18 @@ class AuthController {
 
 
     ResponseHelper.success(res, null, 'Email zweryfikowany pomyślnie! Możesz się teraz zalogować.');
+  });
+
+  // "Try demo": a fresh temporary account with sample data, logged in straight away.
+  startDemo = asyncHandler(async (req, res) => {
+    const { token, user } = await demoService.createVisitorDemo();
+
+    ResponseHelper.created(res, {
+      token,
+      username: user.username,
+      email: user.email,
+      userId: user.id
+    }, 'Konto demo utworzone');
   });
 
   resendVerification = asyncHandler(async (req, res) => {

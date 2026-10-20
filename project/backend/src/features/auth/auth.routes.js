@@ -12,6 +12,7 @@ router.post('/login', authLimiter, authController.login);
 router.post('/forgot-password', authLimiter, authController.forgotPassword);
 router.post('/reset-password', authLimiter, authController.resetPassword);
 router.post('/resend-verification', authLimiter, authController.resendVerification);
+router.post('/demo', authLimiter, authController.startDemo);
 
 router.post('/google/exchange', authController.exchangeGoogleCode);
 
