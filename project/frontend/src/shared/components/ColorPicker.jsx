@@ -5,7 +5,7 @@ import {
 } from '@mantine/core';
 
 // 15 presets + the custom-color wheel = 16, i.e. two even rows of 8.
-export const COLORS = [
+const COLORS = [
   { value: '#6366f1', label: 'Indygo' },
   { value: '#8b5cf6', label: 'Fioletowy' },
   { value: '#a855f7', label: 'Purpurowy' },
@@ -63,8 +63,9 @@ export default function ColorPicker({
           );
         })}
 
-        {/* Rainbow wheel: opens a full palette; after picking, it shows the chosen custom color in the middle. */}
-        <Popover opened={pickerOpened} onChange={setPickerOpened} position="bottom" withArrow shadow="md" withinPortal={false}>
+        {/* Rainbow wheel: opens a full palette; after picking, it shows the chosen custom color in the middle.
+            The palette renders in a portal above modals, so a modal's edges cannot clip it. */}
+        <Popover opened={pickerOpened} onChange={setPickerOpened} position="bottom" withArrow shadow="md" withinPortal zIndex={1000}>
           <Popover.Target>
             <Tooltip label="Własny kolor" withArrow openDelay={300}>
               <UnstyledButton

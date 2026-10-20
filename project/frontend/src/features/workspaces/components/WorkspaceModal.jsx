@@ -9,7 +9,7 @@ import {
 } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { IconBriefcase } from '@tabler/icons-react';
-import ColorPicker from './ColorPicker';
+import ColorPicker from '../../../shared/components/ColorPicker';
 
 export default function WorkspaceModal({ 
   opened, 

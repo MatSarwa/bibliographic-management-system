@@ -15,12 +15,7 @@ import {
 import { IconTag, IconPlus, IconEdit, IconTrash, IconChevronDown, IconChevronRight, IconCheck, IconX } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useLabels } from '../hooks/useLabels';
-
-const LABEL_COLORS = [
-  '#ef4444', '#f59e0b', '#eab308', '#84cc16', '#10b981',
-  '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899',
-  '#f43f5e', '#64748b'
-];
+import ColorPicker from '../../../shared/components/ColorPicker';
 
 export default function LabelsPanel() {
   const { labels, loading, handleCreate, handleUpdate, handleDelete } = useLabels();
@@ -124,20 +119,7 @@ export default function LabelsPanel() {
                   size="xs"
                   autoFocus
                 />
-                <Group gap="xs">
-                  {LABEL_COLORS.map((color) => (
-                    <ColorSwatch
-                      key={color}
-                      color={color}
-                      size={20}
-                      onClick={() => setNewColor(color)}
-                      style={{
-                        cursor: 'pointer',
-                        border: newColor === color ? '2px solid var(--mantine-color-blue-6)' : '2px solid transparent'
-                      }}
-                    />
-                  ))}
-                </Group>
+                <ColorPicker value={newColor} onChange={setNewColor} label={null} size={20} />
                 <Group justify="flex-end" gap="xs">
                   <Button
                     size="xs"
@@ -183,20 +165,7 @@ export default function LabelsPanel() {
                       onChange={(e) => setEditName(e.target.value)}
                       size="xs"
                     />
-                    <Group gap="xs">
-                      {LABEL_COLORS.map((color) => (
-                        <ColorSwatch
-                          key={color}
-                          color={color}
-                          size={20}
-                          onClick={() => setEditColor(color)}
-                          style={{
-                            cursor: 'pointer',
-                            border: editColor === color ? '2px solid var(--mantine-color-blue-6)' : '2px solid transparent'
-                          }}
-                        />
-                      ))}
-                    </Group>
+                    <ColorPicker value={editColor} onChange={setEditColor} label={null} size={20} />
                     <Group justify="flex-end" gap="xs">
                       <ActionIcon
                         size="sm"

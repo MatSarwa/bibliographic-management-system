@@ -16,12 +16,7 @@ import {
 import { IconPlus, IconEdit, IconTrash, IconTag, IconX, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useLabels } from '../hooks/useLabels';
-
-const LABEL_COLORS = [
-  '#ef4444', '#f59e0b', '#eab308', '#84cc16', '#10b981',
-  '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899',
-  '#f43f5e', '#64748b'
-];
+import ColorPicker from '../../../shared/components/ColorPicker';
 
 export default function LabelsView() {
   const { labels, loading, handleCreate, handleUpdate, handleDelete } = useLabels();
@@ -118,20 +113,7 @@ export default function LabelsView() {
               <Text size="sm" fw={500} mb="xs">
                 Kolor
               </Text>
-              <Group gap="xs">
-                {LABEL_COLORS.map((color) => (
-                  <ColorSwatch
-                    key={color}
-                    color={color}
-                    size={32}
-                    onClick={() => setNewColor(color)}
-                    style={{
-                      cursor: 'pointer',
-                      border: newColor === color ? '3px solid var(--mantine-color-blue-6)' : '2px solid var(--mantine-color-default-border)'
-                    }}
-                  />
-                ))}
-              </Group>
+              <ColorPicker value={newColor} onChange={setNewColor} label={null} size={24} />
             </div>
 
             <Group justify="flex-end" gap="xs">
@@ -184,20 +166,7 @@ export default function LabelsView() {
                       <Text size="xs" fw={500} mb="xs">
                         Kolor
                       </Text>
-                      <Group gap="xs">
-                        {LABEL_COLORS.map((color) => (
-                          <ColorSwatch
-                            key={color}
-                            color={color}
-                            size={24}
-                            onClick={() => setEditColor(color)}
-                            style={{
-                              cursor: 'pointer',
-                              border: editColor === color ? '2px solid var(--mantine-color-blue-6)' : '2px solid transparent'
-                            }}
-                          />
-                        ))}
-                      </Group>
+                      <ColorPicker value={editColor} onChange={setEditColor} label={null} size={24} />
                     </div>
 
                     <Group justify="flex-end" gap="xs">
