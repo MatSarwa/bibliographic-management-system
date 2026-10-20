@@ -43,7 +43,8 @@ export default function LandingPage() {
           </ThemeIcon>
           <Title order={1} fz={{ base: 28, sm: 40 }}>BibliografiaApp</Title>
           <Text size="lg" c="dimmed">
-            Aplikacja do zbierania źródeł, porządkowania ich w kolekcjach i generowania cytowań.
+            Aplikacja wspierająca pracę naukową: zbieranie źródeł, porządkowanie ich w kolekcjach
+            i generowanie cytowań – również wspólnie z zespołem.
           </Text>
         </Stack>
 
