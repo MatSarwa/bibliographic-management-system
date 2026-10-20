@@ -49,40 +49,39 @@ export default function LandingPage() {
 
         <Paper withBorder shadow="md" radius="md" p={{ base: 'md', sm: 'xl' }} mb="xl">
           <Stack gap="md" align="center" ta="center">
-            {isLoggedIn ? (
-              <Button size="md" color="violet" leftSection={<IconLogin size={18} />} onClick={() => navigate('/dashboard')}>
-                Przejdź do panelu
+            {/* The explanation is shown to everyone – also to visitors returning with a saved session. */}
+            <Text fw={600}>Wypróbuj bez rejestracji</Text>
+            <Text size="sm" c="dimmed">
+              Dostaniesz własne konto z przykładową biblioteką – możesz w nim wszystko zmieniać i usuwać.
+              Zniknie automatycznie po 24 godzinach.
+            </Text>
+            <Group gap="sm" justify="center">
+              {isLoggedIn && (
+                <Button size="md" color="violet" leftSection={<IconLogin size={18} />} onClick={() => navigate('/dashboard')}>
+                  Przejdź do panelu
+                </Button>
+              )}
+              <Button
+                size="md"
+                color="violet"
+                variant={isLoggedIn ? 'default' : 'filled'}
+                leftSection={<IconPlayerPlay size={18} />}
+                loading={demoLoading}
+                onClick={handleDemoLogin}
+              >
+                {isLoggedIn ? 'Nowe demo' : 'Wypróbuj demo'}
               </Button>
-            ) : (
-              <>
-                <Text fw={600}>Wypróbuj bez rejestracji</Text>
-                <Text size="sm" c="dimmed">
-                  Dostaniesz własne konto z przykładową biblioteką – możesz w nim wszystko zmieniać i usuwać.
-                  Zniknie automatycznie po 24 godzinach.
-                </Text>
-                <Group gap="sm" justify="center">
-                  <Button
-                    size="md"
-                    color="violet"
-                    leftSection={<IconPlayerPlay size={18} />}
-                    loading={demoLoading}
-                    onClick={handleDemoLogin}
-                  >
-                    Wypróbuj demo
-                  </Button>
-                  {/* Only where accounts can be created; on the public demo there are none to log in to. */}
-                  {REGISTRATION_ENABLED && (
-                    <Button size="md" variant="default" leftSection={<IconLogin size={18} />} onClick={() => navigate('/login')}>
-                      Zaloguj się
-                    </Button>
-                  )}
-                </Group>
-                {demoLoading && (
-                  <Text size="xs" c="dimmed">
-                    Pierwsze logowanie może potrwać do minuty – darmowy serwer budzi się po przerwie.
-                  </Text>
-                )}
-              </>
+              {/* Only where accounts can be created; on the public demo there are none to log in to. */}
+              {!isLoggedIn && REGISTRATION_ENABLED && (
+                <Button size="md" variant="default" leftSection={<IconLogin size={18} />} onClick={() => navigate('/login')}>
+                  Zaloguj się
+                </Button>
+              )}
+            </Group>
+            {demoLoading && (
+              <Text size="xs" c="dimmed">
+                Pierwsze logowanie może potrwać do minuty – darmowy serwer budzi się po przerwie.
+              </Text>
             )}
           </Stack>
         </Paper>
