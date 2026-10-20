@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import commentsService from '../services/commentsService';
 import { notifications } from '@mantine/notifications';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export function useComments(itemId) {
   const [comments, setComments] = useState([]);
@@ -71,7 +72,7 @@ export function useComments(itemId) {
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm('Czy na pewno usunąć komentarz?')) {
+    if (!(await confirmAction({ title: 'Usunąć komentarz?', message: 'Tej operacji nie można cofnąć.', confirmLabel: 'Usuń' }))) {
       return;
     }
 

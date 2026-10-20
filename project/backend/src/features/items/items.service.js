@@ -271,6 +271,7 @@ class ItemsService {
       collectionId
     } = data;
 
+    let targetWorkspaceId = null;
     if (collectionId !== undefined && collectionId !== item.collectionId) {
       if (collectionId) {
         const collection = await Collection.findByPk(collectionId);
@@ -278,10 +279,23 @@ class ItemsService {
         if (!collection) {
           throw new AppError('Kolekcja nie znaleziona', 404);
         }
-        
-        if (collection.ownerId !== userId) {
+
+        if (collection.workspaceId) {
+          // Workspace collections have no personal owner – what matters is the right to add items there.
+          const member = await WorkspaceMember.findOne({
+            where: { workspaceId: collection.workspaceId, userId }
+          });
+          checkPermission('CREATE_REFERENCE', member);
+          targetWorkspaceId = collection.workspaceId;
+        } else if (collection.ownerId !== userId) {
           throw new AppError('Brak dostępu do kolekcji', 403);
         }
+      }
+
+      // Moving a team member's item into your private collection would hide it from everyone,
+      // including you (private views list only your own items) – copying is the way to do that.
+      if (item.collection?.workspaceId && !targetWorkspaceId && item.userId !== userId) {
+        throw new AppError('Do prywatnych kolekcji możesz przenieść tylko własne pozycje – użyj kopiowania', 403);
       }
     }
 
@@ -306,6 +320,11 @@ class ItemsService {
         item.toJSON(),
         item.collection.workspaceId
       );
+    }
+
+    // Item brought into a workspace from elsewhere: start its history there.
+    if (targetWorkspaceId && targetWorkspaceId !== item.collection?.workspaceId) {
+      await this.createHistory(item, userId, 'moved', oldSnapshot, item.toJSON(), targetWorkspaceId);
     }
 
     const updatedItem = await Item.findByPk(item.id, {

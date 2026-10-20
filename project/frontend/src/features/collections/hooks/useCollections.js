@@ -3,6 +3,7 @@ import { useCollectionsStore } from '../store/collectionsStore';
 import collectionsService from '../services/collectionsService';
 import { notifications } from '@mantine/notifications';
 import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export function useCollections() {
   const {
@@ -131,7 +132,7 @@ export function useCollections() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Czy na pewno usunąć kolekcję?')) {
+    if (!(await confirmAction({ title: 'Usunąć kolekcję?', message: `Kolekcja „${collections.find((col) => col.id === id)?.name || ''}” zostanie usunięta.`, confirmLabel: 'Usuń' }))) {
       return;
     }
 

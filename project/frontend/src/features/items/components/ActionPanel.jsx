@@ -13,7 +13,8 @@ import {
   UnstyledButton
 } from '@mantine/core';
 import { 
-  IconX, 
+  IconX,
+  IconTrash,
   IconFileExport, 
   IconDownload, 
   IconFolderShare,
@@ -27,6 +28,7 @@ import api from '../../../shared/utils/api';
 import { useCollectionsStore } from '../../collections/store/collectionsStore';
 import { useWorkspaceStore } from '../../workspaces/store/workspaceStore';
 import classes from '../../../shared/styles/interactive.module.css';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export default function ActionPanel({ 
   selectedItemIds, 
@@ -277,6 +279,53 @@ export default function ActionPanel({
   const collectionTree = buildCollectionTree(personalCollections);
   const isInWorkspace = !!currentWorkspaceId;
 
+  const handleDeleteSelected = async () => {
+    const count = selectedItemIds.length;
+    const confirmed = await confirmAction({
+      title: count === 1 ? 'Przenieść pozycję do kosza?' : `Przenieść ${count} pozycji do kosza?`,
+      message: 'Możesz je później przywrócić z kosza.',
+      confirmLabel: 'Przenieś do kosza',
+    });
+    if (!confirmed) return;
+
+    setMoveLoading(true);
+    // allSettled: one failure (e.g. no rights to a colleague's item) must not hide the others' result
+    const results = await Promise.allSettled(selectedItemIds.map((itemId) => api.delete(`/items/${itemId}`)));
+    const failed = results.filter((r) => r.status === 'rejected').length;
+    setMoveLoading(false);
+
+    notifications.show(failed
+      ? { title: 'Częściowo usunięto', message: `Nie udało się usunąć ${failed} z ${count} pozycji`, color: 'orange' }
+      : { title: 'Przeniesiono do kosza', message: `${count} ${count === 1 ? 'pozycja' : 'pozycji'}`, color: 'green' });
+
+    onRefresh?.();
+    onClose();
+  };
+
+  // Moves (not copies) items into a workspace collection, e.g. from a private collection.
+  const handleMoveToWorkspace = async (collectionId, collectionName, workspaceName) => {
+    setMoveLoading(true);
+    try {
+      await Promise.all(selectedItemIds.map((itemId) => api.put(`/items/${itemId}`, { collectionId })));
+      notifications.show({
+        title: 'Sukces!',
+        message: `Przeniesiono ${selectedItemIds.length} pozycji do "${workspaceName} / ${collectionName}"`,
+        color: 'green',
+      });
+      setMoveModalOpened(false);
+      onRefresh?.();
+      onClose();
+    } catch (err) {
+      notifications.show({
+        title: 'Błąd',
+        message: err.response?.data?.message || 'Nie udało się przenieść',
+        color: 'red',
+      });
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
   const handleOpenMoveModal = () => {
     setMoveModalOpened(true);
     if (isInWorkspace && !workspaceCollections[currentWorkspaceId]) {
@@ -374,6 +423,17 @@ export default function ActionPanel({
               onClick={() => setExportModalOpened(true)}
             >
               Eksportuj
+            </Button>
+
+            <Button
+              variant="light"
+              color="red"
+              leftSection={<IconTrash size={16} />}
+              size="sm"
+              onClick={handleDeleteSelected}
+              disabled={moveLoading}
+            >
+              Usuń
             </Button>
 
             <Button variant="subtle" size="sm" onClick={onClose} c="dimmed">
@@ -506,7 +566,7 @@ export default function ActionPanel({
                   <>
                     <Divider my="sm" />
                     <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
-                      Kopiuj do workspace
+                      Przenieś lub kopiuj do workspace
                     </Text>
 
                     {workspaces.map(ws => (
@@ -538,24 +598,32 @@ export default function ActionPanel({
                           <Box>
                             {workspaceCollections[ws.id]?.length > 0 ? (
                               workspaceCollections[ws.id].map(col => (
-                                <UnstyledButton
+                                <Group
                                   key={col.id}
-                                  onClick={() => handleCopyToWorkspace(ws.id, col.id, col.name, ws.name)}
-                                  disabled={moveLoading}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    padding: '8px 12px',
-                                    paddingLeft: 40,
-                                    borderRadius: 6,
-                                    width: '100%',
-                                    cursor: 'pointer'
-                                  }}
+                                  gap={8}
+                                  wrap="nowrap"
+                                  style={{ padding: '6px 12px', paddingLeft: 40, borderRadius: 6 }}
                                 >
                                   <IconFolder size={14} style={{ color: 'var(--mantine-color-placeholder)' }} />
-                                  <Text size="sm" c="dimmed">{col.name}</Text>
-                                </UnstyledButton>
+                                  <Text size="sm" c="dimmed" style={{ flex: 1, minWidth: 0 }} truncate>{col.name}</Text>
+                                  <Button
+                                    size="compact-xs"
+                                    variant="light"
+                                    color="violet"
+                                    disabled={moveLoading}
+                                    onClick={() => handleMoveToWorkspace(col.id, col.name, ws.name)}
+                                  >
+                                    Przenieś
+                                  </Button>
+                                  <Button
+                                    size="compact-xs"
+                                    variant="default"
+                                    disabled={moveLoading}
+                                    onClick={() => handleCopyToWorkspace(ws.id, col.id, col.name, ws.name)}
+                                  >
+                                    Kopiuj
+                                  </Button>
+                                </Group>
                               ))
                             ) : (
                               <Text size="xs" c="dimmed" pl={40} py="xs">

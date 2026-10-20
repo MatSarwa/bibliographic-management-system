@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import labelsService from '../services/labelsService';
 import { notifications } from '@mantine/notifications';
 import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export function useLabels() {
   const [labels, setLabels] = useState([]);
@@ -78,7 +79,7 @@ export function useLabels() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Czy na pewno usunąć label?')) {
+    if (!(await confirmAction({ title: 'Usunąć etykietę?', message: 'Etykieta zniknie ze wszystkich pozycji.', confirmLabel: 'Usuń' }))) {
       return;
     }
 

@@ -2,6 +2,7 @@ import { Stack, Card, Text, Button, Alert } from '@mantine/core';
 import { IconEdit, IconDoorExit, IconTrash, IconAlertCircle } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import workspaceService from '../../services/workspaceService';
+import { confirmAction } from '../../../../shared/utils/confirm';
 
 export default function SettingsTab({
   workspace,
@@ -15,7 +16,7 @@ export default function SettingsTab({
   onOpenEditModal
 }) {
   const handleDelete = async () => {
-    if (!window.confirm('Czy na pewno usunąć workspace? Wszystkie kolekcje zostaną usunięte!')) return;
+    if (!(await confirmAction({ title: 'Usunąć workspace?', message: 'Workspace i wszystkie jego kolekcje zostaną usunięte. Tej operacji nie można cofnąć.', confirmLabel: 'Usuń workspace' }))) return;
 
     const result = await workspaceService.delete(workspace.id);
     if (result.success) {
@@ -28,7 +29,7 @@ export default function SettingsTab({
   };
 
   const handleLeaveWorkspace = async () => {
-    if (!window.confirm('Czy na pewno chcesz opuścić ten workspace?')) return;
+    if (!(await confirmAction({ title: 'Opuścić workspace?', message: 'Stracisz dostęp do jego kolekcji, dopóki ktoś nie doda Cię ponownie.', confirmLabel: 'Opuść' }))) return;
 
     setLoading(true);
     const result = await workspaceService.leaveWorkspace(workspace.id);

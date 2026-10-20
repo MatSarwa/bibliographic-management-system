@@ -92,6 +92,27 @@ describe('DEMO INTEGRATION: per-visitor demo accounts (POST /auth/demo)', () => 
     expect(Object.keys(latest.diff)).toEqual(['metadata']);
   });
 
+  it('should move a private item into a workspace collection and between workspace collections', async () => {
+    const { token } = (await startDemo()).body.data;
+    const put = (path, body) => request(app).put(path).set('Authorization', `Bearer ${token}`).send(body);
+    const ws = (await authGet('/api/workspaces', token)).body.data[0];
+    const [wsCollection] = (await authGet(`/api/workspaces/${ws.id}/collections`, token)).body.data;
+    const privateItem = (await authGet('/api/items', token)).body.data[0];
+
+    expect((await put(`/api/items/${privateItem.id}`, { collectionId: wsCollection.id })).statusCode).toBe(200);
+
+    const wsItems = (await authGet(`/api/workspaces/${ws.id}/collections/${wsCollection.id}/items`, token)).body.data;
+    expect(wsItems.map((i) => i.id)).toContain(privateItem.id);
+    expect((await authGet('/api/items', token)).body.data).toHaveLength(7);
+    expect(JSON.stringify((await authGet(`/api/history/items/${privateItem.id}`, token)).body.data)).toContain('moved');
+
+    const second = await request(app)
+      .post(`/api/workspaces/${ws.id}/collections`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Do recenzji' });
+    expect((await put(`/api/items/${privateItem.id}`, { collectionId: second.body.data.id })).statusCode).toBe(200);
+  });
+
   it('should export the demo authors by name to BibTeX', async () => {
     const { token } = (await startDemo()).body.data;
     const collections = (await authGet('/api/collections', token)).body.data;

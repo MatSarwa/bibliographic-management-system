@@ -4,6 +4,7 @@ import itemsService from '../services/itemsService';
 import { notifications } from '@mantine/notifications';
 import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
 import { formatAuthors, itemAuthorNames } from '../../../shared/utils/authors';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export function useItems(collectionId, viewType) {
   const {
@@ -197,7 +198,7 @@ export function useItems(collectionId, viewType) {
   };
 
   const handlePermanentDelete = async (id) => {
-    if (!window.confirm('Na pewno USUNĄĆ NA ZAWSZE? Tej operacji nie można cofnąć!')) {
+    if (!(await confirmAction({ title: 'Usunąć na zawsze?', message: 'Pozycja zostanie trwale usunięta. Tej operacji nie można cofnąć.', confirmLabel: 'Usuń na zawsze' }))) {
       return;
     }
 
@@ -224,7 +225,7 @@ export function useItems(collectionId, viewType) {
   };
 
   const handleEmptyTrash = async () => {
-    if (!window.confirm('Opróżnić kosz? Wszystkie pozycje zostaną usunięte na zawsze.')) {
+    if (!(await confirmAction({ title: 'Opróżnić kosz?', message: 'Wszystkie pozycje w koszu zostaną trwale usunięte. Tej operacji nie można cofnąć.', confirmLabel: 'Opróżnij kosz' }))) {
       return;
     }
 

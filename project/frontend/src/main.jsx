@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
 import App from './App';
 import ErrorBoundary from './shared/components/ErrorBoundary';
 import { useAuthStore } from './features/auth/store/authStore';
@@ -58,11 +59,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="light">
       <Notifications position="top-right" />
-      <ErrorBoundary>
-        <AuthInitializer>
-          <App />
-        </AuthInitializer>
-      </ErrorBoundary>
+      <ModalsProvider>
+        <ErrorBoundary>
+          <AuthInitializer>
+            <App />
+          </AuthInitializer>
+        </ErrorBoundary>
+      </ModalsProvider>
     </MantineProvider>
   </React.StrictMode>,
 );

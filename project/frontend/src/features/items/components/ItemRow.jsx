@@ -224,9 +224,8 @@ export default function ItemRow({
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                if (window.confirm('Przenieść do kosza?')) {
-                  onDelete(itemId);
-                }
+                // onDelete asks for confirmation itself
+                onDelete(itemId);
               }}
             >
               <IconTrash size={15} />

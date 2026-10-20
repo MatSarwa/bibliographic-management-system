@@ -3,6 +3,7 @@ import { useWorkspaceStore } from '../store/workspaceStore';
 import workspaceService from '../services/workspaceService';
 import { notifications } from '@mantine/notifications';
 import { useRefreshVersion } from '../../../shared/store/refreshStore';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export function useWorkspaces() {
   const {
@@ -113,7 +114,7 @@ export function useWorkspaces() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Czy na pewno usunąć workspace? Wszystkie kolekcje zostaną usunięte!')) {
+    if (!(await confirmAction({ title: 'Usunąć workspace?', message: 'Workspace i wszystkie jego kolekcje zostaną usunięte. Tej operacji nie można cofnąć.', confirmLabel: 'Usuń workspace' }))) {
       return;
     }
 

@@ -317,9 +317,8 @@ function CollectionNode({
                 color="red"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (window.confirm(`Czy na pewno usunąć kolekcję "${collection.name}"?`)) {
-                    onDelete(collection.id);
-                  }
+                  // onDelete asks for confirmation itself
+                  onDelete(collection.id);
                   setMenuOpened(false);
                 }}
                 fz="12px"

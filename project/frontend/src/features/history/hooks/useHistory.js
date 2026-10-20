@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import historyService from '../services/historyService';
 import { notifications } from '@mantine/notifications';
 import { useRefresh } from '../../../shared/store/refreshStore';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export function useHistory(itemId) {
   const [history, setHistory] = useState([]);
@@ -31,7 +32,7 @@ export function useHistory(itemId) {
   };
 
   const handleRestoreVersion = async (version) => {
-    if (!window.confirm(`Czy na pewno przywrócić wersję ${version}?`)) {
+    if (!(await confirmAction({ title: `Przywrócić wersję ${version}?`, message: 'Bieżąca treść pozycji zostanie zastąpiona treścią z tej wersji.', confirmLabel: 'Przywróć', danger: false }))) {
       return false;
     }
 

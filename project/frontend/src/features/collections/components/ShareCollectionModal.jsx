@@ -22,6 +22,7 @@ import {
   IconAlertCircle
 } from '@tabler/icons-react';
 import collectionsService from '../services/collectionsService';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export default function ShareCollectionModal({ 
   opened, 
@@ -85,7 +86,7 @@ export default function ShareCollectionModal({
   };
 
   const handleUnshare = async (userId) => {
-    if (!window.confirm('Czy na pewno usunąć dostęp dla tego użytkownika?')) {
+    if (!(await confirmAction({ title: 'Usunąć dostęp?', message: 'Ta osoba straci dostęp do kolekcji.', confirmLabel: 'Usuń dostęp' }))) {
       return;
     }
 

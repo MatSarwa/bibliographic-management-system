@@ -8,6 +8,7 @@ import ItemModal from './ItemModal';
 import ActionPanel from './ActionPanel';
 import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
 import { itemAuthorNames } from '../../../shared/utils/authors';
+import { confirmAction } from '../../../shared/utils/confirm';
 
 export default function ItemsList({ 
   collectionId, 
@@ -126,7 +127,7 @@ export default function ItemsList({
   };
 
   const handleDelete = async (itemId) => {
-    if (!window.confirm('Czy na pewno przenieść tę pozycję do kosza?')) {
+    if (!(await confirmAction({ title: 'Przenieść do kosza?', message: 'Pozycję możesz później przywrócić z kosza.', confirmLabel: 'Przenieś do kosza' }))) {
       return;
     }
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import workspaceService from '../../services/workspaceService';
 import MemberCard from './MemberCard';
+import { confirmAction } from '../../../../shared/utils/confirm';
 
 export default function MembersTab({
   workspace,
@@ -46,7 +47,7 @@ export default function MembersTab({
   };
 
   const handleRemoveMember = async (userId) => {
-    if (!window.confirm('Czy na pewno usunąć tego członka?')) return;
+    if (!(await confirmAction({ title: 'Usunąć członka?', message: 'Ta osoba straci dostęp do workspace’u.', confirmLabel: 'Usuń' }))) return;
     const result = await workspaceService.removeMember(workspace.id, userId);
     if (result.success) {
       notifications.show({ title: 'Sukces!', message: 'Członek usunięty', color: 'green' });
@@ -72,7 +73,7 @@ export default function MembersTab({
     const member = members?.members?.find(m => m.user?.id === newOwnerId);
     const memberName = member?.user?.username || 'tego użytkownika';
 
-    if (!window.confirm(`Czy na pewno chcesz przekazać właścicielstwo na ${memberName}?`)) return;
+    if (!(await confirmAction({ title: 'Przekazać własność?', message: `${memberName} zostanie nowym właścicielem workspace’u.`, confirmLabel: 'Przekaż' }))) return;
 
     const result = await workspaceService.transferOwnership(workspace.id, newOwnerId);
     if (result.success) {

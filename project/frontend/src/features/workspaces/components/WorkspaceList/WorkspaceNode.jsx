@@ -12,6 +12,7 @@ import workspaceService from '../../services/workspaceService';
 import CollectionItem from './CollectionItem';
 import { useRefreshVersion } from '../../../../shared/store/refreshStore';
 import { downloadCollectionExport } from '../../../../shared/utils/download';
+import { confirmAction } from '../../../../shared/utils/confirm';
 
 export default function WorkspaceNode({
   workspace,
@@ -56,7 +57,7 @@ export default function WorkspaceNode({
   };
 
   const handleDeleteCollection = async (collectionId, collectionName) => {
-    if (!window.confirm(`Czy na pewno usunąć kolekcję "${collectionName}"?`)) return;
+    if (!(await confirmAction({ title: 'Usunąć kolekcję?', message: `Kolekcja „${collectionName}” zostanie usunięta z workspace’u.`, confirmLabel: 'Usuń' }))) return;
 
     const result = await workspaceService.deleteCollection(workspace.id, collectionId);
     if (result.success) {

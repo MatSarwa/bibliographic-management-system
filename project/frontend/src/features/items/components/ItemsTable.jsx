@@ -93,7 +93,7 @@ export default function ItemsTable({
               <Table.Th style={{ width: '150px' }}>Etykiety</Table.Th>
             )}
 
-            <Table.Th style={{ width: isWorkspace ? '120px' : '60px' }}>Akcje</Table.Th>
+            <Table.Th style={{ width: isWorkspace ? '130px' : '100px' }}>Akcje</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -246,6 +246,21 @@ export default function ItemsTable({
                     </Tooltip>
                   )}
 
+                  {/* Delete is used often, so it sits in the row; the menu holds the rarer actions. */}
+                  <Tooltip label="Przenieś do kosza" withArrow>
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(item.id);
+                      }}
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+
                   <Menu shadow="md" width={200} position="bottom-end">
                     <Menu.Target>
                       <ActionIcon size="sm" variant="subtle">
@@ -261,16 +276,6 @@ export default function ItemsTable({
                         }}
                       >
                         Edytuj
-                      </Menu.Item>
-                      <Menu.Item
-                        leftSection={<IconTrash size={14} />}
-                        color="red"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDelete(item.id);
-                        }}
-                      >
-                        Usuń
                       </Menu.Item>
                     </Menu.Dropdown>
                   </Menu>
