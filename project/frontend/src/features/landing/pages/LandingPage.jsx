@@ -1,28 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Anchor, Badge, Button, Container, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title,
-} from '@mantine/core';
-import {
-  IconBook, IconBrandGithub, IconDownload, IconFolders, IconHistory, IconLogin, IconQuote, IconSearch,
-  IconUsers, IconPlayerPlay,
-} from '@tabler/icons-react';
+import { Anchor, Badge, Button, Container, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { IconBook, IconBrandGithub, IconLogin, IconPlayerPlay } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import AuthBackground from '../../auth/components/AuthBackground';
 import Footer from '../../auth/components/Footer';
 import { authService } from '../../auth/services/authService';
 import { useAuthStore } from '../../auth/store/authStore';
+import { REGISTRATION_ENABLED } from '../../../shared/config/features';
 
 const REPO_URL = 'https://github.com/MatSarwa/bibliographic-management-system';
-
-const FEATURES = [
-  { icon: IconSearch, title: 'Automatyczne metadane', text: 'Wklej DOI, ISBN, arXiv ID lub PMID – tytuł, autorzy i rok uzupełnią się same.' },
-  { icon: IconFolders, title: 'Kolekcje i etykiety', text: 'Zagnieżdżone kolekcje, kolorowe etykiety, ulubione i kosz.' },
-  { icon: IconQuote, title: 'Cytowania', text: 'APA, MLA, Chicago, Harvard, IEEE i Vancouver jednym kliknięciem.' },
-  { icon: IconDownload, title: 'Eksport', text: 'BibTeX i RIS – gotowe do LaTeX-a, Zotero czy Mendeleya.' },
-  { icon: IconUsers, title: 'Praca zespołowa', text: 'Wspólne workspace’y z rolami, udostępnianie kolekcji, komentarze.' },
-  { icon: IconHistory, title: 'Historia zmian', text: 'Każda edycja jest zapisywana – można wrócić do poprzedniej wersji.' },
-];
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -49,13 +36,13 @@ export default function LandingPage() {
 
   return (
     <AuthBackground>
-      <Container w="100%" size={880} style={{ position: 'relative', zIndex: 1 }}>
+      <Container w="100%" size={560} style={{ position: 'relative', zIndex: 1 }}>
         <Stack align="center" gap="xs" ta="center" mb="xl">
           <ThemeIcon size={56} radius="md" color="violet">
             <IconBook size={30} stroke={2} color="white" />
           </ThemeIcon>
           <Title order={1} fz={{ base: 28, sm: 40 }}>BibliografiaApp</Title>
-          <Text size="lg" c="dimmed" maw={560}>
+          <Text size="lg" c="dimmed">
             Aplikacja do zbierania źródeł, porządkowania ich w kolekcjach i generowania cytowań.
           </Text>
         </Stack>
@@ -69,7 +56,7 @@ export default function LandingPage() {
             ) : (
               <>
                 <Text fw={600}>Wypróbuj bez rejestracji</Text>
-                <Text size="sm" c="dimmed" maw={460}>
+                <Text size="sm" c="dimmed">
                   Dostaniesz własne konto z przykładową biblioteką – możesz w nim wszystko zmieniać i usuwać.
                   Zniknie automatycznie po 24 godzinach.
                 </Text>
@@ -83,9 +70,12 @@ export default function LandingPage() {
                   >
                     Wypróbuj demo
                   </Button>
-                  <Button size="md" variant="default" leftSection={<IconLogin size={18} />} onClick={() => navigate('/login')}>
-                    Zaloguj się
-                  </Button>
+                  {/* Only where accounts can be created; on the public demo there are none to log in to. */}
+                  {REGISTRATION_ENABLED && (
+                    <Button size="md" variant="default" leftSection={<IconLogin size={18} />} onClick={() => navigate('/login')}>
+                      Zaloguj się
+                    </Button>
+                  )}
                 </Group>
                 {demoLoading && (
                   <Text size="xs" c="dimmed">
@@ -96,20 +86,6 @@ export default function LandingPage() {
             )}
           </Stack>
         </Paper>
-
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" mb="xl">
-          {FEATURES.map((feature) => (
-            <Paper key={feature.title} withBorder radius="md" p="md">
-              <Group gap="sm" mb={6} wrap="nowrap">
-                <ThemeIcon variant="light" color="violet" radius="md">
-                  <feature.icon size={18} />
-                </ThemeIcon>
-                <Text fw={600} size="sm">{feature.title}</Text>
-              </Group>
-              <Text size="sm" c="dimmed">{feature.text}</Text>
-            </Paper>
-          ))}
-        </SimpleGrid>
 
         <Stack align="center" gap="xs">
           <Group gap={6} justify="center">
