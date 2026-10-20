@@ -6,9 +6,7 @@ import { Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { notifications } from '@mantine/notifications';
 import { API_URL } from '../../../shared/utils/api';
-
-// Google login needs OAuth set up for the deployed domain; set VITE_ENABLE_GOOGLE_LOGIN=false to hide it.
-const GOOGLE_LOGIN_ENABLED = import.meta.env.VITE_ENABLE_GOOGLE_LOGIN !== 'false';
+import { GOOGLE_LOGIN_ENABLED, REGISTRATION_ENABLED } from '../../../shared/config/features';
 
 export default function LoginForm() {
   const {
@@ -94,10 +92,12 @@ export default function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Group justify="space-between" align="center">
-            <Link to="/forgot-password" style={{ color: 'var(--mantine-primary-color-filled)', fontSize: '12px', textDecoration: 'none' }}>
-              Zapomniałeś hasła?
-            </Link>
+          <Group justify={REGISTRATION_ENABLED ? 'space-between' : 'flex-end'} align="center">
+            {REGISTRATION_ENABLED && (
+              <Link to="/forgot-password" style={{ color: 'var(--mantine-primary-color-filled)', fontSize: '12px', textDecoration: 'none' }}>
+                Zapomniałeś hasła?
+              </Link>
+            )}
             <Button type="submit" size="sm" loading={loading} color="violet">
               Zaloguj sie
             </Button>

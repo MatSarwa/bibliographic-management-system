@@ -9,6 +9,11 @@ const tempCodes = new Map();
 
 class AuthController {
   register = asyncHandler(async (req, res) => {
+    // The public demo has no email sending, so sign-ups would only collect visitors' addresses.
+    if (process.env.ENABLE_REGISTRATION === 'false') {
+      return ResponseHelper.error(res, 'Rejestracja jest wyłączona w wersji demonstracyjnej', 403);
+    }
+
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {

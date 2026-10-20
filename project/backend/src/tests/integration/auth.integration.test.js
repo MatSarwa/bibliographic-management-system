@@ -50,6 +50,20 @@ describe('AUTH INTEGRATION: Rejestracja (POST /auth/register)', () => {
         expect(userInDb.isVerified).toBe(false);
     });
 
+    it('should return 403 and save nothing when registration is disabled (public demo)', async () => {
+        process.env.ENABLE_REGISTRATION = 'false';
+        try {
+            const response = await request(app)
+                .post('/api/auth/register')
+                .send(TEST_USER_DATA);
+
+            expect(response.statusCode).toBe(403);
+            expect(await User.count({ where: { email: TEST_USER_DATA.email } })).toBe(0);
+        } finally {
+            delete process.env.ENABLE_REGISTRATION;
+        }
+    });
+
     it('should return 409 (Conflict) if the email already exists in DB', async () => {
         
         await User.create({

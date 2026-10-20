@@ -57,6 +57,7 @@ Render i Vercel pobierają kod z GitHuba, więc wszystkie zmiany muszą być wyp
    | `DATABASE_URL` | connection string z Neona |
    | `JWT_SECRET` | długi losowy ciąg – wygeneruj poleceniem poniżej |
    | `FRONTEND_URL` | na razie `http://localhost:5173` – podmienisz w kroku 4 |
+   | `ENABLE_REGISTRATION` | `false` – bez wysyłki maili rejestracja tylko zbierałaby adresy odwiedzających |
 
    Generowanie `JWT_SECRET` (w terminalu na swoim komputerze):
    ```
@@ -90,6 +91,7 @@ Render i Vercel pobierają kod z GitHuba, więc wszystkie zmiany muszą być wyp
    |---|---|
    | `VITE_API_URL` | adres z Rendera + `/api`, np. `https://bibliography-api.onrender.com/api` |
    | `VITE_ENABLE_GOOGLE_LOGIN` | `false` |
+   | `VITE_ENABLE_REGISTRATION` | `false` (ukrywa rejestrację i reset hasła) |
 
 5. **Deploy**. Po chwili dostaniesz adres, np. `https://bibliography-xyz.vercel.app`.
 
