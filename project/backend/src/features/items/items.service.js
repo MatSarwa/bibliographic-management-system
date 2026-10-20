@@ -112,11 +112,12 @@ class ItemsService {
     } else {
 
       whereConditions.userId = userId;
-      
+
+      // A `where` on an optional include only limits the join, not the items, so workspace
+      // items are filtered out after the query (see below).
       includeConditions.push({
         model: Collection,
         as: 'collection',
-        where: { workspaceId: null },
         required: false
       });
     }
@@ -152,7 +153,8 @@ class ItemsService {
       order: [['dateAdded', 'DESC']]
     });
 
-    return items;
+    // Personal views ("all", favorites) show only items outside workspaces.
+    return workspaceId ? items : items.filter((item) => !item.collection?.workspaceId);
   }
 
   async getFavorites(userId) {

@@ -32,6 +32,32 @@ describe('DEMO INTEGRATION: per-visitor demo accounts (POST /auth/demo)', () => 
     expect(collections.body.data).toHaveLength(5);
   });
 
+  it('should include a shared workspace with comments and version history', async () => {
+    const { token } = (await startDemo()).body.data;
+
+    const workspaces = await authGet('/api/workspaces', token);
+    expect(workspaces.statusCode).toBe(200);
+    expect(workspaces.body.data).toHaveLength(1);
+    const workspaceId = workspaces.body.data[0].id;
+
+    const wsCollections = await authGet(`/api/workspaces/${workspaceId}/collections`, token);
+    expect(wsCollections.body.data).toHaveLength(1);
+    const collectionId = wsCollections.body.data[0].id;
+
+    const wsItems = await authGet(`/api/workspaces/${workspaceId}/collections/${collectionId}/items`, token);
+    expect(wsItems.statusCode).toBe(200);
+    expect(wsItems.body.data).toHaveLength(3);
+
+    const gpt3 = wsItems.body.data.find((item) => item.title.startsWith('Language Models'));
+    const comments = await authGet(`/api/comments/items/${gpt3.id}/comments`, token);
+    expect(comments.statusCode).toBe(200);
+    expect(JSON.stringify(comments.body.data)).toContain('Pasuje idealnie');
+
+    const history = await authGet(`/api/history/items/${gpt3.id}`, token);
+    expect(history.statusCode).toBe(200);
+    expect(JSON.stringify(history.body.data)).toContain('"version":2');
+  });
+
   it('should give each visitor separate data', async () => {
     const first = (await startDemo()).body.data;
     const second = (await startDemo()).body.data;
@@ -59,6 +85,8 @@ describe('DEMO INTEGRATION: per-visitor demo accounts (POST /auth/demo)', () => 
 
     expect(await User.findByPk(old.userId)).toBeNull();
     expect(await Item.count({ where: { userId: old.userId } })).toBe(0);
+    // The made-up colleague goes together with the visitor.
+    expect(await User.count({ where: { email: old.email.replace('@', '.anna@') } })).toBe(0);
   });
 
   it('should not let a demo visitor change the password', async () => {

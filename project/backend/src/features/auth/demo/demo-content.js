@@ -1,6 +1,10 @@
 // Sample library used for demo accounts: the shared one from `npm run seed:demo`
 // and the temporary per-visitor ones from POST /api/auth/demo.
-const { Collection, Label, Item, ItemLabel } = require('../../../models');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const {
+  User, Collection, Label, Item, ItemLabel, Workspace, WorkspaceMember, Comment, ItemHistory,
+} = require('../../../models');
 
 const LABELS = [
   { key: 'ai', name: 'AI', color: '#8b5cf6' },
@@ -118,7 +122,113 @@ const ITEMS = [
   },
 ];
 
-// Fills an (empty) account with the sample collections, labels and items.
+// Shared workspace: comments and version history only exist for workspace items, so the demo needs one.
+const WORKSPACE_ITEMS = [
+  {
+    title: 'Language Models are Few-Shot Learners',
+    itemType: 'conference',
+    year: 2020,
+    metadata: {
+      authors: ['Tom B. Brown', 'Benjamin Mann', 'Nick Ryder', 'Melanie Subbiah'],
+      booktitle: 'Advances in Neural Information Processing Systems 33 (NeurIPS 2020)',
+      url: 'https://arxiv.org/abs/2005.14165',
+    },
+  },
+  {
+    title: 'Training language models to follow instructions with human feedback',
+    itemType: 'conference',
+    year: 2022,
+    metadata: {
+      authors: ['Long Ouyang', 'Jeff Wu', 'Xu Jiang', 'Diogo Almeida'],
+      booktitle: 'Advances in Neural Information Processing Systems 35 (NeurIPS 2022)',
+      url: 'https://arxiv.org/abs/2203.02155',
+    },
+  },
+  {
+    title: 'LLaMA: Open and Efficient Foundation Language Models',
+    itemType: 'article',
+    year: 2023,
+    metadata: {
+      authors: ['Hugo Touvron', 'Thibaut Lavril', 'Gautier Izacard', 'Xavier Martinet'],
+      journal: 'arXiv preprint',
+      url: 'https://arxiv.org/abs/2302.13971',
+    },
+  },
+];
+
+// The made-up colleague lives next to the demo user (same email domain), so the
+// 24h cleanup of visitor demos removes both together.
+function colleagueEmailFor(user) {
+  const [local, domain] = user.email.split('@');
+  return `${local}.anna@${domain}`;
+}
+
+async function createDemoWorkspace(user, transaction) {
+  const colleague = await User.create({
+    username: `anna.nowak-${user.id.slice(0, 6)}`,
+    email: colleagueEmailFor(user),
+    password: await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10),
+    isVerified: true,
+  }, { transaction });
+
+  const workspace = await Workspace.create({
+    name: 'Zespół badawczy',
+    description: 'Wspólna literatura do artykułu o dużych modelach językowych',
+    createdBy: user.id,
+    settings: { color: '#8b5cf6' },
+  }, { transaction });
+
+  await WorkspaceMember.bulkCreate([
+    { workspaceId: workspace.id, userId: user.id, role: 'admin' },
+    { workspaceId: workspace.id, userId: colleague.id, role: 'editor' },
+  ], { transaction });
+
+  const collection = await Collection.create({
+    name: 'Przegląd literatury – LLM',
+    ownerId: null,
+    workspaceId: workspace.id,
+    isPublic: true,
+    settings: { color: '#8b5cf6' },
+  }, { transaction });
+
+  const items = [];
+  for (const data of WORKSPACE_ITEMS) {
+    const item = await Item.create(
+      { ...data, userId: user.id, collectionId: collection.id, status: 'active', dateAdded: new Date() },
+      { transaction }
+    );
+    await ItemHistory.create({
+      itemId: item.id, workspaceId: workspace.id, version: 1, changedBy: user.id,
+      changeType: 'created', snapshot: item.toJSON(), diff: null,
+    }, { transaction });
+    items.push(item);
+  }
+
+  // Version 2 of the first item: the colleague added a note.
+  const [gpt3, instructGpt] = items;
+  const note = 'Kluczowe dla sekcji 2: wyniki few-shot bez dostrajania modelu.';
+  const before = gpt3.toJSON();
+  await gpt3.update({ notes: note, version: 2 }, { transaction });
+  await ItemHistory.create({
+    itemId: gpt3.id, workspaceId: workspace.id, version: 2, changedBy: colleague.id,
+    changeType: 'updated', snapshot: gpt3.toJSON(), diff: { notes: { old: before.notes, new: note } },
+  }, { transaction });
+
+  const question = await Comment.create({
+    itemId: gpt3.id, userId: colleague.id,
+    content: 'Dodałam notatkę o wynikach few-shot – zerknij, czy pasuje do sekcji 2.',
+  }, { transaction });
+  await Comment.create({
+    itemId: gpt3.id, userId: user.id, parentId: question.id,
+    content: 'Pasuje idealnie, dzięki! Zacytuję to we wstępie.',
+  }, { transaction });
+  await Comment.create({
+    itemId: instructGpt.id, userId: colleague.id, isResolved: true,
+    content: 'Uzupełniłam link do arXiv – można zamknąć.',
+  }, { transaction });
+}
+
+// Fills an (empty) account with the sample collections, labels, items and a shared workspace.
 async function createDemoContent(user, transaction) {
   const research = await Collection.create(
     { name: 'Praca badawcza', ownerId: user.id, settings: { color: '#6366f1' } },
@@ -146,15 +256,27 @@ async function createDemoContent(user, transaction) {
       { transaction }
     );
   }
+
+  await createDemoWorkspace(user, transaction);
 }
 
-// Deletes a user with all their data, in dependency order (items → labels → collections → user)
-// so no foreign key blocks it.
+// Deletes a demo user with all their data and their made-up colleague, in dependency order
+// (items → labels → collections → workspaces → users) so no foreign key blocks it.
 async function deleteUserWithData(user, transaction) {
   await Item.destroy({ where: { userId: user.id }, transaction });
   await Label.destroy({ where: { userId: user.id }, transaction });
   await Collection.update({ parentId: null }, { where: { ownerId: user.id }, transaction });
   await Collection.destroy({ where: { ownerId: user.id }, transaction });
+
+  const workspaceIds = (await Workspace.findAll({ where: { createdBy: user.id }, attributes: ['id'], transaction }))
+    .map((ws) => ws.id);
+  if (workspaceIds.length) {
+    await Collection.destroy({ where: { workspaceId: workspaceIds }, transaction });
+    await WorkspaceMember.destroy({ where: { workspaceId: workspaceIds }, transaction });
+    await Workspace.destroy({ where: { id: workspaceIds }, transaction });
+  }
+
+  await User.destroy({ where: { email: colleagueEmailFor(user) }, transaction });
   await user.destroy({ transaction });
 }
 
