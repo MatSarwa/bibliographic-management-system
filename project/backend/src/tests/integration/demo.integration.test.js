@@ -58,6 +58,51 @@ describe('DEMO INTEGRATION: per-visitor demo accounts (POST /auth/demo)', () => 
     expect(JSON.stringify(history.body.data)).toContain('"version":2');
   });
 
+  it('should keep other metadata and record only real changes when an item is edited', async () => {
+    const { token } = (await startDemo()).body.data;
+    const ws = (await authGet('/api/workspaces', token)).body.data[0];
+    const col = (await authGet(`/api/workspaces/${ws.id}/collections`, token)).body.data[0];
+    const items = (await authGet(`/api/workspaces/${ws.id}/collections/${col.id}/items`, token)).body.data;
+    const item = items.find((i) => i.title.startsWith('Training language models'));
+
+    // Same payload the edit form sends: only its own fields, empty notes as ''.
+    const response = await request(app)
+      .put(`/api/items/${item.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: item.title,
+        year: item.year,
+        itemType: item.itemType,
+        collectionId: item.collectionId,
+        notes: '',
+        metadata: { authors: item.metadata.authors, pages: null, isbn: null, doi: null, abstract: 'dwa' },
+      });
+    expect(response.statusCode).toBe(200);
+
+    const updated = (await authGet(`/api/items/${item.id}`, token)).body.data;
+    expect(updated.metadata.abstract).toBe('dwa');
+    expect(updated.metadata.url).toBe('https://arxiv.org/abs/2203.02155');
+    expect(updated.metadata.booktitle).toContain('NeurIPS 2022');
+    expect(updated.metadata.authors).toHaveLength(4);
+    expect(updated.notes).toBeNull();
+
+    const history = (await authGet(`/api/history/items/${item.id}`, token)).body.data;
+    const versions = Array.isArray(history) ? history : history.history || history.versions || [];
+    const latest = versions.reduce((a, b) => (a.version > b.version ? a : b));
+    expect(Object.keys(latest.diff)).toEqual(['metadata']);
+  });
+
+  it('should export the demo authors by name to BibTeX', async () => {
+    const { token } = (await startDemo()).body.data;
+    const collections = (await authGet('/api/collections', token)).body.data;
+    const testing = collections.find((c) => c.name === 'Testowanie');
+
+    const response = await authGet(`/api/export/collections/${testing.id}?format=bibtex`, token);
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toContain('Cem Kaner and James Bach and Bret Pettichord');
+    expect(response.text).not.toContain('undefined');
+  });
+
   it('should give each visitor separate data', async () => {
     const first = (await startDemo()).body.data;
     const second = (await startDemo()).body.data;

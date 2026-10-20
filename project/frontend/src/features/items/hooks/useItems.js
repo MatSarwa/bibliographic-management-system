@@ -3,6 +3,7 @@ import { useItemsStore } from '../store/itemsStore';
 import itemsService from '../services/itemsService';
 import { notifications } from '@mantine/notifications';
 import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
+import { formatAuthors, itemAuthorNames } from '../../../shared/utils/authors';
 
 export function useItems(collectionId, viewType) {
   const {
@@ -267,10 +268,8 @@ export function useItems(collectionId, viewType) {
     if (search) {
       const searchLower = search.toLowerCase();
       result = result.filter((item) => {
-        const authorText = Array.isArray(item.authors)
-          ? item.authors.join(', ')
-          : item.author || '';
-        
+        const authorText = formatAuthors(item);
+
         return (
           item.title.toLowerCase().includes(searchLower) ||
           authorText.toLowerCase().includes(searchLower)
@@ -287,9 +286,7 @@ export function useItems(collectionId, viewType) {
         case 'title':
           return a.title.localeCompare(b.title);
         case 'author': {
-          const aAuthor = Array.isArray(a.authors) ? a.authors[0] : a.author || '';
-          const bAuthor = Array.isArray(b.authors) ? b.authors[0] : b.author || '';
-          return aAuthor.localeCompare(bAuthor);
+          return (itemAuthorNames(a)[0] || '').localeCompare(itemAuthorNames(b)[0] || '');
         }
         default:
           return 0;

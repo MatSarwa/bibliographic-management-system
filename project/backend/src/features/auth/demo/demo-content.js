@@ -192,7 +192,7 @@ async function createDemoWorkspace(user, transaction) {
   }, { transaction });
 
   const items = [];
-  for (const data of WORKSPACE_ITEMS) {
+  for (const data of toAuthors(WORKSPACE_ITEMS)) {
     const item = await Item.create(
       { ...data, userId: user.id, collectionId: collection.id, status: 'active', dateAdded: new Date() },
       { transaction }
@@ -228,6 +228,12 @@ async function createDemoWorkspace(user, transaction) {
   }, { transaction });
 }
 
+// The app stores authors as { fullName } objects (like the edit form and metadata providers).
+const toAuthors = (items) => items.map((item) => ({
+  ...item,
+  metadata: { ...item.metadata, authors: item.metadata.authors.map((fullName) => ({ fullName })) },
+}));
+
 // Fills an (empty) account with the sample collections, labels, items and a shared workspace.
 async function createDemoContent(user, transaction) {
   const research = await Collection.create(
@@ -246,7 +252,7 @@ async function createDemoContent(user, transaction) {
     labels[key] = await Label.create({ name, color, userId: user.id }, { transaction });
   }
 
-  for (const { collection, labels: labelKeys, ...data } of ITEMS) {
+  for (const { collection, labels: labelKeys, ...data } of toAuthors(ITEMS)) {
     const item = await Item.create(
       { ...data, userId: user.id, collectionId: collections[collection].id },
       { transaction }

@@ -1,6 +1,7 @@
 const { ItemHistory, Item, User, WorkspaceMember, Collection } = require('../../models');
 const { checkPermission } = require('../../shared/constants/permissions');
 const AppError = require('../../shared/utils/app-error');
+const { normalizeForDiff } = require('../../shared/utils/diff');
 
 class HistoryService {
 
@@ -182,7 +183,7 @@ class HistoryService {
       const oldValue = oldData[key];
       const newValue = newData[key];
 
-      if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+      if (JSON.stringify(normalizeForDiff(oldValue)) !== JSON.stringify(normalizeForDiff(newValue))) {
         diff[key] = { old: oldValue, new: newValue };
       }
     });

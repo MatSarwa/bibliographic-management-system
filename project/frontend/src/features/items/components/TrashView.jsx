@@ -1,6 +1,7 @@
 import { Box, Center, Loader, Button, Group, Text, Table, ActionIcon, Tooltip, Stack } from '@mantine/core';
 import { IconTrash, IconRestore, IconTrashX } from '@tabler/icons-react';
 import { useItems } from '../hooks/useItems';
+import { formatAuthors } from '../../../shared/utils/authors';
 
 export default function TrashView() {
   const {
@@ -108,9 +109,7 @@ export default function TrashView() {
                 </Table.Td>
                 <Table.Td>
                   <Text size="sm" c="dimmed">
-                    {Array.isArray(item.authors) 
-                      ? item.authors.join(', ') 
-                      : item.author || 'Nieznany'}
+                    {formatAuthors(item, 'Nieznany')}
                   </Text>
                 </Table.Td>
                 <Table.Td>

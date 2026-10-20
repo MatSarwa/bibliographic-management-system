@@ -2,6 +2,13 @@ const { Item, Label, Collection, CollectionMember, WorkspaceMember } = require('
 const AppError = require('../../shared/utils/app-error');
 const { checkPermission } = require('../../shared/constants/permissions');
 
+// Authors are stored as { fullName } or { firstName, lastName } objects; older or imported
+// data may use plain strings.
+const authorName = (author) =>
+  typeof author === 'string'
+    ? author
+    : (author.fullName || `${author.firstName || ''} ${author.lastName || ''}`).trim();
+
 class ExportService {
 
   generateBibTeX(items) {
@@ -27,7 +34,7 @@ class ExportService {
 
     if (authors.length > 0) {
       const authorString = authors
-        .map(a => a.fullName || `${a.firstName} ${a.lastName}`.trim())
+        .map(authorName)
         .join(' and ');
       entry += `  author = {${this.escapeBibTeX(authorString)}},\n`;
     }
@@ -89,8 +96,7 @@ class ExportService {
     entry += `TY  - ${risType}\n`;
 
     authors.forEach(author => {
-      const authorName = author.fullName || `${author.firstName} ${author.lastName}`.trim();
-      entry += `AU  - ${authorName}\n`;
+      entry += `AU  - ${authorName(author)}\n`;
     });
 
     entry += `TI  - ${item.title}\n`;
@@ -248,7 +254,7 @@ class ExportService {
     let authorPart = 'unknown';
     if (authors.length > 0) {
       const firstAuthor = authors[0];
-      authorPart = (firstAuthor.lastName || firstAuthor.fullName || 'unknown')
+      authorPart = (firstAuthor.lastName || authorName(firstAuthor).split(' ').pop() || 'unknown')
         .toLowerCase()
         .replace(/[^a-z]/g, '');
     }

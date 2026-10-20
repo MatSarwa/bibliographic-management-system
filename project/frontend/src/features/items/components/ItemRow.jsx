@@ -1,5 +1,6 @@
 import { Table, Text, Badge, ActionIcon, Group, Checkbox, Tooltip } from '@mantine/core';
 import { IconStar, IconEdit, IconTrash } from '@tabler/icons-react';
+import { formatAuthors } from '../../../shared/utils/authors';
 
 export default function ItemRow({ 
   item, 
@@ -15,22 +16,7 @@ export default function ItemRow({
 }) {
   const itemId = item.id;
   
-  const displayAuthors = (() => {
-
-    if (Array.isArray(item.authors) && item.authors.length > 0) {
-      return item.authors.join(', ');
-    }
-    
-    if (item.metadata?.authors && Array.isArray(item.metadata.authors) && item.metadata.authors.length > 0) {
-      return item.metadata.authors.join(', ');
-    }
-    
-    if (item.author) {
-      return item.author;
-    }
-
-    return 'Nieznany autor';
-  })();
+  const displayAuthors = formatAuthors(item, 'Nieznany autor');
 
   return (
     <Table.Tr

@@ -4,6 +4,7 @@ import { IconWand } from '@tabler/icons-react';
 import api from '../../../shared/utils/api';
 import { useCollectionsStore } from '../../collections/store/collectionsStore';
 import { useWorkspaceStore } from '../../workspaces/store/workspaceStore';
+import { formatAuthors } from '../../../shared/utils/authors';
 
 const TYPE_MAP = {
   'journal-article': 'article',
@@ -16,6 +17,10 @@ const TYPE_MAP = {
   'conference': 'conference',
   'thesis': 'thesis'
 };
+
+// Which metadata key holds the publication venue shown in the "publisher" field.
+const VENUE_KEYS = ['journal', 'publisher', 'booktitle', 'conference'];
+const venueKeyOf = (item) => VENUE_KEYS.find((key) => item?.metadata?.[key]) || 'publisher';
 
 export default function ItemModal({ opened, onClose, onSubmit, editItem, defaultCollectionId, workspaceId }) {
   const [title, setTitle] = useState('');
@@ -63,10 +68,10 @@ export default function ItemModal({ opened, onClose, onSubmit, editItem, default
         setAuthors(extractAuthors(editItem));
         setYear(editItem.year || new Date().getFullYear());
         setType(editItem.itemType || 'article');
-        setPublisher(editItem.publisher || editItem.metadata?.journal || editItem.metadata?.conference || '');
+        setPublisher(editItem.metadata?.[venueKeyOf(editItem)] || '');
         setPages(editItem.pages || editItem.metadata?.pages || '');
-        setIsbn(editItem.isbn || '');
-        setDoi(editItem.doi || '');
+        setIsbn(editItem.isbn || editItem.metadata?.isbn || '');
+        setDoi(editItem.doi || editItem.metadata?.doi || '');
         setAbstract(editItem.abstract || editItem.metadata?.abstract || '');
         setNotes(editItem.notes || '');
         setSelectedCollectionId(editItem.collectionId || defaultCollectionId || '');
@@ -88,15 +93,7 @@ export default function ItemModal({ opened, onClose, onSubmit, editItem, default
     }
   }, [editItem, opened, defaultCollectionId, workspaceId]);
 
-  const extractAuthors = (item) => {
-    if (Array.isArray(item.authors) && item.authors.length > 0) {
-      return item.authors.join(', ');
-    }
-    if (item.metadata?.authors && Array.isArray(item.metadata.authors)) {
-      return item.metadata.authors.map(a => a.fullName || `${a.firstName || ''} ${a.lastName || ''}`.trim()).join(', ');
-    }
-    return item.author || '';
-  };
+  const extractAuthors = (item) => formatAuthors(item);
 
   const resetForm = () => {
     setTitle('');
@@ -189,17 +186,24 @@ const handleSubmit = () => {
     return;
   }
 
+  // The single "publisher / journal" field: when editing, write back to the key it was read from,
+  // so a journal does not suddenly become a publisher (or the other way round).
+  const venue = editItem
+    ? { [venueKeyOf(editItem)]: publisher || null }
+    : { publisher: publisher || null, journal: publisher || null };
+
+  // Only the fields this form shows; the server merges them into the existing metadata,
+  // so url, booktitle, volume etc. are kept.
   const itemData = {
     title: title.trim(),
     year: year ? parseInt(year) : null,
     itemType: type,
     collectionId: selectedCollectionId || null,
     metadata: {
-      authors: authors 
-        ? authors.split(',').map(a => ({ fullName: a.trim() })).filter(a => a.fullName) 
+      authors: authors
+        ? authors.split(',').map(a => ({ fullName: a.trim() })).filter(a => a.fullName)
         : [],
-      publisher: publisher || null,
-      journal: publisher || null,
+      ...venue,
       pages: pages || null,
       isbn: isbn || null,
       doi: doi || null,
@@ -208,7 +212,7 @@ const handleSubmit = () => {
   };
 
   if (!useWorkspace) {
-    itemData.notes = notes;
+    itemData.notes = notes.trim() || null;
   }
 
   if (useWorkspace && selectedWorkspaceId) {

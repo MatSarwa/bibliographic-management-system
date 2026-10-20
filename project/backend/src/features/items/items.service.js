@@ -2,6 +2,7 @@ const { Item, User, Collection, Label, ItemHistory, WorkspaceMember } = require(
 const { Op } = require('sequelize');
 const { checkPermission, hasPermission } = require('../../shared/constants/permissions');
 const AppError = require('../../shared/utils/app-error');
+const { normalizeForDiff } = require('../../shared/utils/diff');
 
 class ItemsService {
 
@@ -287,9 +288,11 @@ class ItemsService {
     await item.update({
       ...(title && { title }),
       ...(itemType && { itemType }),
-      ...(metadata && { metadata }),
+      // Merge, so fields the edit form does not show (url, booktitle, volume...) are kept.
+      ...(metadata && { metadata: { ...(item.metadata || {}), ...metadata } }),
       ...(year !== undefined && { year }),
-      ...(notes !== undefined && { notes }),
+      // An emptied textarea arrives as '' – store it as "no notes", like a new item.
+      ...(notes !== undefined && { notes: notes === '' ? null : notes }),
       ...(favorite !== undefined && { favorite }),
       ...(collectionId !== undefined && { collectionId })
     });
@@ -507,6 +510,9 @@ class ItemsService {
   async createHistory(item, userId, changeType, oldData, newData, workspaceId) {
     const diff = this.calculateDiff(oldData, newData);
 
+    // Saving the form without changing anything should not add an empty version.
+    if (changeType === 'updated' && Object.keys(diff).length === 0) return;
+
     const lastVersion = await ItemHistory.max('version', {
       where: { itemId: item.id }
     });
@@ -534,7 +540,7 @@ class ItemsService {
       const oldValue = oldData[key];
       const newValue = newData[key];
 
-      if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+      if (JSON.stringify(normalizeForDiff(oldValue)) !== JSON.stringify(normalizeForDiff(newValue))) {
         diff[key] = { old: oldValue, new: newValue };
       }
     });

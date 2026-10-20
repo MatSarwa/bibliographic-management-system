@@ -7,6 +7,7 @@ import ItemsTable from './ItemsTable';
 import ItemModal from './ItemModal';
 import ActionPanel from './ActionPanel';
 import { useRefresh, useRefreshVersion } from '../../../shared/store/refreshStore';
+import { itemAuthorNames } from '../../../shared/utils/authors';
 
 export default function ItemsList({ 
   collectionId, 
@@ -207,9 +208,7 @@ export default function ItemsList({
       const searchLower = search.toLowerCase();
       const matchesSearch = (
         item.title?.toLowerCase().includes(searchLower) ||
-        item.metadata?.authors?.some(author => 
-          author.toLowerCase().includes(searchLower)
-        ) ||
+        itemAuthorNames(item).some(name => name.toLowerCase().includes(searchLower)) ||
         item.year?.toString().includes(searchLower) ||
         item.itemType?.toLowerCase().includes(searchLower)
       );
@@ -236,9 +235,7 @@ export default function ItemsList({
       case 'year':
         return (b.year || 0) - (a.year || 0);
       case 'author':
-        const authorA = a.metadata?.authors?.[0] || '';
-        const authorB = b.metadata?.authors?.[0] || '';
-        return authorA.localeCompare(authorB);
+        return (itemAuthorNames(a)[0] || '').localeCompare(itemAuthorNames(b)[0] || '');
       default:
         return 0;
     }
