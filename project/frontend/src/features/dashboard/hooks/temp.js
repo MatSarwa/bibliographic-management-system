@@ -103,7 +103,8 @@ export function useLeftSidebar(onSelectView) {
 
   const handleSelectWorkspaceCollection = (collection, workspace) => {
     onSelectView({
-      type: 'workspace-collection',
+      // The "Kosz" row of a workspace is passed as a pseudo-collection.
+      type: collection.isTrash ? 'workspace-trash' : 'workspace-collection',
       data: { collection, workspace }
     });
   };

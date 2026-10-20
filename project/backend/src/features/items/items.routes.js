@@ -9,6 +9,7 @@ router.post('/', itemsController.createItem);
 router.get('/', itemsController.getAllItems);
 router.get('/favorites', itemsController.getFavorites);
 router.get('/trash', itemsController.getTrash);
+router.delete('/trash', itemsController.emptyTrash);
 router.get('/:id', itemsController.getItemById);
 router.put('/:id', itemsController.updateItem);
 router.delete('/:id', itemsController.moveToTrash);

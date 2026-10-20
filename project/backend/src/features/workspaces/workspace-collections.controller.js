@@ -39,6 +39,12 @@ class WorkspaceCollectionsController {
     ResponseHelper.success(res, items);
   });
 
+  getWorkspaceTrash = asyncHandler(async (req, res) => {
+    const items = await workspaceCollectionsService.getWorkspaceTrash(req.user.id, req.params.workspaceId);
+
+    ResponseHelper.success(res, items);
+  });
+
   createWorkspaceCollection = asyncHandler(async (req, res) => {
     const { workspaceId } = req.params;
 

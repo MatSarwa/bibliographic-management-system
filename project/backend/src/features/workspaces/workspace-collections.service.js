@@ -1,4 +1,4 @@
-const { Collection, Item, Label, WorkspaceMember } = require('../../models');
+const { Collection, Item, Label, User, WorkspaceMember } = require('../../models');
 const { Op } = require('sequelize');
 const { checkPermission } = require('../../shared/constants/permissions');
 const AppError = require('../../shared/utils/app-error');
@@ -70,6 +70,28 @@ class WorkspaceCollectionsService {
     });
 
     return items;
+  }
+
+  // Items deleted by any member, so an admin or editor can restore a shared item someone removed.
+  async getWorkspaceTrash(userId, workspaceId) {
+    const member = await this.getMember(userId, workspaceId);
+    checkPermission('VIEW_REFERENCES', member);
+
+    return Item.findAll({
+      where: { status: 'trashed' },
+      include: [
+        {
+          model: Collection,
+          as: 'collection',
+          attributes: ['id', 'name', 'workspaceId'],
+          where: { workspaceId },
+          required: true
+        },
+        { model: User, as: 'deleter', attributes: ['id', 'username'], required: false },
+        { model: Label, as: 'labels', through: { attributes: [] } }
+      ],
+      order: [['deletedAt', 'DESC']]
+    });
   }
 
   async createWorkspaceCollection(userId, workspaceId, data) {

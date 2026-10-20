@@ -10,6 +10,7 @@ router.post('/', workspaceController.createWorkspace);
 router.get('/', workspaceController.getAllWorkspaces);
 
 router.get('/:workspaceId/collections', workspaceCollectionsController.getWorkspaceCollections);
+router.get('/:workspaceId/trash', workspaceCollectionsController.getWorkspaceTrash);
 router.post('/:workspaceId/collections', workspaceCollectionsController.createWorkspaceCollection);
 router.get('/:workspaceId/collections/:collectionId', workspaceCollectionsController.getWorkspaceCollectionById);
 router.put('/:workspaceId/collections/:collectionId', workspaceCollectionsController.updateWorkspaceCollection);

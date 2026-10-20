@@ -48,7 +48,7 @@ export default function TrashView() {
             Kosz
           </Text>
           <Text size="sm" c="dimmed">
-            {items.length} {items.length === 1 ? 'pozycja' : 'pozycji'}
+            Liczba pozycji: {items.length}
           </Text>
         </div>
 

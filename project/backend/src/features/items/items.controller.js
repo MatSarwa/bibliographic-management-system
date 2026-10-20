@@ -57,6 +57,12 @@ class ItemsController {
     ResponseHelper.success(res, items);
   });
 
+  emptyTrash = asyncHandler(async (req, res) => {
+    const deleted = await itemsService.emptyTrash(req.user.id);
+
+    ResponseHelper.success(res, { deleted }, 'Kosz opróżniony');
+  });
+
   getItemById = asyncHandler(async (req, res) => {
     const { id } = req.params;
 

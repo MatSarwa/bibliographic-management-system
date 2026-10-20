@@ -178,6 +178,8 @@ class ItemsService {
     return items;
   }
 
+  // Personal trash only: trashed workspace items belong to the workspace trash, where admins and
+  // editors can restore them (see workspace-collections.service getWorkspaceTrash).
   async getTrash(userId) {
     const items = await Item.findAll({
       where: {
@@ -189,12 +191,26 @@ class ItemsService {
           model: Label,
           as: 'labels',
           through: { attributes: [] }
+        },
+        {
+          model: Collection,
+          as: 'collection',
+          attributes: ['id', 'workspaceId'],
+          required: false
         }
       ],
       order: [['deletedAt', 'DESC']]
     });
 
-    return items;
+    return items.filter((item) => !item.collection?.workspaceId);
+  }
+
+  async emptyTrash(userId) {
+    const items = await this.getTrash(userId);
+    if (items.length) {
+      await Item.destroy({ where: { id: items.map((item) => item.id) } });
+    }
+    return items.length;
   }
 
   async getItemById(userId, itemId) {
@@ -373,7 +389,9 @@ class ItemsService {
 
     await item.update({
       status: 'trashed',
-      deletedAt: new Date()
+      deletedAt: new Date(),
+      // Shown in the workspace trash ("usunął: ..."), so the admin knows who removed a shared item.
+      deletedBy: userId
     });
 
     if (item.collection?.workspaceId) {
@@ -422,7 +440,8 @@ class ItemsService {
 
     await item.update({
       status: 'active',
-      deletedAt: null
+      deletedAt: null,
+      deletedBy: null
     });
 
     if (item.collection?.workspaceId) {

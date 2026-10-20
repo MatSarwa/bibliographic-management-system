@@ -283,6 +283,7 @@ export default function ActionPanel({
   const personalCollections = collections.filter(c => !c.workspaceId);
   const collectionTree = buildCollectionTree(personalCollections);
   const isInWorkspace = !!currentWorkspaceId;
+  const currentWorkspaceName = workspaces.find((ws) => ws.id === currentWorkspaceId)?.name || 'Workspace';
 
   const handleDeleteSelected = async () => {
     const count = selectedItemIds.length;
@@ -496,29 +497,19 @@ export default function ActionPanel({
             {isInWorkspace && (
               <>
                 <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
-                  Przenieś do innej kolekcji w workspace
+                  Przenieś lub kopiuj w tym workspace
                 </Text>
-                
+
                 {workspaceCollections[currentWorkspaceId]?.filter(c => c.id !== currentCollectionId).length > 0 ? (
                   workspaceCollections[currentWorkspaceId]
                     .filter(c => c.id !== currentCollectionId)
                     .map(col => (
-                      <UnstyledButton
+                      <CollectionItem
                         key={col.id}
-                        onClick={() => handleMoveWithinWorkspace(col.id, col.name)}
-                        disabled={moveLoading}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          padding: '10px 12px',
-                          borderRadius: 6,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <IconFolder size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
-                        <Text size="sm">{col.name}</Text>
-                      </UnstyledButton>
+                        collection={col}
+                        onMove={(c) => handleMoveWithinWorkspace(c.id, c.name)}
+                        onCopy={(c) => handleCopyToWorkspace(currentWorkspaceId, c.id, c.name, currentWorkspaceName)}
+                      />
                     ))
                 ) : (
                   <Text size="sm" c="dimmed" py="xs" pl="sm">
@@ -529,31 +520,25 @@ export default function ActionPanel({
                 <Divider my="sm" />
 
                 <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>
-                  Kopiuj do prywatnej biblioteki
+                  Przenieś lub kopiuj do prywatnej biblioteki
+                </Text>
+                {/* Moving only works for your own items; the server refuses others' with a hint to copy. */}
+                <Text size="xs" c="dimmed" mb={4}>
+                  Przenieść możesz tylko własne pozycje – cudze skopiuj.
                 </Text>
 
-                <UnstyledButton
-                  onClick={() => handleCopyToPersonal(null, 'Wszystkie')}
-                  disabled={moveLoading}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '10px 12px',
-                    borderRadius: 6,
-                    backgroundColor: 'var(--mantine-color-green-light)',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <IconFolder size={16} style={{ color: 'var(--mantine-color-green-7)' }} />
-                  <Text size="sm" c="var(--mantine-color-green-7)" fw={500}>Wszystkie (bez kolekcji)</Text>
-                </UnstyledButton>
+                <CollectionItem
+                  collection={{ id: null, name: 'Wszystkie (bez kolekcji)' }}
+                  onMove={() => handleMoveToCollection(null, 'Wszystkie')}
+                  onCopy={() => handleCopyToPersonal(null, 'Wszystkie')}
+                />
 
                 {collectionTree.map(col => (
-                  <CollectionItem 
-                    key={col.id} 
-                    collection={col} 
-                    onClick={(c) => handleCopyToPersonal(c.id, c.name)}
+                  <CollectionItem
+                    key={col.id}
+                    collection={col}
+                    onMove={(c) => handleMoveToCollection(c.id, c.name)}
+                    onCopy={(c) => handleCopyToPersonal(c.id, c.name)}
                   />
                 ))}
               </>

@@ -31,6 +31,12 @@ const itemsService = {
     return data;
   },
 
+  // Permanently deletes everything in the personal trash.
+  async emptyTrash() {
+    const { data } = await api.delete('/items/trash');
+    return data;
+  },
+
   async getTrash() {
     const { data } = await api.get('/items/trash');    
     return data;

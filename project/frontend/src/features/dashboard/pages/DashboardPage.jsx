@@ -4,6 +4,7 @@ import itemsService from '../../items/services/itemsService';
 import { useRefreshVersion } from '../../../shared/store/refreshStore';
 import ItemsList from '../../items/components/ItemsList';
 import TrashView from '../../items/components/TrashView';
+import WorkspaceTrashView from '../../workspaces/components/WorkspaceTrashView';
 import LabelsView from '../../labels/components/LabelsView';
 import ItemModal from '../../items/components/ItemModal';
 import { useItems } from '../../items/hooks/useItems';
@@ -109,6 +110,8 @@ export default function DashboardPage() {
       >
         {selectedView.type === 'trash' ? (
           <TrashView />
+        ) : selectedView.type === 'workspace-trash' ? (
+          <WorkspaceTrashView key={selectedView.data.workspace.id} workspace={selectedView.data.workspace} />
         ) : selectedView.type === 'labels' ? (
           <LabelsView />
         ) : selectedView.type === 'workspace-collection' ? (

@@ -113,6 +113,39 @@ describe('DEMO INTEGRATION: per-visitor demo accounts (POST /auth/demo)', () => 
     expect((await put(`/api/items/${privateItem.id}`, { collectionId: second.body.data.id })).statusCode).toBe(200);
   });
 
+  it('should keep deleted workspace items in the workspace trash, where an admin can restore them', async () => {
+    const { token, userId } = (await startDemo()).body.data;
+    const ws = (await authGet('/api/workspaces', token)).body.data[0];
+    const [col] = (await authGet(`/api/workspaces/${ws.id}/collections`, token)).body.data;
+    const [item] = (await authGet(`/api/workspaces/${ws.id}/collections/${col.id}/items`, token)).body.data;
+
+    expect((await request(app).delete(`/api/items/${item.id}`).set('Authorization', `Bearer ${token}`)).statusCode).toBe(200);
+
+    const trash = (await authGet(`/api/workspaces/${ws.id}/trash`, token)).body.data;
+    expect(trash.map((i) => i.id)).toEqual([item.id]);
+    expect(trash[0].deleter.id).toBe(userId);
+    // ...and not in the personal trash
+    expect((await authGet('/api/items/trash', token)).body.data.map((i) => i.id)).not.toContain(item.id);
+
+    const restored = await request(app).post(`/api/items/${item.id}/restore`).set('Authorization', `Bearer ${token}`);
+    expect(restored.statusCode).toBe(200);
+    expect((await authGet(`/api/workspaces/${ws.id}/trash`, token)).body.data).toHaveLength(0);
+  });
+
+  it('should empty the personal trash permanently', async () => {
+    const { token } = (await startDemo()).body.data;
+    const [first, second] = (await authGet('/api/items', token)).body.data;
+    for (const item of [first, second]) {
+      await request(app).delete(`/api/items/${item.id}`).set('Authorization', `Bearer ${token}`);
+    }
+
+    const response = await request(app).delete('/api/items/trash').set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data.deleted).toBe(2);
+    expect((await authGet('/api/items/trash', token)).body.data).toHaveLength(0);
+    expect(await Item.count({ where: { id: [first.id, second.id] } })).toBe(0);
+  });
+
   it('should export the demo authors by name to BibTeX', async () => {
     const { token } = (await startDemo()).body.data;
     const collections = (await authGet('/api/collections', token)).body.data;

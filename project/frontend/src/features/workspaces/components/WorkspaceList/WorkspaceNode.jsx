@@ -5,13 +5,14 @@ import {
 } from '@mantine/core';
 import {
   IconUsers, IconSettings, IconChevronDown, IconChevronRight,
-  IconBriefcase, IconPlus, IconDots
+  IconBriefcase, IconPlus, IconDots, IconTrash
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import workspaceService from '../../services/workspaceService';
 import CollectionItem from './CollectionItem';
 import { useRefreshVersion } from '../../../../shared/store/refreshStore';
 import { downloadCollectionExport } from '../../../../shared/utils/download';
+import classes from '../../../../shared/styles/interactive.module.css';
 import { confirmAction } from '../../../../shared/utils/confirm';
 
 export default function WorkspaceNode({
@@ -176,6 +177,25 @@ export default function WorkspaceNode({
           ) : (
             <Stack gap={1}>{renderCollectionTree(collectionTree, level + 1)}</Stack>
           )}
+
+          {/* Shared trash: items any member deleted, so admins/editors can bring them back. */}
+          <UnstyledButton
+            onClick={() => onSelectCollection({ id: `trash-${workspace.id}`, name: 'Kosz', isTrash: true }, workspace)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              width: '100%',
+              padding: '4px 8px',
+              paddingLeft: `${8 + (level + 1) * 12}px`,
+              borderRadius: 4,
+              marginTop: 2,
+            }}
+            className={classes.collectionOption}
+          >
+            <IconTrash size={13} style={{ color: 'var(--mantine-color-placeholder)' }} />
+            <Text size="12px" c="dimmed">Kosz</Text>
+          </UnstyledButton>
         </Box>
       </Collapse>
     </Box>
