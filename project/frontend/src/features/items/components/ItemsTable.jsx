@@ -72,6 +72,8 @@ export default function ItemsTable({
 
   return (
     <>
+      {/* On narrow screens the table scrolls sideways inside the list instead of stretching the page. */}
+      <Table.ScrollContainer minWidth={720} type="native">
       <Table highlightOnHover verticalSpacing="xs" fontSize="sm">
         <Table.Thead>
           <Table.Tr>
@@ -278,6 +280,7 @@ export default function ItemsTable({
           ))}
         </Table.Tbody>
       </Table>
+      </Table.ScrollContainer>
 
       {isWorkspace && (
         <>

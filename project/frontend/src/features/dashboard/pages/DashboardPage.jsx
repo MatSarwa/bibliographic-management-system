@@ -102,6 +102,7 @@ export default function DashboardPage() {
         selectedView={selectedView}
         onSelectView={handleSelectView}
         selectedItem={selectedItem}
+        onCloseItem={() => setSelectedItem(null)}
         onEditItem={handleEditItem}
         onToggleFavorite={handleToggleFavorite}
         onOpenAddModal={handleOpenAddModal}

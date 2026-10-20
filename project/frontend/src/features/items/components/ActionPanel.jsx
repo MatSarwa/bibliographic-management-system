@@ -335,11 +335,11 @@ export default function ActionPanel({
           backgroundColor: 'var(--mantine-color-body)',
           borderTop: '2px solid var(--mantine-primary-color-filled)',
           boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
-          padding: '12px 24px',
+          padding: '12px 16px',
           zIndex: 100
         }}
       >
-        <Group justify="space-between" wrap="nowrap">
+        <Group justify="space-between" gap="sm">
           <Group gap="md">
 
             <Box

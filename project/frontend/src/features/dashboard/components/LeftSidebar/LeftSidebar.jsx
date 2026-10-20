@@ -12,11 +12,12 @@ export default function LeftSidebar({
   onResize,
   leftRef,
   onToggleCollapse,
-  isCollapsed
+  isCollapsed,
+  inDrawer = false
 }) {
   const sidebar = useLeftSidebar(onSelectView);
 
-  if (isCollapsed) {
+  if (isCollapsed && !inDrawer) {
     return (
       <Resizer
         position="right"
@@ -30,15 +31,16 @@ export default function LeftSidebar({
     <Box
       ref={leftRef}
       style={{
-        width: '280px',
+        // In the phone drawer the sidebar fills the drawer and has no resize handle.
+        width: inDrawer ? '100%' : '280px',
         backgroundColor: 'var(--mantine-color-body)',
-        borderRight: '1px solid var(--mantine-color-default-border)',
+        borderRight: inDrawer ? 'none' : '1px solid var(--mantine-color-default-border)',
         position: 'relative',
         overflow: 'visible'
       }}
     >
-      <Box style={{ position: 'relative', height: '100%', paddingRight: '20px' }}>
-        <ScrollArea h="calc(100vh - 60px)" type="always">
+      <Box style={{ position: 'relative', height: '100%', paddingRight: inDrawer ? 0 : '20px' }}>
+        <ScrollArea h={inDrawer ? '100dvh' : 'calc(100vh - 60px)'} type={inDrawer ? 'auto' : 'always'}>
           <Box p="sm" pr="xs">
             
             <NavigationSection
@@ -78,13 +80,15 @@ export default function LeftSidebar({
           </Box>
         </ScrollArea>
 
-        <Resizer
-          onResize={onResize}
-          position="right"
-          sidebarRef={leftRef}
-          onToggleCollapse={onToggleCollapse}
-          isCollapsed={false}
-        />
+        {!inDrawer && (
+          <Resizer
+            onResize={onResize}
+            position="right"
+            sidebarRef={leftRef}
+            onToggleCollapse={onToggleCollapse}
+            isCollapsed={false}
+          />
+        )}
       </Box>
 
       <SidebarModals

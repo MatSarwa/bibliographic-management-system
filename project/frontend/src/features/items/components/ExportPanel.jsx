@@ -56,7 +56,7 @@ export default function ExportPanel({ selectedItemIds, onClose }) {
         `}
       </style>
 
-      <Group justify="space-between" wrap="nowrap">
+      <Group justify="space-between" gap="sm">
         <Group gap="md">
           <Box
             style={{
