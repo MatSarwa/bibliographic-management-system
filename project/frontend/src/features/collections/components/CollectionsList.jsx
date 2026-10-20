@@ -16,6 +16,7 @@ import {
   IconFolder,
   IconFolderOpen,
   IconEdit,
+  IconArrowBarToUp,
   IconTrash,
   IconUsers,
   IconDots,
@@ -312,6 +313,20 @@ function CollectionNode({
               >
                 Edytuj
               </Menu.Item>
+              {/* Drag & drop can only nest collections, so un-nesting needs its own action. */}
+              {collection.parentId && onUpdate && (
+                <Menu.Item
+                  leftSection={<IconArrowBarToUp size={14} />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdate(collection.id, { parentId: null });
+                    setMenuOpened(false);
+                  }}
+                  fz="12px"
+                >
+                  Przenieś na główny poziom
+                </Menu.Item>
+              )}
               <Menu.Item
                 leftSection={<IconTrash size={14} />}
                 color="red"
